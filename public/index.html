@@ -1,0 +1,1039 @@
+﻿<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeautyPass - სილამაზის აბონემენტები</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        * {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+// --- НАЧАЛО ГЛОБАЛЬНОГО ОБРАБОТЧИКА ---
+const fetchWithAuth = async (url, options = {}) => {
+    const token = localStorage.getItem('token');
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            ...options.headers,
+        },
+    };
+
+    const response = await fetch(url, { ...defaultOptions, ...options });
+
+    // Если сервер ответил ошибкой 401 (Невалидный токен)
+    if (response.status === 401) {
+        localStorage.removeItem('token'); // Удаляем плохой токен
+        // Мы не можем напрямую вызвать setUser здесь, так как это не компонент.
+        // Вместо этого мы перезагрузим страницу. При перезагрузке useEffect проверит отсутствие токена и все будет ок.
+        window.location.reload(); 
+        // Бросаем ошибку, чтобы остальной код не выполнялся
+        throw new Error('Unauthorized');
+    }
+
+    return response;
+};
+// --- КОНЕЦ ГЛОБАЛЬНОГО ОБРАБОТЧИКА ---
+        
+        const Menu = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        );
+        
+        const X = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        );
+        
+        const User = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+        );
+        
+        const CreditCard = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+        );
+        
+        const LogOut = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        );
+        
+        const MapPin = ({ className = "w-6 h-6" }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        );
+
+        const useAuth = () => {
+    const [user, setUser] = useState(null);
+    const login = (userData) => setUser(userData);
+    
+    // --- ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ ---
+    const logout = () => {
+        localStorage.removeItem('token'); // 1. Удаляем токен из хранилища
+        setUser(null);                  // 2. Очищаем пользователя в состоянии приложения
+    };
+    
+    // Эта функция больше не используется, так как регистрация идет через API,
+    // но я оставлю ее, чтобы не ломать код. Можно ее удалить.
+    const register = (userData) => {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const existingUser = users.find(u => u.email === userData.email || u.phone === userData.phone);
+        if (existingUser) {
+            alert('ეს ელ-ფოსტა ან ტელეფონი უკვე რეგისტრირებულია!');
+            return;
+        }
+        const newUser = {
+            ...userData,
+            id: Date.now(),
+            balance: 0,
+            registeredDate: new Date().toISOString(),
+            purchases: [],
+            cards: []
+        };
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        setUser(newUser);
+    };
+    
+    return { user, login, logout, register, setUser };
+};
+
+        const packages = [
+            {
+                id: 1,
+                name: 'Basic',
+                price: 99,
+                visits: 4,
+                description: 'იდეალურია დამწყებთათვის',
+                features: ['4 ვიზიტი თვეში', 'ყველა პარტნიორ სალონში', 'უფასო გაუქმება']
+            },
+            {
+                id: 2,
+                name: 'Standard',
+                price: 179,
+                visits: 8,
+                description: 'ყველაზე პოპულარული',
+                features: ['8 ვიზიტი თვეში', 'ყველა პარტნიორ სალონში', 'უფასო გაუქმება', 'პრიორიტეტული მხარდაჭერა'],
+                popular: true
+            },
+            {
+                id: 3,
+                name: 'Premium',
+                price: 299,
+                visits: 15,
+                description: 'შეუზღუდავი სილამაზე',
+                features: ['15 ვიზიტი თვეში', 'ყველა პარტნიორ სალონში', 'უფასო გაუქმება', 'პრიორიტეტული მხარდაჭერა', 'VIP სერვისები']
+            }
+        ];
+
+        const salons = [
+            { id: 1, name: 'Elegance Beauty', services: ['მანიკური', 'პედიკური', 'თმის შეჭრა'], address: 'ვაკე, ჭავჭავაძის 12', rating: 4.8 },
+            { id: 2, name: 'Royal Spa', services: ['კოსმეტოლოგია', 'მასაჟი', 'სახის მოვლა'], address: 'საბურთალო, კოსტავას 45', rating: 4.9 },
+            { id: 3, name: 'Glamour Studio', services: ['თმის შეჭრა', 'მანიკური', 'მაკიაჟი'], address: 'ისანი, გორგასლის 23', rating: 4.7 },
+            { id: 4, name: 'Beauty Zone', services: ['კოსმეტოლოგია', 'ეპილაცია', 'სახის მოვლა'], address: 'ვაკე, აბაშიძის 8', rating: 4.6 }
+        ];
+
+        const serviceTypes = ['all', 'თმის შეჭრა', 'მანიკური', 'კოსმეტოლოგია', 'მასაჟი', 'სახის მოვლა'];
+
+        const BeautyPass = () => {
+            const { user, logout, register, setUser } = useAuth();
+            const [currentPage, setCurrentPage] = useState('home');
+            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+            const [selectedService, setSelectedService] = useState('all');
+			const [bookings, setBookings] = useState([]);
+// <<< НАЧАЛО КОДА ПРОВЕРКИ ТОКЕНА >>>
+// <<< НАЧАЛО КОДА ПРОВЕРКИ ТОКЕНА (ОБНОВЛЕННЫЙ) >>>
+useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        fetchWithAuth('/api/profile') // <-- ЗАМЕНА
+            .then(res => res.json())
+            .then(userData => {
+                setUser(userData);
+            })
+            .catch(err => {
+                // Ошибка 'Unauthorized' будет поймана здесь, но мы ничего не делаем,
+                // т.к. страница уже перезагружается.
+                console.error('Профиль не загружен, возможен выход из системы.');
+            });
+    }
+}, []);// Пустой массив [] означает, что код выполнится только один раз при загрузке
+// <<< КОНЕЦ КОДА ПРОВЕРКИ ТОКЕНА >>>
+            const filteredSalons = selectedService === 'all' ? salons : salons.filter(s => s.services.includes(selectedService));
+
+            // Внутри компонента BeautyPass
+const buyPackage = async (pkg) => {
+    if (!user) {
+        alert('გთხოვთ ჯერ გაიაროთ რეგისტრაცია');
+        setCurrentPage('register');
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetchWithAuth('/api/packages/buy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ packageId: pkg.id }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            setUser(result.user); // Обновляем пользователя данными с сервера
+            alert(`წარმატებით შეიძინეთ ${pkg.name} პაკეტი!`);
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        alert('სერვერთან დაკავშირება ვერ მოხერხდა.');
+    }
+};
+
+            const HomePage = () => (
+                <div className="space-y-12">
+                    <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-3xl p-8 md:p-12">
+                        <h1 className="text-4xl md:text-5xl font-bold text-pink-900 mb-4">BeautyPass</h1>
+                        <p className="text-xl text-pink-700 mb-6">შენი სილამაზის აბონემენტი - ერთი ბარათი, უამრავი შესაძლებლობა</p>
+                        <p className="text-pink-600 mb-8">ესტუმრე საუკეთესო სილამაზის სალონებს თბილისში და დაზოგე 30%-მდე</p>
+                        <button onClick={() => setCurrentPage('packages')} className="bg-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-600 transition">აირჩიე პაკეტი</button>
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold text-pink-900 mb-8 text-center">როგორ მუშაობს?</h2>
+                        <div className="grid md:grid-cols-3 gap-6">
+                            {[
+                                { step: '1', title: 'აირჩიე პაკეტი', desc: 'შეარჩიე შენთვის სასურველი აბონემენტი' },
+                                { step: '2', title: 'დაჯავშნე ვიზიტი', desc: 'გააკეთე ჯავშანი ნებისმიერ პარტნიორ სალონში' },
+                                { step: '3', title: 'დატკბი სერვისით', desc: 'მიიღე პროფესიონალური მომსახურება' }
+                            ].map((item, idx) => (
+                                <div key={idx} className="bg-pink-50 rounded-2xl p-6 text-center">
+                                    <div className="w-16 h-16 bg-pink-500 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">{item.step}</div>
+                                    <h3 className="text-xl font-semibold text-pink-900 mb-2">{item.title}</h3>
+                                    <p className="text-pink-600">{item.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div>
+                        <h2 className="text-3xl font-bold text-pink-900 mb-8 text-center">ჩვენი პაკეტები</h2>
+                        <div className="grid md:grid-cols-3 gap-6">
+                            {packages.map(pkg => (
+                                <div key={pkg.id} className={`bg-white rounded-2xl p-6 border-2 ${pkg.popular ? 'border-pink-500 shadow-lg' : 'border-pink-100'}`}>
+                                    {pkg.popular && <div className="bg-pink-500 text-white text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3">პოპულარული</div>}
+                                    <h3 className="text-2xl font-bold text-pink-900 mb-2">{pkg.name}</h3>
+                                    <p className="text-pink-600 mb-4">{pkg.description}</p>
+                                    <div className="text-4xl font-bold text-pink-900 mb-4">₾{pkg.price}<span className="text-lg text-pink-600">/თვე</span></div>
+                                    <ul className="space-y-2 mb-6">
+                                        {pkg.features.map((f, i) => (
+                                            <li key={i} className="text-pink-700 flex items-start"><span className="text-pink-500 mr-2">✓</span>{f}</li>
+                                        ))}
+                                    </ul>
+                                    <button onClick={() => buyPackage(pkg)} className="w-full bg-pink-500 text-white py-3 rounded-full font-semibold hover:bg-pink-600 transition">შეძენა</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+
+const SalonsPage = () => {
+    const [selectedSalon, setSelectedSalon] = useState(null);
+
+    return (
+        <div>
+            <h2 className="text-3xl font-bold text-pink-900 mb-6">პარტნიორი სალონები</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+                {filteredSalons.map(salon => (
+                    <div key={salon.id} className="bg-white rounded-2xl p-6 border-2 border-pink-100 hover:border-pink-300 transition cursor-pointer" onClick={() => setSelectedSalon(salon)}>
+                        <div className="flex justify-between items-start mb-3">
+                            <h3 className="text-xl font-bold text-pink-900">{salon.name}</h3>
+                            <div className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-sm font-semibold">⭐ {salon.rating}</div>
+                        </div>
+                        <p className="text-pink-600 mb-3 flex items-center"><MapPin className="w-4 h-4 mr-1" />{salon.address}</p>
+                        <div className="flex flex-wrap gap-2">
+                            {salon.services.map((s, i) => (
+                                <span key={i} className="bg-pink-50 text-pink-700 px-3 py-1 rounded-full text-sm">{s}</span>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            {selectedSalon && <BookingModal salon={selectedSalon} onClose={() => setSelectedSalon(null)} />}
+        </div>
+    );
+};
+const AboutPage = () => (
+    <div className="space-y-12">
+        <div className="text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-pink-900 mb-4">ჩვენს შესახებ</h1>
+            <p className="text-xl text-pink-700 max-w-2xl mx-auto">ჩვენი მისიაა — გავხადოთ სილამაზე ხელმისაწვდომი და მარტივი ყველასთვის და ვუზრუნველყოთ თქვენი კომფორტი და თავისუფლება.</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 className="text-3xl font-bold text-pink-900 mb-4">ჩვენი ისტორია</h2>
+                <p className="text-pink-700 leading-relaxed">
+                    BeautyPass დაარსდა იმისიით, რომ თითეულ ქალაქში უნდა არსებობდეს ერთიანი სისტემა, რომლითაც შეგიძლიათ მარტივად და ხელმისაწვდომად ისარგებოთ საუკეთესო სილამაზის სალონების მომსახურეობით. ჩვენ გაერთებთ მხოლოდ სანდო სპეციალისტებს, რომლებიც გაგიწევენ უმაღლესი ხარისხის მომსახურებას.
+                </p>
+            </div>
+            <div className="bg-pink-100 rounded-2xl p-8 text-center">
+                <h3 className="text-2xl font-bold text-pink-900 mb-4">ჩვენი მისია</h3>
+                <p className="text-pink-700">
+                    გახადეთ სილამაზის რუტინა ხელმისაწვდომი, დაზოგეთ დრო და ფული, იგრძენით ახალი შესაძლებლობები და ისიამოვნეთ  ყოველდღიური სილამაზე.
+                </p>
+            </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-8 border-2 border-pink-100">
+            <h2 className="text-3xl font-bold text-pink-900 mb-6 text-center">დაგვიკავშირდეთ</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h4 className="font-semibold text-pink-900 mb-3">მთავარი ოფისი</h4>
+                    <div className="space-y-2 text-pink-600">
+                        <p>📍 თბილისი, რუსთაველის გამზირდა 1</p>
+                        <p>📞 +995 555 123 456</p>
+                        <p>📧 info@beautypass.ge</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-pink-900 mb-3">მუშაობის სააათები</h4>
+                    <div className="space-y-1 text-pink-600">
+                        <p>ორშაბათი - პარასკევი: 9:00 - 20:00</p>
+                        <p>შაბათი: 10:00 - 18:00</p>
+                        <p>კვირა: დახურულია</p>
+                    </div>
+                </div>
+                <div>
+                    <h4 className="font-semibold text-pink-900 mb-3">სოციალური ქსელები</h4>
+                    <div className="flex space-x-4 text-pink-600">
+                        <a href="#" className="hover:text-pink-900">Facebook</a>
+                        <a href="#" className="hover:text-pink-900">Instagram</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+		// === START LOGIN_PAGE ===
+const LoginPage = ({ setCurrentPage, setUser }) => {
+    const [loginData, setLoginData] = useState({ login: '', password: '' });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [loginError, setLoginError] = useState('');
+
+    const handleLoginChange = (e) => {
+        const value = e.target.value.replace(/\D/g, '');
+        setLoginData({ ...loginData, login: value });
+
+        if (value.length > 0 && value.length !== 11) {
+            setLoginError('პირადი ნომერი უნდა შედგებოდეს 11 ციფრისგან');
+        } else {
+            setLoginError('');
+        }
+    };
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        if (loginData.login.length !== 11) {
+            setLoginError('პირადი ნომერი უნდა შედგებოდეს 11 ციფრისგან');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginData),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', result.token);
+                setUser(result.user);
+                setCurrentPage('profile');
+            } else {
+                setError(result.message);
+            }
+
+        } catch (err) {
+            setError('სერვერთან დაკავშირება ვერ მოხერხდა.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl p-8 border-2 border-pink-100">
+                <h2 className="text-3xl font-bold text-pink-900 mb-6 text-center">შესვლა</h2>
+                {/* И ЗДЕСЬ ТОЖЕ ДОБАВЛЯЕМ NOVALIDATE */}
+                <form onSubmit={handleLogin} className="space-y-4" novalidate>
+                    <div>
+                        <label className="block text-pink-700 font-medium mb-2">პირადი ნომერი</label>
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            value={loginData.login}
+                            onChange={handleLoginChange}
+                            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                            placeholder="01234567890"
+                            required
+                        />
+                        {loginError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{loginError}</p>}
+                    </div>
+                    <div>
+                        <label className="block text-pink-700 font-medium mb-2">პაროლი</label>
+                        <input type="password" value={loginData.password} onChange={e => setLoginData({...loginData, password: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" required />
+                    </div>
+                    
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
+                    
+                    <button type="submit" disabled={isLoading} className="w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
+                        {isLoading ? 'შესვლა...' : 'შესვლა'}
+                    </button>
+                    <p className="text-center text-pink-600 mt-4">არ გაქვს ანგარიში? <button type="button" onClick={() => setCurrentPage('register')} className="text-pink-700 font-semibold hover:text-pink-900">რეგისტრაცია</button></p>
+                </form>
+            </div>
+        </div>
+    );
+};
+// === END LOGIN_PAGE ===
+          // === START REGISTER_PAGE (С ПРОВЕРКОЙ В РЕАЛЬНОМ ВРЕМЕНИ) ===
+const RegisterPage = ({ setCurrentPage, setUser }) => {
+    const [formData, setFormData] = useState({ firstName: '', lastName: '', personalId: '', phone: '', email: '', password: '' });
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    
+    // Состояния для ошибок уникальности
+    const [personalIdError, setPersonalIdError] = useState('');
+    const [phoneError, setPhoneError] = useState('');
+    const [emailError, setEmailError] = useState('');
+
+    // Функция для проверки доступности
+    const checkAvailability = async (type, value) => {
+        if (!value) {
+            // Если поле пустое, очищаем ошибку
+            if (type === 'personalId') setPersonalIdError('');
+            if (type === 'phone') setPhoneError('');
+            if (type === 'email') setEmailError('');
+            return;
+        }
+        try {
+            const response = await fetch(`/api/check-availability?type=${type}&value=${encodeURIComponent(value)}`);
+            const result = await response.json();
+            if (!result.available) {
+                if (type === 'personalId') setPersonalIdError(result.message);
+                if (type === 'phone') setPhoneError(result.message);
+                if (type === 'email') setEmailError(result.message);
+            } else {
+                if (type === 'personalId') setPersonalIdError('');
+                if (type === 'phone') setPhoneError('');
+                if (type === 'email') setEmailError('');
+            }
+        } catch (err) {
+            console.error('Ошибка проверки:', err);
+        }
+    };
+
+    // Обработчики изменений с дебаунсингом (чтобы не слать запрос на каждую букву)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (formData.personalId.length === 11) {
+                checkAvailability('personalId', formData.personalId);
+            } else if (formData.personalId.length > 0) {
+                setPersonalIdError('პირადი ნომერი უნდა შედგებოდეს 11 ციფრისგან');
+            } else {
+                setPersonalIdError('');
+            }
+        }, 500); // Ждем 500мс после прекращения ввода
+        return () => clearTimeout(timer);
+    }, [formData.personalId]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (formData.phone) checkAvailability('phone', formData.phone);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [formData.phone]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (formData.email) checkAvailability('email', formData.email);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [formData.email]);
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        if (personalIdError || phoneError || emailError) {
+            setError('გთხოვთ, შეასწოროთ შეცდომები ფორმაში.');
+            return;
+        }
+
+        setIsLoading(true);
+        const dataToSend = {
+            login: formData.email,
+            personalNumber: formData.personalId,
+            phone: formData.phone,
+            password: formData.password,
+            firstName: formData.firstName,
+            lastName: formData.lastName
+        };
+
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataToSend),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', result.token);
+                setUser(result.user);
+                setCurrentPage('profile');
+            } else {
+                setError(result.message);
+            }
+
+        } catch (err) {
+            setError('სერვერთან დაკავშირება ვერ მოხერხდა. ცადეთ მოგვიანებით.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl p-8 border-2 border-pink-100">
+                <h2 className="text-3xl font-bold text-pink-900 mb-6 text-center">რეგისტრაცია</h2>
+                <form onSubmit={handleSubmit} className="space-y-4" novalidate>
+                    {/* ... поля без изменений ... */}
+                    <div>
+                        <label className="block text-pink-700 font-medium mb-2">სახელი</label>
+                        <input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                    </div>
+                    <div>
+                        <label className="block text-pink-700 font-medium mb-2">გვარი</label>
+                        <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                    </div>
+                    <div>
+                        <label className="block text-pink-700 font-medium mb-2">პირადი ნომერი</label>
+                        <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength="11"
+                            value={formData.personalId}
+                            onChange={e => setFormData({...formData, personalId: e.target.value.replace(/\D/g, '')})}
+                            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                            placeholder="01234567890"
+                        />
+                        {personalIdError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{personalIdError}</p>}
+                    </div>
+                    <div>
+                        <label className="block text-pink-700 font-medium mb-2">ტელეფონის ნომერი</label>
+                        <input
+                            type="tel"
+                            value={formData.phone}
+                            onChange={e => setFormData({...formData, phone: e.target.value})}
+                            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                            placeholder="+995 5XX XX XX XX"
+                        />
+                        {phoneError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{phoneError}</p>}
+                    </div>
+                    <div>
+                        <label className="block text-pink-700 font-medium mb-2">ელ-ფოსტა</label>
+                        <input
+                            type="text"
+                            value={formData.email}
+                            onChange={e => setFormData({...formData, email: e.target.value})}
+                            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                            placeholder="example@mail.com"
+                        />
+                        {emailError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{emailError}</p>}
+                    </div>
+                    <div>
+                        <label className="block text-pink-700 font-medium mb-2">პაროლი</label>
+                        <input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" minLength="6" />
+                    </div>
+
+                    {error && <p style={{ color: 'red' }}>{error}</p>}
+
+                    <button type="submit" disabled={isLoading} className="w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
+                        {isLoading ? 'რეგისტრაცია...' : 'რეგისტრაცია'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};
+// === END REGISTER_PAGE ===
+// === START PROFILE_PAGE (ФИНАЛЬНАЯ ВЕРСИЯ С ЗАПИСЯМИ) ===
+const ProfilePage = ({ user, setCurrentPage }) => {
+    const [bookings, setBookings] = useState([]);
+    const [isLoadingBookings, setIsLoadingBookings] = useState(true);
+
+    useEffect(() => {
+        const fetchBookings = async () => {
+            if (!user) return;
+            
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetchWithAuth('/api/bookings', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setBookings(data);
+                } else {
+                    console.error('Не удалось загрузить записи');
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке записей:', error);
+            } finally {
+                setIsLoadingBookings(false);
+            }
+        };
+
+        fetchBookings();
+    }, [user]);
+
+    if (!user) {
+        return (
+            <div className="text-center py-12">
+                <p className="text-pink-700 mb-4">გთხოვთ გაიაროთ რეგისტრაცია</p>
+                <button onClick={() => setCurrentPage('register')} className="bg-pink-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-pink-600 transition">რეგისტრაცია</button>
+            </div>
+        );
+    }
+
+    const registeredDate = user.registeredDate || new Date().toISOString();
+    const memberDays = Math.floor((Date.now() - new Date(registeredDate).getTime()) / (1000 * 60 * 60 * 24));
+    const purchases = user.purchases || [];
+
+    return (
+        <div className="space-y-6">
+            <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6">
+                <h2 className="text-3xl font-bold text-pink-900 mb-2">
+                    {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.personalNumber}
+                </h2>
+                <p className="text-pink-700">წევრი {memberDays} დღეა</p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
+                    <h3 className="text-xl font-bold text-pink-900 mb-4">პირადი ინფორმაცია</h3>
+                    <div className="space-y-2 text-pink-700">
+                        <p><strong>ელ-ფოსტა:</strong> {user.login}</p>
+                        {user.phone && <p><strong>ტელეფონი:</strong> {user.phone}</p>}
+                        {user.personalNumber && <p><strong>პირადი ნომერი:</strong> {user.personalNumber}</p>}
+                    </div>
+                </div>
+                <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
+                    <h3 className="text-xl font-bold text-pink-900 mb-4">ბალანსი</h3>
+                    <div className="text-4xl font-bold text-pink-900 mb-4">₾{user.balance.toFixed(2)}</div>
+                    <button onClick={() => setCurrentPage('balance')} className="bg-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-pink-600 transition">შევსება</button>
+                </div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
+                <h3 className="text-xl font-bold text-pink-900 mb-4">შეძენილი პაკეტები</h3>
+                {purchases.length === 0 ? (
+                    <p className="text-pink-600">ჯერ არ გაქვს შეძენილი პაკეტები</p>
+                ) : (
+                    <div className="space-y-3">
+                        {purchases.map(p => (
+                            <div key={p.id} className="bg-pink-50 rounded-lg p-4 flex justify-between items-center">
+                                <div>
+                                    <h4 className="font-semibold text-pink-900">{p.package}</h4>
+                                    <p className="text-sm text-pink-600">{new Date(p.date).toLocaleDateString('ka-GE')}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="font-bold text-pink-900">₾{p.price}</p>
+                                    <p className="text-sm text-pink-600">{p.visitsLeft} ვიზიტი დარჩა</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
+                <h3 className="text-xl font-bold text-pink-900 mb-4">ჩემი ჯავშნები</h3>
+                {isLoadingBookings ? (
+                    <p className="text-pink-600">იტვირთება...</p>
+                ) : bookings.length === 0 ? (
+                    <p className="text-pink-600">ჯერ არ გაქვს ჩანიშვნები</p>
+                ) : (
+                    <div className="space-y-3">
+                        {bookings.map(booking => (
+                            <div key={booking._id} className="bg-pink-50 rounded-lg p-4 flex justify-between items-center">
+                                <div>
+                                    <h4 className="font-semibold text-pink-900">{booking.salonName}</h4>
+                                    <p className="text-sm text-pink-600">{booking.service}</p>
+                                    <p className="text-sm text-pink-600">
+                                        {new Date(booking.dateTime).toLocaleString('ka-GE', {
+                                            day: 'numeric',
+                                            month: 'long',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                        booking.status === 'scheduled' ? 'bg-green-100 text-green-700' :
+                                        booking.status === 'completed' ? 'bg-gray-100 text-gray-700' :
+                                        'bg-red-100 text-red-700'
+                                    }`}>
+                                        {booking.status === 'scheduled' ? 'დაგეგმილია' :
+                                         booking.status === 'completed' ? 'შესრულებულია' : 'გაუქმებულია'}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+// === END PROFILE_PAGE ===
+// === START BALANCE_PAGE (ФИНАЛЬНАЯ ВЕРСИЯ) ===
+const BalancePage = () => {
+    const [amount, setAmount] = useState('');
+    const [showCardForm, setShowCardForm] = useState(false);
+    const [cardData, setCardData] = useState({ number: '', expiry: '', cvv: '' });
+
+    if (!user) {
+        return (
+            <div className="text-center py-12">
+                <p className="text-pink-700 mb-4">გთხოვთ გაიაროთ რეგისტრაცია</p>
+                <button onClick={() => setCurrentPage('register')} className="bg-pink-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-pink-600 transition">რეგისტრაცია</button>
+            </div>
+        );
+    }
+
+    const addBalance = async () => {
+        const amt = parseFloat(amount);
+        if (amt && amt > 0) {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetchWithAuth('/api/balance/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount: amt }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    setUser(result.user);
+                    setAmount('');
+                    alert(`თქვენს ანგარიშზე დაემატა ₾${amt.toFixed(2)}`);
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert('სერვერთან დაკავშირება ვერ მოხერხდა.');
+            }
+        }
+    };
+
+    const addCard = () => {
+        if (cardData.number && cardData.expiry && cardData.cvv) {
+            setUser({ ...user, cards: [...(user.cards || []), { ...cardData, id: Date.now() }] }); // <-- Защитная проверка
+            setCardData({ number: '', expiry: '', cvv: '' });
+            setShowCardForm(false);
+            alert('ბარათი წარმატებით დაემატა');
+        }
+    };
+
+    return (
+        <div className="max-w-2xl mx-auto space-y-6">
+            <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl p-8 text-white">
+                <p className="text-pink-100 mb-2">თქვენი ბალანსი</p>
+                <div className="text-5xl font-bold mb-4">₾{user.balance.toFixed(2)}</div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
+                <h3 className="text-xl font-bold text-pink-900 mb-4">ბალანსის შევსება</h3>
+                <div className="space-y-4">
+                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="თანხა (₾)" className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                    <button onClick={addBalance} className="w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">შევსება</button>
+                </div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
+                <h3 className="text-xl font-bold text-pink-900 mb-4">ჩემი ბარათები</h3>
+                {/* --- ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ --- */}
+                {(user.cards || []).length === 0 ? (
+                    <p className="text-pink-600 mb-4">არ გაქვს დამატებული ბარათები</p>
+                ) : (
+                    <div className="space-y-2 mb-4">
+                        {(user.cards || []).map(card => (
+                            <div key={card.id} className="bg-pink-50 rounded-lg p-4">
+                                <p className="font-mono text-pink-900">**** **** **** {card.number.slice(-4)}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                {!showCardForm ? (
+                    <button onClick={() => setShowCardForm(true)} className="w-full bg-pink-100 text-pink-700 py-3 rounded-lg font-semibold hover:bg-pink-200 transition">+ ახალი ბარათის დამატება</button>
+                ) : (
+                    <div className="space-y-3">
+                        <input type="text" placeholder="ბარათის ნომერი" value={cardData.number} onChange={e => setCardData({...cardData, number: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                        <div className="grid grid-cols-2 gap-3">
+                            <input type="text" placeholder="MM/YY" value={cardData.expiry} onChange={e => setCardData({...cardData, expiry: e.target.value})} className="px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                            <input type="text" placeholder="CVV" value={cardData.cvv} onChange={e => setCardData({...cardData, cvv: e.target.value})} className="px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={addCard} className="flex-1 bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">დამატება</button>
+                            <button onClick={() => setShowCardForm(false)} className="flex-1 bg-pink-100 text-pink-700 py-3 rounded-lg font-semibold hover:bg-pink-200 transition">გაუქმება</button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+// === END BALANCE_PAGE ===
+const BookingModal = ({ salon, onClose }) => {
+    const [selectedService, setSelectedService] = useState(salon.services[0] || '');
+    const [selectedDate, setSelectedDate] = useState('');
+    const [selectedTime, setSelectedTime] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+// Внутри компонента BookingModal
+
+const handleBooking = async () => {
+    // Проверка на пользователя
+    if (!user) {
+        alert('გთხოვთ ჯერ გაიაროთ რეგისტრაცია');
+        setCurrentPage('register');
+        return;
+    }
+
+    // --- НОВАЯ ПРОВЕРКА НА ТОКЕН ---
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('თქვენი სესია დასრულდა. გთხოვთ, შეხვიდეთ სისტემაში.');
+        setUser(null); // Очищаем состояние на всякий случай
+        setCurrentPage('login');
+        return;
+    }
+
+    if (!selectedDate || !selectedTime) {
+        alert('გთხოვთ, აირჩიოთ თარიღი და დრო');
+        return;
+    }
+
+    const dateTimeString = `${selectedDate}T${selectedTime}:00`;
+
+    setIsLoading(true);
+    try {
+        const response = await fetchWithAuth('/api/bookings', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    salonId: salon.id,
+                    salonName: salon.name,
+                    service: selectedService,
+                    dateTime: dateTimeString,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message);
+                setUser(result.updatedUser);
+                onClose();
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            alert('სერვერთან დაკავშირება ვერ მოხერხდა.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+                <h3 className="text-2xl font-bold text-pink-900 mb-4">დაჯავშნე {salon.name}</h3>
+                
+                <div className="mb-4">
+                    <label className="block text-pink-700 font-medium mb-2">მომსახურება</label>
+                    <select value={selectedService} onChange={e => setSelectedService(e.target.value)} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none">
+                        {salon.services.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div>
+
+                <div className="mb-4">
+                    <label className="block text-pink-700 font-medium mb-2">თარიღი</label>
+                    <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                </div>
+
+                <div className="mb-6">
+                    <label className="block text-pink-700 font-medium mb-2">დრო</label>
+                    <input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                </div>
+
+                <div className="flex gap-3">
+                    <button onClick={handleBooking} disabled={isLoading} className="flex-1 bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
+                        {isLoading ? 'დაჯავშნე...' : 'დაჯავშნე'}
+                    </button>
+                    <button onClick={onClose} className="flex-1 bg-pink-100 text-pink-700 py-3 rounded-lg font-semibold hover:bg-pink-200 transition">
+                        გაუქმება
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+            return (
+                <div className="min-h-screen bg-pink-50">
+                    <header className="bg-white border-b-2 border-pink-100 sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="text-2xl font-bold text-pink-600">BeautyPass</div>
+                                <nav className="hidden md:flex items-center space-x-6">
+                                    <nav className="hidden md:flex items-center space-x-6">
+    <button onClick={() => setCurrentPage('home')} className="text-pink-700 hover:text-pink-900 font-medium">მთავარი</button>
+    <button onClick={() => setCurrentPage('packages')} className="text-pink-700 hover:text-pink-900 font-medium">პაკეტები</button>
+    <button onClick={() => setCurrentPage('salons')} className="text-pink-700 hover:text-pink-900 font-medium">სალონები</button>
+    <button onClick={() => setCurrentPage('about')} className="text-pink-700 hover:text-pink-900 font-medium">ჩვენს შესახებ</button>
+</nav>
+                                    {!user ? (
+                                        <>
+    <button onClick={() => setCurrentPage('login')} className="bg-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-pink-600 transition">შესვლა</button>
+    <button onClick={() => setCurrentPage('register')} className="bg-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-pink-600 transition">რეგისტრაცია</button>
+</>
+                                    ) : (
+                                        <>
+                                            <button onClick={() => setCurrentPage('profile')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center"><User className="w-5 h-5 mr-1" />პროფილი</button>
+                                            <button onClick={() => setCurrentPage('balance')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center"><CreditCard className="w-5 h-5 mr-1" />₾{user.balance.toFixed(0)}</button>
+                                            <button onClick={logout} className="text-pink-500 hover:text-pink-700"><LogOut className="w-5 h-5" /></button>
+                                        </>
+                                    )}
+                                </nav>
+                                <button className="md:hidden text-pink-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                                    {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                                </button>
+                            </div>
+                            {mobileMenuOpen && (
+                                <nav className="md:hidden mt-4 space-y-2 pb-4">
+                                    <nav className="hidden md:flex items-center space-x-6">
+    <button onClick={() => setCurrentPage('home')} className="text-pink-700 hover:text-pink-900 font-medium">მთავარი</button>
+    <button onClick={() => setCurrentPage('packages')} className="text-pink-700 hover:text-pink-900 font-medium">პაკეტები</button>
+    <button onClick={() => setCurrentPage('salons')} className="text-pink-700 hover:text-pink-900 font-medium">სალონები</button>
+    <button onClick={() => setCurrentPage('about')} className="text-pink-700 hover:text-pink-900 font-medium">ჩვენ შესახებ</button> {/* <-- НОВАЯ КНОПКА */}
+    // ...
+</nav>
+                                    {!user ? (
+                                        <button onClick={() => { setCurrentPage('register'); setMobileMenuOpen(false); }} className="block w-full text-left bg-pink-500 text-white px-4 py-2 rounded-lg font-semibold">რეგისტრაცია</button>
+                                    ) : (
+                                        <>
+                                            <button onClick={() => { setCurrentPage('profile'); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">პროფილი</button>
+                                            <button onClick={() => { setCurrentPage('balance'); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">ბალანსი: ₾{user.balance.toFixed(0)}</button>
+                                            <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-500 hover:text-pink-700 font-medium py-2">გასვლა</button>
+                                        </>
+                                    )}
+                                </nav>
+                            )}
+                        </div>
+                    </header>
+                   <main className="max-w-7xl mx-auto px-4 py-8">
+    {currentPage === 'home' && <HomePage />}
+    {currentPage === 'packages' && <PackagesPage />}
+    {currentPage === 'salons' && <SalonsPage />}
+    {currentPage === 'about' && <AboutPage />} {/* <-- НОВЫЙ РОУТ */}
+    {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} setUser={setUser} />}
+    {currentPage === 'register' && <RegisterPage setCurrentPage={setCurrentPage} setUser={setUser} />}
+    {currentPage === 'profile' && <ProfilePage user={user} setCurrentPage={setCurrentPage} />}
+    {currentPage === 'balance' && <BalancePage />}
+</main>
+                    <footer className="bg-white border-t-2 border-pink-100 mt-16">
+                        <div className="max-w-7xl mx-auto px-4 py-8">
+                            <div className="grid md:grid-cols-3 gap-8">
+                                <div>
+                                    <h3 className="text-xl font-bold text-pink-900 mb-4">BeautyPass</h3>
+                                    <p className="text-pink-600">თქვენი სილამაზის პარტნიორი</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-pink-900 mb-3">კონტაქტი</h4>
+                                    <div className="space-y-2 text-pink-600">
+                                        <p>📞 +995 555 123 456</p>
+                                        <p>📧 info@beautypass.ge</p>
+                                        <p>📍 თბილისი, საქართველო</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-pink-900 mb-3">მუშაობის საათები</h4>
+                                    <div className="space-y-1 text-pink-600">
+                                        <p>ორშაბათი - პარასკევი: 9:00 - 20:00</p>
+                                        <p>შაბათი: 10:00 - 18:00</p>
+                                        <p>კვირა: დახურულია</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-8 pt-6 border-t border-pink-100 text-center text-pink-600">
+                                <p>&copy; 2025 BeautyPass. ყველა უფლება დაცულია.</p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<BeautyPass />);
+    </script>
+</body>
+</html>
