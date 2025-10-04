@@ -28,30 +28,28 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 // --- НАЧАЛО ГЛОБАЛЬНОГО ОБРАБОТЧИКА ---
+// <<<< ЗАМЕНИТЕ ВСЮ ФУНКЦИЮ fetchWithAuth НА ЭТОТ ВАРИАНТ >>>>
 const fetchWithAuth = async (url, options = {}) => {
     const token = localStorage.getItem('token');
     const defaultOptions = {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            ...(token && { 'Authorization': `Bearer ${token}` }),
             ...options.headers,
         },
     };
 
     const response = await fetch(url, { ...defaultOptions, ...options });
 
-    // Если сервер ответил ошибкой 401 (Невалидный токен)
     if (response.status === 401) {
-        localStorage.removeItem('token'); // Удаляем плохой токен
-        // Мы не можем напрямую вызвать setUser здесь, так как это не компонент.
-        // Вместо этого мы перезагрузим страницу. При перезагрузке useEffect проверит отсутствие токена и все будет ок.
-        window.location.reload(); 
-        // Бросаем ошибку, чтобы остальной код не выполнялся
+        localStorage.removeItem('token');
+        window.location.reload(); // Перезагрузка страницы - простой и надежный способ
         throw new Error('Unauthorized');
     }
 
     return response;
 };
+// <<<< КОНЕЦ КОДА ФУНКЦИИ >>>>
 // --- КОНЕЦ ГЛОБАЛЬНОГО ОБРАБОТЧИКА ---
         
         const Menu = ({ className = "w-6 h-6" }) => (
@@ -162,6 +160,31 @@ const fetchWithAuth = async (url, options = {}) => {
         ];
 
         const serviceTypes = ['all', 'თმის შეჭრა', 'მანიკური', 'კოსმეტოლოგია', 'მასაჟი', 'სახის მოვლა'];
+		// <<<< ВСТАВЬТЕ ЭТОТ КОД СРАЗУ ПОСЛЕ КОНСТАНТЫ packages >>>>
+const PackagesPage = () => {
+    return (
+        <div>
+            <h2 className="text-3xl font-bold text-pink-900 mb-6">ჩვენი პაკეტები</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+                {packages.map(pkg => (
+                    <div key={pkg.id} className={`bg-white rounded-2xl p-6 border-2 ${pkg.popular ? 'border-pink-500 shadow-lg' : 'border-pink-100'}`}>
+                        {pkg.popular && <div className="bg-pink-500 text-white text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3">პოპულარული</div>}
+                        <h3 className="text-2xl font-bold text-pink-900 mb-2">{pkg.name}</h3>
+                        <p className="text-pink-600 mb-4">{pkg.description}</p>
+                        <div className="text-4xl font-bold text-pink-900 mb-4">₾{pkg.price}<span className="text-lg text-pink-600">/თვე</span></div>
+                        <ul className="space-y-2 mb-6">
+                            {pkg.features.map((f, i) => (
+                                <li key={i} className="text-pink-700 flex items-start"><span className="text-pink-500 mr-2">✓</span>{f}</li>
+                            ))}
+                        </ul>
+                        <button onClick={() => buyPackage(pkg)} className="w-full bg-pink-500 text-white py-3 rounded-full font-semibold hover:bg-pink-600 transition">შეძენა</button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+// <<<< КОНЕЦ ВСТАВЛЯЕМОГО КОДА >>>>
 
         const BeautyPass = () => {
             const { user, logout, register, setUser } = useAuth();
@@ -190,6 +213,7 @@ useEffect(() => {
             const filteredSalons = selectedService === 'all' ? salons : salons.filter(s => s.services.includes(selectedService));
 
             // Внутри компонента BeautyPass
+// <<<< ЗАМЕНИТЕ СОДЕРЖИМОЕ ФУНКЦИИ buyPackage НА ЭТОТ КОД >>>>
 const buyPackage = async (pkg) => {
     if (!user) {
         alert('გთხოვთ ჯერ გაიაროთ რეგისტრაცია');
@@ -197,14 +221,9 @@ const buyPackage = async (pkg) => {
         return;
     }
 
-    const token = localStorage.getItem('token');
     try {
         const response = await fetchWithAuth('/api/packages/buy', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
             body: JSON.stringify({ packageId: pkg.id }),
         });
 
@@ -217,9 +236,13 @@ const buyPackage = async (pkg) => {
             alert(result.message);
         }
     } catch (error) {
-        alert('სერვერთან დაკავშირება ვერ მოხერხდა.');
+        // Ошибка 'Unauthorized' будет поймана здесь, но страница уже перезагрузится
+        if (error.message !== 'Unauthorized') {
+            alert('სერვერთან დაკავშირება ვერ მოხერხდა.');
+        }
     }
 };
+// <<<< КОНЕЦ КОДА ФУНКЦИИ >>>>
 
             const HomePage = () => (
                 <div className="space-y-12">
