@@ -5,11 +5,10 @@ const UserSchema = new mongoose.Schema({
     login: { type: String, required: true, unique: true },
     personalNumber: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    firstName: { type: String, default: '' },
-    lastName: { type: String, default: '' },
-    phone: { type: String, default: '' },
+    phone: { type: String, required: false },
+    firstName: { type: String, required: false },
+    lastName: { type: String, required: false },
     balance: { type: Number, default: 0 },
-    registeredDate: { type: Date, default: Date.now },
     purchases: [{
         id: Number,
         package: String,
@@ -18,11 +17,17 @@ const UserSchema = new mongoose.Schema({
         visitsLeft: Number
     }],
     cards: [{
-        id: Number,
         number: String,
         expiry: String,
-        cvv: String
-    }]
+        cvv: String,
+        id: Number
+    }],
+    isAdmin: { type: Boolean, default: false },
+    userType: { type: String, enum: ['client', 'salon'], required: true, default: 'client' },
+    salonName: { type: String, default: '' },
+    address: { type: String, default: '' },
+    salonDescription: { type: String, default: '' },
+    salonPhotoUrl: { type: String, default: '' }
 });
 
 module.exports = mongoose.model('User', UserSchema);

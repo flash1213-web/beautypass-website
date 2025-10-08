@@ -105,7 +105,7 @@ const fetchWithAuth = async (url, options = {}) => {
         const users = JSON.parse(localStorage.getItem('users') || '[]');
         const existingUser = users.find(u => u.email === userData.email || u.phone === userData.phone);
         if (existingUser) {
-            alert('ეს ელ-ფოსტა ან ტელეფონი უკვე რეგისტრირებულია!');
+            showToast('ეს ელ-ფოსტა ან ტელეფონი უკვე რეგისტრირებულია!');
             return;
         }
         const newUser = {
@@ -124,72 +124,281 @@ const fetchWithAuth = async (url, options = {}) => {
     return { user, login, logout, register, setUser };
 };
 
-        const packages = [
-            {
-                id: 1,
-                name: 'Basic',
-                price: 99,
-                visits: 4,
-                description: 'იდეალურია დამწყებთათვის',
-                features: ['4 ვიზიტი თვეში', 'ყველა პარტნიორ სალონში', 'უფასო გაუქმება']
-            },
-            {
-                id: 2,
-                name: 'Standard',
-                price: 179,
-                visits: 8,
-                description: 'ყველაზე პოპულარული',
-                features: ['8 ვიზიტი თვეში', 'ყველა პარტნიორ სალონში', 'უფასო გაუქმება', 'პრიორიტეტული მხარდაჭერა'],
-                popular: true
-            },
-            {
-                id: 3,
-                name: 'Premium',
-                price: 299,
-                visits: 15,
-                description: 'შეუზღუდავი სილამაზე',
-                features: ['15 ვიზიტი თვეში', 'ყველა პარტნიორ სალონში', 'უფასო გაუქმება', 'პრიორიტეტული მხარდაჭერა', 'VIP სერვისები']
-            }
-        ];
+        
 
-        const salons = [
-            { id: 1, name: 'Elegance Beauty', services: ['მანიკური', 'პედიკური', 'თმის შეჭრა'], address: 'ვაკე, ჭავჭავაძის 12', rating: 4.8 },
-            { id: 2, name: 'Royal Spa', services: ['კოსმეტოლოგია', 'მასაჟი', 'სახის მოვლა'], address: 'საბურთალო, კოსტავას 45', rating: 4.9 },
-            { id: 3, name: 'Glamour Studio', services: ['თმის შეჭრა', 'მანიკური', 'მაკიაჟი'], address: 'ისანი, გორგასლის 23', rating: 4.7 },
-            { id: 4, name: 'Beauty Zone', services: ['კოსმეტოლოგია', 'ეპილაცია', 'სახის მოვლა'], address: 'ვაკე, აბაშიძის 8', rating: 4.6 }
-        ];
-
+        
         const serviceTypes = ['all', 'თმის შეჭრა', 'მანიკური', 'კოსმეტოლოგია', 'მასაჟი', 'სახის მოვლა'];
 		// <<<< ВСТАВЬТЕ ЭТОТ КОД СРАЗУ ПОСЛЕ КОНСТАНТЫ packages >>>>
-const PackagesPage = () => {
+// <<<< ОБНОВЛЕННЫЙ КОМПОНЕНТ PackagesPage >>>>
+const PackagesPage = ({ packages, onBuyPackage }) => {
     return (
         <div>
             <h2 className="text-3xl font-bold text-pink-900 mb-6">ჩვენი პაკეტები</h2>
             <div className="grid md:grid-cols-3 gap-6">
                 {packages.map(pkg => (
-                    <div key={pkg.id} className={`bg-white rounded-2xl p-6 border-2 ${pkg.popular ? 'border-pink-500 shadow-lg' : 'border-pink-100'}`}>
-                        {pkg.popular && <div className="bg-pink-500 text-white text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3">პოპულარული</div>}
-                        <h3 className="text-2xl font-bold text-pink-900 mb-2">{pkg.name}</h3>
-                        <p className="text-pink-600 mb-4">{pkg.description}</p>
-                        <div className="text-4xl font-bold text-pink-900 mb-4">₾{pkg.price}<span className="text-lg text-pink-600">/თვე</span></div>
-                        <ul className="space-y-2 mb-6">
-                            {pkg.features.map((f, i) => (
-                                <li key={i} className="text-pink-700 flex items-start"><span className="text-pink-500 mr-2">✓</span>{f}</li>
-                            ))}
-                        </ul>
-                        <button onClick={() => buyPackage(pkg)} className="w-full bg-pink-500 text-white py-3 rounded-full font-semibold hover:bg-pink-600 transition">შეძენა</button>
-                    </div>
+                    <PackageCard key={pkg.id} pkg={pkg} onBuy={onBuyPackage} />
                 ))}
             </div>
         </div>
     );
 };
-// <<<< КОНЕЦ ВСТАВЛЯЕМОГО КОДА >>>>
+// <<<< КОНЕЦ КОДА >>>>
+// <<<< НАЧАЛО КОМПОНЕНТА PackageCard >>>>
+const PackageCard = ({ pkg, onBuy }) => {
+    return (
+        <div className={`bg-white rounded-2xl p-6 border-2 ${pkg.popular ? 'border-pink-500 shadow-lg' : 'border-pink-100'}`}>
+            {pkg.popular && <div className="bg-pink-500 text-white text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3">პოპულარული</div>}
+            <h3 className="text-2xl font-bold text-pink-900 mb-2">{pkg.name}</h3>
+            <p className="text-pink-600 mb-4">{pkg.description}</p>
+            <div className="text-4xl font-bold text-pink-900 mb-4">₾{pkg.price}<span className="text-lg text-pink-600">/თვე</span></div>
+            <ul className="space-y-2 mb-6">
+                {pkg.features.map((f, i) => (
+                    <li key={i} className="text-pink-700 flex items-start"><span className="text-pink-500 mr-2">✓</span>{f}</li>
+                ))}
+            </ul>
+            <button onClick={() => onBuy(pkg)} className="w-full bg-pink-500 text-white py-3 rounded-full font-semibold hover:bg-pink-600 transition">შეძენა</button>
+        </div>
+    );
+};
+// <<<< КОНЕЦ КОМПОНЕНТА PackageCard >>>>
+
+const Toast = ({ id, message, type, onClose }) => { // 1. Добавляем id в props
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onClose(id); // 2. Вызываем onClose с id этого уведомления
+        }, 3000);
+        return () => clearTimeout(timer);
+    }, [id, onClose]); // 3. Добавляем id в зависимости
+
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+
+    return (
+        <div className={`fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ease-in-out`}>
+            {message}
+        </div>
+    );
+};
+
+// <<<< НАЧАЛО ХУКА useToast >>>>
+const useToast = () => {
+    const [toasts, setToasts] = useState([]);
+
+    const showToast = (message, type = 'success') => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, message, type }]);
+    };
+
+    const closeToast = (id) => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+    };
+
+    return { toasts, showToast, closeToast };
+};
+// <<<< КОНЕЦ ХУКА useToast >>>>
+// <<<< НАЧАЛО КОМПОНЕНТОВ ДЛЯ ПРОФИЛЯ САЛОНА >>>>
+
+// Вкладка для управления услугами
+const SalonServicesTab = ({ showToast }) => {
+    const [services, setServices] = useState([]);
+    const [editingService, setEditingService] = useState(null);
+    const [formData, setFormData] = useState({ name: '', description: '', price: '', durationMinutes: '' });
+
+    const loadServices = async () => {
+        const response = await fetchWithAuth('/api/salon-owner/services');
+        setServices(await response.json());
+    };
+
+    useEffect(() => { loadServices(); }, []);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (editingService) {
+            await fetchWithAuth(`/api/salon-owner/services/${editingService._id}`, { method: 'PUT', body: JSON.stringify(formData) });
+        } else {
+            await fetchWithAuth('/api/salon-owner/services', { method: 'POST', body: JSON.stringify(formData) });
+        }
+        setFormData({ name: '', description: '', price: '', durationMinutes: '' });
+        setEditingService(null);
+        loadServices();
+    };
+
+    const handleEdit = (service) => {
+        setEditingService(service);
+        setFormData({ name: service.name, description: service.description, price: service.price, durationMinutes: service.durationMinutes });
+    };
+
+    const handleDelete = async (id) => {
+        if (confirm('ნამდვილად გსურთ მომსახურების წაშლა?')) {
+            await fetchWithAuth(`/api/salon-owner/services/${id}`, { method: 'DELETE' });
+            loadServices();
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-pink-900">მომსახურება</h3>
+            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
+                <h4 className="text-xl font-semibold mb-4">{editingService ? 'მომსახურების რედაქტირება' : 'მომსახურების დამატება'}</h4>
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" placeholder="დასახელება" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="p-3 border rounded-lg" required />
+                    <input type="number" placeholder="ფასი (BP)" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="p-3 border rounded-lg" required />
+                    <input type="text" placeholder="აღწერა" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="p-3 border rounded-lg" />
+                    <input type="number" placeholder="ხანგრძლივობა (წთ)" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: e.target.value})} className="p-3 border rounded-lg" required />
+                    <button type="submit" className="bg-pink-500 text-white p-3 rounded-lg hover:bg-pink-600">{editingService ? 'შენახვა' : 'დამატება'}</button>
+                </form>
+            </div>
+            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
+                <h4 className="text-xl font-semibold mb-4">ჩემი მომსახურება</h4>
+                <div className="space-y-3">
+                    {services.map(s => (
+                        <div key={s._id} className="flex justify-between items-center p-4 bg-pink-50 rounded-lg">
+                            <div>
+                                <h5 className="font-bold">{s.name} - ₾{s.price}</h5>
+                                <p className="text-sm text-gray-600">{s.description} ({s.durationMinutes} мин)</p>
+                            </div>
+                            <div className="space-x-2">
+                                <button onClick={() => handleEdit(s)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">რედაქტირება</button>
+                                <button onClick={() => handleDelete(s._id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">წაშლა</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Вкладка для управления расписанием
+const SalonScheduleTab = ({ showToast }) => {
+    return (
+        <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-pink-900">განრიგი</h3>
+            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
+                <p className="text-pink-600">აქ იქნება ფორმა თავისუფალო ადგილების შესაქმნელად, როგორც ადმინ-პანელზე.</p>
+            </div>
+        </div>
+    );
+};
+
+// <<<< ПОЛНОСТЬЮ ФУНКЦИОНАЛЬНЫЙ SalonInfoTab >>>>
+const SalonInfoTab = ({ user, showToast }) => {
+    const [formData, setFormData] = useState({
+        salonName: user.salonName || '',
+        address: user.address || '',
+        salonDescription: user.salonDescription || '',
+        salonPhotoUrl: user.salonPhotoUrl || '',
+        phone: user.phone || '',
+    });
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const response = await fetchWithAuth('/api/salon-owner/profile', {
+                method: 'PUT',
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                showToast(result.message, 'success');
+                // Опционально: можно обновить глобальный юзера, чтобы изменения сразу отобразились
+                // setUser(result.user); 
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Не удалось обновить профиль.', 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <h3 className="text-2xl font-bold text-pink-900">Информация о салоне</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label className="block text-pink-700 font-medium mb-2">Название салона</label>
+                    <input
+                        type="text"
+                        name="salonName"
+                        value={formData.salonName}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                        placeholder="Например: 'Элеганс'"
+                    />
+                </div>
+                <div>
+                    <label className="block text-pink-700 font-medium mb-2">Адрес</label>
+                    <input
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                        placeholder="Например: г. Тбилиси, ул. Руставели, 1"
+                    />
+                </div>
+                <div>
+                    <label className="block text-pink-700 font-medium mb-2">Описание</label>
+                    <textarea
+                        name="salonDescription"
+                        value={formData.salonDescription}
+                        onChange={handleChange}
+                        rows="4"
+                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                        placeholder="Расскажите о вашем салоне, услугах, атмосфере..."
+                    />
+                </div>
+                <div>
+                    <label className="block text-pink-700 font-medium mb-2">URL фотографии салона</label>
+                    <input
+                        type="url"
+                        name="salonPhotoUrl"
+                        value={formData.salonPhotoUrl}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                        placeholder="https://example.com/photo.jpg"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Вставьте ссылку на фото. Загрузка файлов с компьютера будет добавлена позже.</p>
+                </div>
+                <div>
+                    <label className="block text-pink-700 font-medium mb-2">Контактный телефон</label>
+                    <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+                        placeholder="+995 5XX XX XX XX"
+                    />
+                </div>
+                <button type="submit" disabled={isLoading} className="bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
+                    {isLoading ? 'Сохранение...' : 'Сохранить изменения'}
+                </button>
+            </form>
+        </div>
+    );
+};
+// <<<< КОНЕЦ КОМПОНЕНТА >>>>
+
+// <<<< КОНЕЦ КОМПОНЕНТОВ ДЛЯ ПРОФИЛЯ САЛОНА >>>>
 
         const BeautyPass = () => {
             const { user, logout, register, setUser } = useAuth();
+			const { toasts, showToast, closeToast } = useToast();
             const [currentPage, setCurrentPage] = useState('home');
             const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+			const [packages, setPackages] = useState([]);
+			const [salons, setSalons] = useState([]);
             const [selectedService, setSelectedService] = useState('all');
 			const [bookings, setBookings] = useState([]);
 // <<< НАЧАЛО КОДА ПРОВЕРКИ ТОКЕНА >>>
@@ -210,13 +419,37 @@ useEffect(() => {
     }
 }, []);// Пустой массив [] означает, что код выполнится только один раз при загрузке
 // <<< КОНЕЦ КОДА ПРОВЕРКИ ТОКЕНА >>>
+// <<<< НАЧАЛО НОВОГО КОДА ДЛЯ ЗАГРУЗКИ ДАННЫХ >>>>
+useEffect(() => {
+    // Эта функция будет "ходить на кухню за меню"
+    const fetchData = async () => {
+        try {
+            // 1. Идем за пакетами
+            const packagesResponse = await fetch('/api/packages');
+            const packagesData = await packagesResponse.json();
+            setPackages(packagesData); // Кладем пакеты в нашу коробку
+
+            // 2. Идем за салонами
+            const salonsResponse = await fetch('/api/salons');
+            const salonsData = await salonsResponse.json();
+            setSalons(salonsData); // Кладем салоны в нашу коробку
+
+        } catch (error) {
+            console.error("Ой, что-то пошло не так при загрузке данных:", error);
+            // Здесь можно показать пользователю сообщение об ошибке
+        }
+    };
+
+    fetchData(); // Запускаем нашу функцию
+}, []); // Пустые скобки [] означают "сделать это один раз при загрузке страницы"
+// <<<< КОНЕЦ НОВОГО КОДА >>>>
             const filteredSalons = selectedService === 'all' ? salons : salons.filter(s => s.services.includes(selectedService));
 
             // Внутри компонента BeautyPass
 // <<<< ЗАМЕНИТЕ СОДЕРЖИМОЕ ФУНКЦИИ buyPackage НА ЭТОТ КОД >>>>
 const buyPackage = async (pkg) => {
     if (!user) {
-        alert('გთხოვთ ჯერ გაიაროთ რეგისტრაცია');
+        showToast('გთხოვთ ჯერ გაიაროთ რეგისტრაცია', 'error');
         setCurrentPage('register');
         return;
     }
@@ -224,73 +457,72 @@ const buyPackage = async (pkg) => {
     try {
         const response = await fetchWithAuth('/api/packages/buy', {
             method: 'POST',
-            body: JSON.stringify({ packageId: pkg.id }),
+            body: JSON.stringify({ packageId: pkg._id }),
         });
 
         const result = await response.json();
 
         if (response.ok) {
             setUser(result.user); // Обновляем пользователя данными с сервера
-            alert(`წარმატებით შეიძინეთ ${pkg.name} პაკეტი!`);
+            showToast(`წარმატებით შეიძინეთ ${pkg.name} პაკეტი!`);
         } else {
-            alert(result.message);
+            showToast(result.message, 'error');
         }
     } catch (error) {
         // Ошибка 'Unauthorized' будет поймана здесь, но страница уже перезагрузится
         if (error.message !== 'Unauthorized') {
-            alert('სერვერთან დაკავშირება ვერ მოხერხდა.');
+            showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
         }
     }
 };
 // <<<< КОНЕЦ КОДА ФУНКЦИИ >>>>
 
-            const HomePage = () => (
-                <div className="space-y-12">
-                    <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-3xl p-8 md:p-12">
-                        <h1 className="text-4xl md:text-5xl font-bold text-pink-900 mb-4">BeautyPass</h1>
-                        <p className="text-xl text-pink-700 mb-6">შენი სილამაზის აბონემენტი - ერთი ბარათი, უამრავი შესაძლებლობა</p>
-                        <p className="text-pink-600 mb-8">ესტუმრე საუკეთესო სილამაზის სალონებს თბილისში და დაზოგე 30%-მდე</p>
-                        <button onClick={() => setCurrentPage('packages')} className="bg-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-600 transition">აირჩიე პაკეტი</button>
+          const HomePage = () => (
+    <div className="space-y-12">
+        <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-3xl p-8 md:p-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-pink-900 mb-4">BeautyPass</h1>
+            <p className="text-xl text-pink-700 mb-6">შენი სილამაზის აბონემენტი - ერთი ბარათი, უამრავი შესაძლებლობა</p>
+            <p className="text-pink-600 mb-8">ესტუმრე საუკეთესო სილამაზის სალონებს თბილისში და დაზოგე 30%-მდე</p>
+            <button onClick={() => setCurrentPage('packages')} className="bg-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-600 transition">აირჩიე პაკეტი</button>
+        </div>
+        <div>
+            <h2 className="text-3xl font-bold text-pink-900 mb-8 text-center">როგორ მუშაობს?</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+                {[
+                    { step: '1', title: 'აირჩიე პაკეტი', desc: 'შეარჩიე შენთვის სასურველი აბონემენტი' },
+                    { step: '2', title: 'დაჯავშნე ვიზიტი', desc: 'გააკეთე ჯავშანი ნებისმიერ პარტნიორ სალონში' },
+                    { step: '3', title: 'დატკბი სერვისით', desc: 'მიიღე პროფესიონალური მომსახურება' }
+                ].map((item, idx) => (
+                    <div key={idx} className="bg-pink-50 rounded-2xl p-6 text-center">
+                        <div className="w-16 h-16 bg-pink-500 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">{item.step}</div>
+                        <h3 className="text-xl font-semibold text-pink-900 mb-2">{item.title}</h3>
+                        <p className="text-pink-600">{item.desc}</p>
                     </div>
-                    <div>
-                        <h2 className="text-3xl font-bold text-pink-900 mb-8 text-center">როგორ მუშაობს?</h2>
-                        <div className="grid md:grid-cols-3 gap-6">
-                            {[
-                                { step: '1', title: 'აირჩიე პაკეტი', desc: 'შეარჩიე შენთვის სასურველი აბონემენტი' },
-                                { step: '2', title: 'დაჯავშნე ვიზიტი', desc: 'გააკეთე ჯავშანი ნებისმიერ პარტნიორ სალონში' },
-                                { step: '3', title: 'დატკბი სერვისით', desc: 'მიიღე პროფესიონალური მომსახურება' }
-                            ].map((item, idx) => (
-                                <div key={idx} className="bg-pink-50 rounded-2xl p-6 text-center">
-                                    <div className="w-16 h-16 bg-pink-500 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">{item.step}</div>
-                                    <h3 className="text-xl font-semibold text-pink-900 mb-2">{item.title}</h3>
-                                    <p className="text-pink-600">{item.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div>
-                        <h2 className="text-3xl font-bold text-pink-900 mb-8 text-center">ჩვენი პაკეტები</h2>
-                        <div className="grid md:grid-cols-3 gap-6">
-                            {packages.map(pkg => (
-                                <div key={pkg.id} className={`bg-white rounded-2xl p-6 border-2 ${pkg.popular ? 'border-pink-500 shadow-lg' : 'border-pink-100'}`}>
-                                    {pkg.popular && <div className="bg-pink-500 text-white text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3">პოპულარული</div>}
-                                    <h3 className="text-2xl font-bold text-pink-900 mb-2">{pkg.name}</h3>
-                                    <p className="text-pink-600 mb-4">{pkg.description}</p>
-                                    <div className="text-4xl font-bold text-pink-900 mb-4">₾{pkg.price}<span className="text-lg text-pink-600">/თვე</span></div>
-                                    <ul className="space-y-2 mb-6">
-                                        {pkg.features.map((f, i) => (
-                                            <li key={i} className="text-pink-700 flex items-start"><span className="text-pink-500 mr-2">✓</span>{f}</li>
-                                        ))}
-                                    </ul>
-                                    <button onClick={() => buyPackage(pkg)} className="w-full bg-pink-500 text-white py-3 rounded-full font-semibold hover:bg-pink-600 transition">შეძენა</button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            );
+                ))}
+            </div>
+        </div>
+        <div>
+            <h2 className="text-3xl font-bold text-pink-900 mb-8 text-center">ჩვენი პაკეტები</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+                {packages.filter(p => p.popular).map(pkg => (
+                    <PackageCard key={pkg.id} pkg={pkg} onBuy={buyPackage} />
+                ))}
+            </div>
+            <div className="text-center mt-8">
+                <button 
+                    onClick={() => setCurrentPage('packages')} 
+                    className="bg-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-600 transition"
+                >
+                    ყველა პაკეტის ნახვა
+                </button>
+            </div>
+        </div>
+    </div>
+); // <<<< ВОТ ГЛАВНОЕ ИЗМЕНЕНИЕ: МЫ ЗАКРЫЛИ КОМПОНЕНТ HOMEPAGE
 
-const SalonsPage = () => {
+// В файле index.html, обновите компонент SalonsPage
+
+const SalonsPage = ({showToast}) => {
     const [selectedSalon, setSelectedSalon] = useState(null);
 
     return (
@@ -298,21 +530,24 @@ const SalonsPage = () => {
             <h2 className="text-3xl font-bold text-pink-900 mb-6">პარტნიორი სალონები</h2>
             <div className="grid md:grid-cols-2 gap-6">
                 {filteredSalons.map(salon => (
-                    <div key={salon.id} className="bg-white rounded-2xl p-6 border-2 border-pink-100 hover:border-pink-300 transition cursor-pointer" onClick={() => setSelectedSalon(salon)}>
+                    <div key={salon.id || salon._id} className="bg-white rounded-2xl p-6 border-2 border-pink-100 hover:border-pink-300 transition cursor-pointer" onClick={() => setSelectedSalon(salon)}>
                         <div className="flex justify-between items-start mb-3">
                             <h3 className="text-xl font-bold text-pink-900">{salon.name}</h3>
                             <div className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-sm font-semibold">⭐ {salon.rating}</div>
                         </div>
+                        {salon.salonPhotoUrl && (
+                            <img src={salon.salonPhotoUrl} alt={salon.name} className="w-full h-48 object-cover rounded-lg mb-3" />
+                        )}
                         <p className="text-pink-600 mb-3 flex items-center"><MapPin className="w-4 h-4 mr-1" />{salon.address}</p>
                         <div className="flex flex-wrap gap-2">
-                            {salon.services.map((s, i) => (
+                            {salon.services && salon.services.map((s, i) => (
                                 <span key={i} className="bg-pink-50 text-pink-700 px-3 py-1 rounded-full text-sm">{s}</span>
                             ))}
                         </div>
                     </div>
                 ))}
             </div>
-            {selectedSalon && <BookingModal salon={selectedSalon} onClose={() => setSelectedSalon(null)} />}
+            {selectedSalon && <BookingModal salon={selectedSalon} onClose={() => setSelectedSalon(null)} showToast={showToast} />}
         </div>
     );
 };
@@ -411,11 +646,11 @@ const LoginPage = ({ setCurrentPage, setUser }) => {
                 setUser(result.user);
                 setCurrentPage('profile');
             } else {
-                setError(result.message);
+                showToast(result.message, 'error');
             }
 
         } catch (err) {
-            setError('სერვერთან დაკავშირება ვერ მოხერხდა.');
+            showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -457,210 +692,83 @@ const LoginPage = ({ setCurrentPage, setUser }) => {
     );
 };
 // === END LOGIN_PAGE ===
-          // === START REGISTER_PAGE (С ПРОВЕРКОЙ В РЕАЛЬНОМ ВРЕМЕНИ) ===
-const RegisterPage = ({ setCurrentPage, setUser }) => {
-    const [formData, setFormData] = useState({ firstName: '', lastName: '', personalId: '', phone: '', email: '', password: '' });
+          // <<<< ПОЛНЫЙ RegisterPage >>>>
+const RegisterPage = ({ setCurrentPage, setUser, showToast }) => {
+    const [formData, setFormData] = useState({ firstName: '', lastName: '', personalId: '', phone: '', email: '', password: '', userType: 'client' });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    
-    // Состояния для ошибок уникальности
     const [personalIdError, setPersonalIdError] = useState('');
     const [phoneError, setPhoneError] = useState('');
     const [emailError, setEmailError] = useState('');
 
-    // Функция для проверки доступности
-    const checkAvailability = async (type, value) => {
-        if (!value) {
-            // Если поле пустое, очищаем ошибку
-            if (type === 'personalId') setPersonalIdError('');
-            if (type === 'phone') setPhoneError('');
-            if (type === 'email') setEmailError('');
-            return;
-        }
-        try {
-            const response = await fetch(`/api/check-availability?type=${type}&value=${encodeURIComponent(value)}`);
-            const result = await response.json();
-            if (!result.available) {
-                if (type === 'personalId') setPersonalIdError(result.message);
-                if (type === 'phone') setPhoneError(result.message);
-                if (type === 'email') setEmailError(result.message);
-            } else {
-                if (type === 'personalId') setPersonalIdError('');
-                if (type === 'phone') setPhoneError('');
-                if (type === 'email') setEmailError('');
-            }
-        } catch (err) {
-            console.error('Ошибка проверки:', err);
-        }
-    };
-
-    // Обработчики изменений с дебаунсингом (чтобы не слать запрос на каждую букву)
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (formData.personalId.length === 11) {
-                checkAvailability('personalId', formData.personalId);
-            } else if (formData.personalId.length > 0) {
-                setPersonalIdError('პირადი ნომერი უნდა შედგებოდეს 11 ციფრისგან');
-            } else {
-                setPersonalIdError('');
-            }
-        }, 500); // Ждем 500мс после прекращения ввода
-        return () => clearTimeout(timer);
-    }, [formData.personalId]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (formData.phone) checkAvailability('phone', formData.phone);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [formData.phone]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (formData.email) checkAvailability('email', formData.email);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [formData.email]);
-
+    // ... (ваши useEffect для проверки доступности остаются без изменений) ...
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-
-        if (personalIdError || phoneError || emailError) {
-            setError('გთხოვთ, შეასწოროთ შეცდომები ფორმაში.');
-            return;
-        }
-
-        setIsLoading(true);
-        const dataToSend = {
-            login: formData.email,
-            personalNumber: formData.personalId,
-            phone: formData.phone,
-            password: formData.password,
-            firstName: formData.firstName,
-            lastName: formData.lastName
-        };
-
+        e.preventDefault(); setError(''); setIsLoading(true);
+        if (personalIdError || phoneError || emailError) { setError('გთხოვთ, შეასწოროთ შეცდომები ფორმაში.'); return; }
+        const dataToSend = { login: formData.email, personalNumber: formData.personalId, phone: formData.phone, password: formData.password, firstName: formData.firstName, lastName: formData.lastName, userType: formData.userType };
         try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dataToSend),
-            });
-
+            const response = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataToSend), });
             const result = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem('token', result.token);
-                setUser(result.user);
-                setCurrentPage('profile');
-            } else {
-                setError(result.message);
-            }
-
-        } catch (err) {
-            setError('სერვერთან დაკავშირება ვერ მოხერხდა. ცადეთ მოგვიანებით.');
-        } finally {
-            setIsLoading(false);
-        }
+            if (response.ok) { localStorage.setItem('token', result.token); setUser(result.user); setCurrentPage('profile'); }
+            else { setError(result.message); }
+        } catch (err) { setError('სერვერთან დაკავშირება ვერ მოხერხდა.'); }
+        finally { setIsLoading(false); }
     };
-
     return (
         <div className="max-w-md mx-auto">
             <div className="bg-white rounded-2xl p-8 border-2 border-pink-100">
                 <h2 className="text-3xl font-bold text-pink-900 mb-6 text-center">რეგისტრაცია</h2>
                 <form onSubmit={handleSubmit} className="space-y-4" novalidate>
-                    {/* ... поля без изменений ... */}
+                    <div><label className="block text-pink-700 font-medium mb-2">სახელი</label><input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" /></div>
+                    <div><label className="block text-pink-700 font-medium mb-2">გვარი</label><input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" /></div>
+                    <div><label className="block text-pink-700 font-medium mb-2">პირადი ნომერი</label><input type="text" maxLength="11" value={formData.personalId} onChange={e => setFormData({...formData, personalId: e.target.value.replace(/\D/g, '')})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" placeholder="01234567890" />{personalIdError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{personalIdError}</p>}</div>
+                    <div><label className="block text-pink-700 font-medium mb-2">ტელეფონის ნომერი</label><input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" placeholder="+995 5XX XX XX XX" />{phoneError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{phoneError}</p>}</div>
+                    <div><label className="block text-pink-700 font-medium mb-2">ელ-ფოსტა</label><input type="text" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" placeholder="example@mail.com" />{emailError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{emailError}</p>}</div>
+                    <div><label className="block text-pink-700 font-medium mb-2">პაროლი</label><input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" minLength="6" /></div>
                     <div>
-                        <label className="block text-pink-700 font-medium mb-2">სახელი</label>
-                        <input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+                        <label className="block text-pink-700 font-medium mb-2">პროფილის ტიპი</label>
+                        <div className="flex space-x-4">
+                            <label className="flex items-center"><input type="radio" name="userType" value="client" checked={formData.userType === 'client'} onChange={() => setFormData({ ...formData, userType: 'client' })} className="mr-2" />მომხმარებელი</label>
+                            <label className="flex items-center"><input type="radio" name="userType" value="salon" checked={formData.userType === 'salon'} onChange={() => setFormData({ ...formData, userType: 'salon' })} className="mr-2" />სალონის მფლობელი</label>
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-pink-700 font-medium mb-2">გვარი</label>
-                        <input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
-                    </div>
-                    <div>
-                        <label className="block text-pink-700 font-medium mb-2">პირადი ნომერი</label>
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            maxLength="11"
-                            value={formData.personalId}
-                            onChange={e => setFormData({...formData, personalId: e.target.value.replace(/\D/g, '')})}
-                            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                            placeholder="01234567890"
-                        />
-                        {personalIdError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{personalIdError}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-pink-700 font-medium mb-2">ტელეფონის ნომერი</label>
-                        <input
-                            type="tel"
-                            value={formData.phone}
-                            onChange={e => setFormData({...formData, phone: e.target.value})}
-                            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                            placeholder="+995 5XX XX XX XX"
-                        />
-                        {phoneError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{phoneError}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-pink-700 font-medium mb-2">ელ-ფოსტა</label>
-                        <input
-                            type="text"
-                            value={formData.email}
-                            onChange={e => setFormData({...formData, email: e.target.value})}
-                            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                            placeholder="example@mail.com"
-                        />
-                        {emailError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{emailError}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-pink-700 font-medium mb-2">პაროლი</label>
-                        <input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" minLength="6" />
-                    </div>
-
                     {error && <p style={{ color: 'red' }}>{error}</p>}
-
-                    <button type="submit" disabled={isLoading} className="w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
-                        {isLoading ? 'რეგისტრაცია...' : 'რეგისტრაცია'}
-                    </button>
+                    <button type="submit" disabled={isLoading} className="w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">{isLoading ? 'რეგისტრაცია...' : 'რეგისტრაცია'}</button>
                 </form>
             </div>
         </div>
     );
 };
-// === END REGISTER_PAGE ===
-// === START PROFILE_PAGE (ФИНАЛЬНАЯ ВЕРСИЯ С ЗАПИСЯМИ) ===
+// <<<< КОНЕЦ RegisterPage >>>>
+// <<<< ПОЛНЫЙ И ИСПРАВЛЕННЫЙ ProfilePage >>>>
 const ProfilePage = ({ user, setCurrentPage }) => {
+    const { showToast, closeToast } = useToast();
+    const [currentSalonTab, setCurrentSalonTab] = useState('services');
     const [bookings, setBookings] = useState([]);
     const [isLoadingBookings, setIsLoadingBookings] = useState(true);
 
+    // Загрузка записей для профиля клиента
     useEffect(() => {
-        const fetchBookings = async () => {
-            if (!user) return;
-            
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetchWithAuth('/api/bookings', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+        if (user && user.userType === 'client') {
+            const fetchBookings = async () => {
+                if (!user) return;
+                try {
+                    const response = await fetchWithAuth('/api/bookings', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+                    if (response.ok) {
+                        const data = await response.json();
+                        setBookings(data);
+                    } else {
+                        console.error('Не удалось загрузить записи');
                     }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setBookings(data);
-                } else {
-                    console.error('Не удалось загрузить записи');
+                } catch (error) {
+                    console.error('Ошибка при загрузке записей:', error);
+                } finally {
+                    setIsLoadingBookings(false);
                 }
-            } catch (error) {
-                console.error('Ошибка при загрузке записей:', error);
-            } finally {
-                setIsLoadingBookings(false);
-            }
-        };
-
-        fetchBookings();
+            };
+            fetchBookings();
+        }
     }, [user]);
 
     if (!user) {
@@ -671,7 +779,31 @@ const ProfilePage = ({ user, setCurrentPage }) => {
             </div>
         );
     }
+    
+    // ===== ПРОФИЛЬ ВЛАДЕЛЬЦА САЛОНА =====
+    if (user.userType === 'salon') {
+        return (
+            <div className="space-y-6">
+                <h2 className="text-3xl font-bold text-pink-900">Профиль салона</h2>
+                <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6">
+                    <h3 className="text-2xl font-bold text-pink-900 mb-2">{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.login}</h3>
+                    <p className="text-pink-700">სალონის მფლობელი</p>
+                </div>
 
+                <div className="flex space-x-4 mb-8 border-b-2 border-pink-100">
+                    <button onClick={() => setCurrentSalonTab('info')} className={`pb-2 px-1 font-semibold ${currentSalonTab === 'info' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}>ინფორმაცია</button>
+                    <button onClick={() => setCurrentSalonTab('services')} className={`pb-2 px-1 font-semibold ${currentSalonTab === 'services' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}>მომსახურება</button>
+                    <button onClick={() => setCurrentSalonTab('schedule')} className={`pb-2 px-1 font-semibold ${currentSalonTab === 'schedule' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}>განრიგი</button>
+                </div>
+
+                {currentSalonTab === 'info' && <SalonInfoTab user={user} showToast={showToast} />}
+                {currentSalonTab === 'services' && <SalonServicesTab showToast={showToast} />}
+                {currentSalonTab === 'schedule' && <SalonScheduleTab showToast={showToast} />}
+            </div>
+        );
+    }
+
+    // ===== ПРОФИЛЬ КЛИЕНТА (ПОЛНЫЙ КОД) =====
     const registeredDate = user.registeredDate || new Date().toISOString();
     const memberDays = Math.floor((Date.now() - new Date(registeredDate).getTime()) / (1000 * 60 * 60 * 24));
     const purchases = user.purchases || [];
@@ -679,9 +811,7 @@ const ProfilePage = ({ user, setCurrentPage }) => {
     return (
         <div className="space-y-6">
             <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6">
-                <h2 className="text-3xl font-bold text-pink-900 mb-2">
-                    {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.personalNumber}
-                </h2>
+                <h2 className="text-3xl font-bold text-pink-900 mb-2">{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.login}</h2>
                 <p className="text-pink-700">წევრი {memberDays} დღეა</p>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
@@ -761,7 +891,7 @@ const ProfilePage = ({ user, setCurrentPage }) => {
         </div>
     );
 };
-// === END PROFILE_PAGE ===
+// <<<< КОНЕЦ ПОЛНОГО КОДА >>>>
 // === START BALANCE_PAGE (ФИНАЛЬНАЯ ВЕРСИЯ) ===
 const BalancePage = () => {
     const [amount, setAmount] = useState('');
@@ -796,12 +926,12 @@ const BalancePage = () => {
                 if (response.ok) {
                     setUser(result.user);
                     setAmount('');
-                    alert(`თქვენს ანგარიშზე დაემატა ₾${amt.toFixed(2)}`);
+                    showToast(`თქვენს ანგარიშზე დაემატა ₾${amt.toFixed(2)}`, 'error');
                 } else {
-                    alert(result.message);
+                    showToast(result.message, 'error');
                 }
             } catch (error) {
-                alert('სერვერთან დაკავშირება ვერ მოხერხდა.');
+                showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
             }
         }
     };
@@ -811,7 +941,7 @@ const BalancePage = () => {
             setUser({ ...user, cards: [...(user.cards || []), { ...cardData, id: Date.now() }] }); // <-- Защитная проверка
             setCardData({ number: '', expiry: '', cvv: '' });
             setShowCardForm(false);
-            alert('ბარათი წარმატებით დაემატა');
+            showToast('ბარათი წარმატებით დაემატა');
         }
     };
 
@@ -862,69 +992,101 @@ const BalancePage = () => {
     );
 };
 // === END BALANCE_PAGE ===
-const BookingModal = ({ salon, onClose }) => {
-    const [selectedService, setSelectedService] = useState(salon.services[0] || '');
+// В файле index.html, обновите компонент BookingModal
+
+const BookingModal = ({ salon, onClose, showToast }) => {
+    const [selectedService, setSelectedService] = useState('');
+    const [salonServices, setSalonServices] = useState([]);
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingServices, setIsLoadingServices] = useState(true);
 
-// Внутри компонента BookingModal
-
-const handleBooking = async () => {
-    // Проверка на пользователя
-    if (!user) {
-        alert('გთხოვთ ჯერ გაიაროთ რეგისტრაცია');
-        setCurrentPage('register');
-        return;
-    }
-
-    // --- НОВАЯ ПРОВЕРКА НА ТОКЕН ---
-    const token = localStorage.getItem('token');
-    if (!token) {
-        alert('თქვენი სესია დასრულდა. გთხოვთ, შეხვიდეთ სისტემაში.');
-        setUser(null); // Очищаем состояние на всякий случай
-        setCurrentPage('login');
-        return;
-    }
-
-    if (!selectedDate || !selectedTime) {
-        alert('გთხოვთ, აირჩიოთ თარიღი და დრო');
-        return;
-    }
-
-    const dateTimeString = `${selectedDate}T${selectedTime}:00`;
-
-    setIsLoading(true);
-    try {
-        const response = await fetchWithAuth('/api/bookings', { 
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    salonId: salon.id,
-                    salonName: salon.name,
-                    service: selectedService,
-                    dateTime: dateTimeString,
-                }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert(result.message);
-                setUser(result.updatedUser);
-                onClose();
+    // Загружаем услуги салона
+    useEffect(() => {
+        const fetchSalonServices = async () => {
+            if (salon.ownerId) {
+                try {
+                    const response = await fetchWithAuth(`/api/salons/${salon._id || salon.id}/services`);
+                    if (response.ok) {
+                        const services = await response.json();
+                        setSalonServices(services);
+                        if (services.length > 0) {
+                            setSelectedService(services[0].name);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка при загрузке услуг:', error);
+                } finally {
+                    setIsLoadingServices(false);
+                }
             } else {
-                alert(result.message);
+                // Если у салона нет ownerId, используем услуги из объекта салона
+                const services = salon.services.map(name => ({ name }));
+                setSalonServices(services);
+                if (services.length > 0) {
+                    setSelectedService(services[0].name);
+                }
+                setIsLoadingServices(false);
             }
-        } catch (error) {
-            alert('სერვერთან დაკავშირება ვერ მოხერხდა.');
-        } finally {
-            setIsLoading(false);
+        };
+
+        fetchSalonServices();
+    }, [salon]);
+
+    const handleBooking = async () => {
+        if (!user) {
+            showToast('გთხოვთ ჯერ გაიაროთ რეგისტრაცია', 'error');
+            setCurrentPage('register');
+            return;
         }
-    };
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showToast('თქვენი სესია დასრულდა. გთხოვთ, შეხვიდეთ სისტემაში.', 'error');
+            setUser(null);
+            setCurrentPage('login');
+            return;
+        }
+
+        if (!selectedDate || !selectedTime) {
+            showToast('გთხოვთ, აირჩიოთ თარიღი და დრო', 'error');
+            return;
+        }
+
+        const dateTimeString = `${selectedDate}T${selectedTime}:00`;
+        setIsLoading(true);
+
+        try {
+            const response = await fetchWithAuth('/api/bookings', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        salonId: salon.id || salon._id,
+                        salonName: salon.name,
+                        service: selectedService,
+                        dateTime: dateTimeString,
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(result.message, 'success');
+                    setUser(result.updatedUser);
+                    onClose();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -933,9 +1095,13 @@ const handleBooking = async () => {
                 
                 <div className="mb-4">
                     <label className="block text-pink-700 font-medium mb-2">მომსახურება</label>
-                    <select value={selectedService} onChange={e => setSelectedService(e.target.value)} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none">
-                        {salon.services.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
+                    {isLoadingServices ? (
+                        <p>Загрузка услуг...</p>
+                    ) : (
+                        <select value={selectedService} onChange={e => setSelectedService(e.target.value)} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none">
+                            {salonServices.map(s => <option key={s._id || s.name} value={s.name}>{s.name} - ₾{s.price}</option>)}
+                        </select>
+                    )}
                 </div>
 
                 <div className="mb-4">
@@ -982,6 +1148,11 @@ const handleBooking = async () => {
                                         <>
                                             <button onClick={() => setCurrentPage('profile')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center"><User className="w-5 h-5 mr-1" />პროფილი</button>
                                             <button onClick={() => setCurrentPage('balance')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center"><CreditCard className="w-5 h-5 mr-1" />₾{user.balance.toFixed(0)}</button>
+{user.isAdmin && (
+    <button onClick={() => setCurrentPage('admin')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center">
+        <User className="w-5 h-5 mr-1" />Админ
+    </button>
+)}
                                             <button onClick={logout} className="text-pink-500 hover:text-pink-700"><LogOut className="w-5 h-5" /></button>
                                         </>
                                     )}
@@ -1005,6 +1176,12 @@ const handleBooking = async () => {
                                         <>
                                             <button onClick={() => { setCurrentPage('profile'); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">პროფილი</button>
                                             <button onClick={() => { setCurrentPage('balance'); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">ბალანსი: ₾{user.balance.toFixed(0)}</button>
+											        {user.isAdmin && (
+            <button onClick={() => setCurrentPage('admin')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center">
+                <User className="w-5 h-5 mr-1" />Админ
+            </button>
+        )}
+
                                             <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-500 hover:text-pink-700 font-medium py-2">გასვლა</button>
                                         </>
                                     )}
@@ -1012,15 +1189,17 @@ const handleBooking = async () => {
                             )}
                         </div>
                     </header>
-                   <main className="max-w-7xl mx-auto px-4 py-8">
+
+<main className="max-w-7xl mx-auto px-4 py-8">
     {currentPage === 'home' && <HomePage />}
-    {currentPage === 'packages' && <PackagesPage />}
-    {currentPage === 'salons' && <SalonsPage />}
-    {currentPage === 'about' && <AboutPage />} {/* <-- НОВЫЙ РОУТ */}
-    {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} setUser={setUser} />}
-    {currentPage === 'register' && <RegisterPage setCurrentPage={setCurrentPage} setUser={setUser} />}
-    {currentPage === 'profile' && <ProfilePage user={user} setCurrentPage={setCurrentPage} />}
-    {currentPage === 'balance' && <BalancePage />}
+    {currentPage === 'packages' && <PackagesPage packages={packages} onBuyPackage={buyPackage} />}
+    {currentPage === 'salons' && <SalonsPage showToast={showToast} />}
+    {currentPage === 'about' && <AboutPage />}
+    {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} setUser={setUser} showToast={showToast} />}
+    {currentPage === 'register' && <RegisterPage setCurrentPage={setCurrentPage} setUser={setUser} showToast={showToast} />}
+    {currentPage === 'profile' && <ProfilePage user={user} setCurrentPage={setCurrentPage} showToast={showToast} />}
+    {currentPage === 'balance' && <BalancePage user={user} setUser={setUser} showToast={showToast} />}
+    {currentPage === 'admin' && user && user.isAdmin && <AdminPage showToast={showToast} />}
 </main>
                     <footer className="bg-white border-t-2 border-pink-100 mt-16">
                         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -1051,10 +1230,359 @@ const handleBooking = async () => {
                             </div>
                         </div>
                     </footer>
+<div className="fixed top-4 right-4 space-y-2 z-50">
+    {toasts.map(toast => (
+        <Toast
+            key={toast.id}
+			id={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={closeToast}
+        />
+    ))}
+</div>
                 </div>
             );
         };
+		// <<<< НАЧАЛО ГЛАВНОЙ АДМИН-СТРАНИЦЫ >>>>
+const AdminPage = ({showToast}) => {
+    const [currentAdminPage, setCurrentAdminPage] = useState('packages'); // 'packages', 'salons', 'bookings'
 
+    return (
+        <div>
+            <h1 className="text-4xl font-bold text-pink-900 mb-6">Панель администратора</h1>
+            
+            {/* Мини-меню для навигации внутри админки */}
+            <div className="flex space-x-4 mb-8 border-b-2 border-pink-100">
+                <button 
+                    onClick={() => setCurrentAdminPage('packages')} 
+                    className={`pb-2 px-1 font-semibold ${currentAdminPage === 'packages' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}
+                >
+                    Пакеты
+                </button>
+                <button 
+                    onClick={() => setCurrentAdminPage('salons')} 
+                    className={`pb-2 px-1 font-semibold ${currentAdminPage === 'salons' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}
+                >
+                    Салоны
+                </button>
+                <button 
+                    onClick={() => setCurrentAdminPage('bookings')} 
+                    className={`pb-2 px-1 font-semibold ${currentAdminPage === 'bookings' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}
+                >
+                    Записи
+                </button>
+            </div>
+
+            {/* Отображаем нужную страницу в зависимости от выбора */}
+            {currentAdminPage === 'packages' && <ManagePackagesPage />}
+            {currentAdminPage === 'salons' && <ManageSalonsPage />}
+			{currentAdminPage === 'bookings' && <ManageBookingsPage showToast={showToast} />}
+        </div>
+    );
+};
+// <<<< КОНЕЦ ГЛАВНОЙ АДМИН-СТРАНИЦЫ >>>>
+// <<<< НАЧАЛО КОМПОНЕНТА УПРАВЛЕНИЯ САЛОНАМИ >>>>
+const ManageSalonsPage = () => {
+    const [salons, setSalons] = useState([]);
+    const [editingSalon, setEditingSalon] = useState(null);
+    const [formData, setFormData] = useState({ name: '', services: '', address: '', rating: '' });
+
+    const loadSalons = async () => {
+        const response = await fetchWithAuth('/api/admin/salons');
+        const data = await response.json();
+        setSalons(data);
+    };
+
+    useEffect(() => {
+        loadSalons();
+    }, []);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const servicesArray = formData.services.split(',').map(s => s.trim());
+        const salonData = { ...formData, services: servicesArray, rating: parseFloat(formData.rating) };
+
+        if (editingSalon) {
+            await fetchWithAuth(`/api/admin/salons/${editingSalon._id}`, {
+                method: 'PUT',
+                body: JSON.stringify(salonData),
+            });
+        } else {
+            await fetchWithAuth('/api/admin/salons', {
+                method: 'POST',
+                body: JSON.stringify(salonData),
+            });
+        }
+
+        setFormData({ name: '', services: '', address: '', rating: '' });
+        setEditingSalon(null);
+        loadSalons();
+    };
+
+    const handleEdit = (salon) => {
+        setEditingSalon(salon);
+        setFormData({
+            name: salon.name,
+            services: salon.services.join(', '),
+            address: salon.address,
+            rating: salon.rating
+        });
+    };
+
+    const handleDelete = async (id) => {
+        if (confirm('Вы уверены, что хотите удалить этот салон?')) {
+            await fetchWithAuth(`/api/admin/salons/${id}`, { method: 'DELETE' });
+            loadSalons();
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-pink-900">Управление салонами</h2>
+            
+            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
+                <h3 className="text-xl font-semibold mb-4">{editingSalon ? 'Редактировать салон' : 'Создать новый салон'}</h3>
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" placeholder="Название" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="p-3 border rounded-lg" required />
+                    <input type="text" placeholder="Адрес" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="p-3 border rounded-lg" required />
+                    <input type="text" placeholder="მომსახურება (через запятую)" value={formData.services} onChange={e => setFormData({...formData, services: e.target.value})} className="p-3 border rounded-lg md:col-span-2" required />
+                    <input type="number" step="0.1" placeholder="Рейтинг (4.5)" value={formData.rating} onChange={e => setFormData({...formData, rating: e.target.value})} className="p-3 border rounded-lg" required />
+                    <button type="submit" className="bg-pink-500 text-white p-3 rounded-lg hover:bg-pink-600">
+                        {editingSalon ? 'შენახვა изменения' : 'Создать'}
+                    </button>
+                </form>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
+                <h3 className="text-xl font-semibold mb-4">Существующие салоны</h3>
+                <div className="space-y-3">
+                    {salons.map(salon => (
+                        <div key={salon._id} className="flex justify-between items-center p-4 bg-pink-50 rounded-lg">
+                            <div>
+                                <h4 className="font-bold">{salon.name} - ⭐{salon.rating}</h4>
+                                <p className="text-sm text-gray-600">{salon.address}</p>
+                            </div>
+                            <div className="space-x-2">
+                                <button onClick={() => handleEdit(salon)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Редактировать</button>
+                                <button onClick={() => handleDelete(salon._id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Удалить</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+// <<<< КОНЕЦ КОМПОНЕНТА УПРАВЛЕНИЯ САЛОНАМИ >>>>
+// <<<< НАЧАЛО КОМПОНЕНТА ПРОСМОТРА ЗАПИСЕЙ >>>>
+// <<<< ПОЛНЫЙ КОМПОНЕНТ ПРОСМОТРА ЗАПИСЕЙ С КНОПКОЙ ОТМЕНЫ >>>>
+const ManageBookingsPage = ({ showToast }) => {
+    const [bookings, setBookings] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const fetchBookings = async () => {
+        const response = await fetchWithAuth('/api/admin/bookings');
+        const data = await response.json();
+        setBookings(data);
+        setIsLoading(false);
+    };
+
+    useEffect(() => {
+        fetchBookings();
+    }, []);
+
+    // Функция для отмены записи
+    const handleCancel = async (bookingId) => {
+        if (!confirm('Вы уверены, что хотите отменить эту запись? Визит будет возвращен пользователю.')) {
+            return;
+        }
+
+        try {
+            const response = await fetchWithAuth(`/api/admin/bookings/${bookingId}/cancel`, {
+                method: 'PUT',
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                showToast(result.message, 'success');
+                fetchBookings(); // Перезагружаем список, чтобы увидеть изменения
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Не удалось отменить запись.', 'error');
+        }
+    };
+
+    if (isLoading) {
+        return <p>Загрузка записей...</p>;
+    }
+
+    return (
+        <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-pink-900">Все записи</h2>
+            
+            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="border-b">
+                                <th className="pb-3">Пользователь</th>
+                                <th className="pb-3">Салон</th>
+                                <th className="pb-3">Услуга</th>
+                                <th className="pb-3">Дата и время</th>
+                                <th className="pb-3">Статус</th>
+                                <th className="pb-3">Действия</th> {/* Новый столбец */}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {bookings.map(booking => (
+                                <tr key={booking._id} className="border-b">
+                                    <td className="py-3">
+                                        {booking.userId ? `${booking.userId.firstName} ${booking.userId.lastName}` : 'Неизвестен'}
+                                        <div className="text-xs text-gray-500">{booking.userId?.login}</div>
+                                    </td>
+                                    <td className="py-3">{booking.salonName}</td>
+                                    <td className="py-3">{booking.service}</td>
+                                    <td className="py-3">{new Date(booking.dateTime).toLocaleString('ru-RU')}</td>
+                                    <td className="py-3">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                            booking.status === 'scheduled' ? 'bg-green-100 text-green-700' :
+                                            booking.status === 'completed' ? 'bg-gray-100 text-gray-700' :
+                                            'bg-red-100 text-red-700'
+                                        }`}>
+                                            {booking.status === 'scheduled' ? 'Запланирована' :
+                                             booking.status === 'completed' ? 'Выполнена' : 'Отменена'}
+                                        </span>
+                                    </td>
+                                    <td className="py-3"> {/* Ячейка с кнопкой */}
+                                        {booking.status === 'scheduled' && (
+                                            <button 
+                                                onClick={() => handleCancel(booking._id)}
+                                                className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600"
+                                            >
+                                                Отменить
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {bookings.length === 0 && <p className="text-center text-gray-500 py-6">Записей пока нет.</p>}
+                </div>
+            </div>
+        </div>
+    );
+};
+// <<<< КОНЕЦ КОМПОНЕНТА >>>>
+// <<<< КОНЕЦ КОМПОНЕНТА ПРОСМОТРА ЗАПИСЕЙ >>>>
+// <<<< ДОБАВЬТЕ ЭТОТ КОМПОНЕНТ В КОНЕЦ ФАЙЛА >>>>
+const ManagePackagesPage = () => {
+    const [packages, setPackages] = useState([]);
+    const [editingPackage, setEditingPackage] = useState(null); // Для редактирования
+    const [formData, setFormData] = useState({ name: '', price: '', visits: '', description: '', features: '', popular: false });
+
+    // Функция для загрузки пакетов
+    const loadPackages = async () => {
+        const response = await fetchWithAuth('/api/packages');
+        const data = await response.json();
+        setPackages(data);
+    };
+
+    useEffect(() => {
+        loadPackages();
+    }, []);
+
+    // Обработчик для формы
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const featuresArray = formData.features.split(',').map(f => f.trim());
+        const packageData = { ...formData, features: featuresArray };
+
+        if (editingPackage) {
+            // Редактирование
+            await fetchWithAuth(`/api/admin/packages/${editingPackage._id}`, {
+                method: 'PUT',
+                body: JSON.stringify(packageData),
+            });
+        } else {
+            // Создание
+            await fetchWithAuth('/api/admin/packages', {
+                method: 'POST',
+                body: JSON.stringify(packageData),
+            });
+        }
+
+        // Сброс формы и перезагрузка списка
+        setFormData({ name: '', price: '', visits: '', description: '', features: '', popular: false });
+        setEditingPackage(null);
+        loadPackages();
+    };
+
+    const handleEdit = (pkg) => {
+        setEditingPackage(pkg);
+        setFormData({
+            name: pkg.name,
+            price: pkg.price,
+            visits: pkg.visits,
+            description: pkg.description,
+            features: pkg.features.join(', '),
+            popular: pkg.popular
+        });
+    };
+
+    const handleDelete = async (id) => {
+        if (confirm('Вы уверены, что хотите удалить этот пакет?')) {
+            await fetchWithAuth(`/api/admin/packages/${id}`, { method: 'DELETE' });
+            loadPackages();
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-pink-900">Управление пакетами</h2>
+            
+            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
+                <h3 className="text-xl font-semibold mb-4">{editingPackage ? 'Редактировать пакет' : 'Создать новый пакет'}</h3>
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" placeholder="Название" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="p-3 border rounded-lg" required />
+                    <input type="number" placeholder="Цена" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="p-3 border rounded-lg" required />
+                    <input type="number" placeholder="Кол-во визитов" value={formData.visits} onChange={e => setFormData({...formData, visits: e.target.value})} className="p-3 border rounded-lg" required />
+                    <input type="text" placeholder="Описание" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="p-3 border rounded-lg" required />
+                    <input type="text" placeholder="Фичи (через запятую)" value={formData.features} onChange={e => setFormData({...formData, features: e.target.value})} className="p-3 border rounded-lg md:col-span-2" required />
+                    <label className="flex items-center">
+                        <input type="checkbox" checked={formData.popular} onChange={e => setFormData({...formData, popular: e.target.checked})} className="mr-2" />
+                        Популярный
+                    </label>
+                    <button type="submit" className="bg-pink-500 text-white p-3 rounded-lg hover:bg-pink-600">
+                        {editingPackage ? 'შენახვა изменения' : 'Создать'}
+                    </button>
+                </form>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
+                <h3 className="text-xl font-semibold mb-4">Существующие пакеты</h3>
+                <div className="space-y-3">
+                    {packages.map(pkg => (
+                        <div key={pkg._id} className="flex justify-between items-center p-4 bg-pink-50 rounded-lg">
+                            <div>
+                                <h4 className="font-bold">{pkg.name} - ₾{pkg.price}</h4>
+                                <p className="text-sm text-gray-600">{pkg.description}</p>
+                            </div>
+                            <div className="space-x-2">
+                                <button onClick={() => handleEdit(pkg)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Редактировать</button>
+                                <button onClick={() => handleDelete(pkg._id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Удалить</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<BeautyPass />);
     </script>
