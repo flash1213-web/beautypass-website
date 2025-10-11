@@ -281,46 +281,144 @@ const SalonScheduleTab = ({ showToast }) => {
 };
 
 // <<<< ПОЛНОСТЬЮ ФУНКЦИОНАЛЬНЫЙ SalonInfoTab >>>>
-const SalonInfoTab = ({ user, showToast }) => {
+const SalonInfoTab = ({ user, showToast, setUser }) => {
     const [formData, setFormData] = useState({
-        salonName: user.salonName || '',
-        address: user.address || '',
-        salonDescription: user.salonDescription || '',
-        salonPhotoUrl: user.salonPhotoUrl || '',
-        phone: user.phone || '',
-    });
+    salonName: user.salonName || '',
+    address: user.address || '',
+    salonDescription: user.salonDescription || '',
+    salonPhotoUrl: user.salonPhotoUrl || '',
+    phone: user.phone || '',
+});
     const [isLoading, setIsLoading] = useState(false);
+	const [imagePreview, setImagePreview] = useState(formData.salonPhotoUrl || '');
+	const [isUploading, setIsUploading] = useState(false);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+const handleImageUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
+  // Проверка размера файла (максимум 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('Файл слишком большой. Максимальный размер - 2MB.', 'error');
+    return;
+  }
+
+  setIsUploading(true);
+
+  try {
+    const formData = new FormData();
+    formData.append('salonPhoto', file);
+
+    // Добавляем остальные данные формы
+    formData.append('salonName', formData.salonName);
+    formData.append('address', formData.address);
+    formData.append('salonDescription', formData.salonDescription);
+    formData.append('phone', formData.phone);
+
+    const response = await fetchWithAuth('/api/salon-owner/profile', {
+      method: 'PUT',
+      body: formData, // Не устанавливаем Content-Type, браузер сделает это автоматически с правильным boundary
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      showToast(result.message, 'success');
+      setUser(result.user);
+      
+      // Обновляем локальное состояние
+      setFormData({
+        salonName: result.user.salonName || '',
+        address: result.user.address || '',
+        salonDescription: result.user.salonDescription || '',
+        salonPhotoUrl: result.user.salonPhotoUrl || '',
+        phone: result.user.phone || '',
+      });
+      
+      setImagePreview(result.user.salonPhotoUrl || '');
+    } else {
+      showToast(result.message, 'error');
+    }
+  } catch (error) {
+    showToast('Ошибка при загрузке фотографии.', 'error');
+    console.error('Ошибка загрузки изображения:', error);
+  } finally {
+    setIsUploading(false);
+  }
+};
+const handleRemoveImage = () => {
+    setImagePreview('');
+    setFormData(prev => ({ ...prev, salonPhotoUrl: '' }));
+    showToast('სურათი წაშლილია', 'success');
+};
+const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+};
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-            const response = await fetchWithAuth('/api/salon-owner/profile', {
-                method: 'PUT',
-                body: JSON.stringify(formData),
+    e.preventDefault();
+    
+    // Валидация формы
+    if (!formData.salonName.trim()) {
+        showToast('გთხოვთ, შეიყვანოთ სალონის დასახელება', 'error');
+        return;
+    }
+    
+    if (!formData.address.trim()) {
+        showToast('გთხოვთ, შეიყვანოთ სალონის მისამართი', 'error');
+        return;
+    }
+    
+    if (!formData.phone.trim()) {
+        showToast('გთხოვთ, შეიყვანოთ საკონტაქტო ტელეფონი', 'error');
+        return;
+    }
+    
+    setIsLoading(true);
+    
+    // Добавим для отладки
+    console.log('გაგზავნილი მონაცემები სერვერზე:', formData);
+    
+    try {
+        const response = await fetchWithAuth('/api/salon-owner/profile', {
+            method: 'PUT',
+            body: JSON.stringify(formData),
+        });
+
+        const result = await response.json();
+        
+        // Добавим для отладки
+        console.log('სერვერის პასუხი:', result);
+
+        if (response.ok) {
+            showToast(result.message, 'success');
+            // Обновляем глобального пользователя, чтобы изменения сразу отобразились
+            setUser(result.user);
+            
+            // Также обновляем локальное состояние formData
+            setFormData({
+                salonName: result.user.salonName || '',
+                address: result.user.address || '',
+                salonDescription: result.user.salonDescription || '',
+                salonPhotoUrl: result.user.salonPhotoUrl || '',
+                phone: result.user.phone || '',
             });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                showToast(result.message, 'success');
-                // Опционально: можно обновить глобальный юзера, чтобы изменения сразу отобразились
-                // setUser(result.user); 
-            } else {
-                showToast(result.message, 'error');
-            }
-        } catch (error) {
-            showToast('Не удалось обновить профиль.', 'error');
-        } finally {
-            setIsLoading(false);
+            
+            // Обновляем предпросмотр изображения
+            setImagePreview(result.user.salonPhotoUrl || '');
+            
+            // Добавим для отладки
+            console.log('ფოტო შენახულილია სერვერზე:', result.user.salonPhotoUrl);
+        } else {
+            showToast(result.message, 'error');
         }
-    };
-
+    } catch (error) {
+        showToast('პროფილის განახლება ვერ მოხერხდა.', 'error');
+        console.error('ფორმის გაგზავნის შეცდომა:', error);
+    } finally {
+        setIsLoading(false);
+    }
+};
     return (
         <div className="space-y-6">
             <h3 className="text-2xl font-bold text-pink-900">Информация о салоне</h3>
@@ -359,19 +457,39 @@ const SalonInfoTab = ({ user, showToast }) => {
                     />
                 </div>
                 <div>
-                    <label className="block text-pink-700 font-medium mb-2">URL фотографии салона</label>
-                    <input
-                        type="url"
-                        name="salonPhotoUrl"
-                        value={formData.salonPhotoUrl}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                        placeholder="https://example.com/photo.jpg"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Вставьте ссылку на фото. Загрузка файлов с компьютера будет добавлена позже.</p>
-                </div>
-                <div>
-                    <label className="block text-pink-700 font-medium mb-2">Контактный телефон</label>
+    <div>
+    <label className="block text-pink-700 font-medium mb-2">სალონის ფოტო</label>
+    <input
+        type="file"
+        name="salonPhoto"
+        accept="image/*"
+        onChange={handleImageUpload}
+        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+        disabled={isUploading}
+    />
+    {isUploading && (
+        <div className="mt-2 text-pink-600 text-sm">
+            ფაილის ატვირთვა...
+        </div>
+    )}
+   {imagePreview && (
+    <div className="mt-3">
+        <div className="flex justify-between items-center mb-2">
+            <p className="text-sm text-gray-600">წინასწარი ნახვა:</p>
+            <button 
+                type="button" 
+                onClick={handleRemoveImage}
+                className="text-red-500 hover:text-red-700 text-sm"
+            >
+                სურათის წაშლა 
+            </button>
+        </div>
+        <img src={imagePreview} alt="სალონის სურათის წინასწარი ნახვა" className="w-full h-48 object-cover rounded-lg" />
+    </div>
+)}
+    <p className="text-xs text-gray-500 mt-1">აირჩიეთ ფაილი კომპიუტერიდან JPG, PNG, GIF ფორმატის.</p>
+</div>
+                    <label className="block text-pink-700 font-medium mb-2">საკონტაქტო ნომერი</label>
                     <input
                         type="tel"
                         name="phone"
@@ -382,7 +500,7 @@ const SalonInfoTab = ({ user, showToast }) => {
                     />
                 </div>
                 <button type="submit" disabled={isLoading} className="bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
-                    {isLoading ? 'Сохранение...' : 'Сохранить изменения'}
+                    {isLoading ? 'დამახსოვრება...' : 'ცვლილებების დამახსოვრება'}
                 </button>
             </form>
         </div>
@@ -401,6 +519,7 @@ const SalonInfoTab = ({ user, showToast }) => {
 			const [salons, setSalons] = useState([]);
             const [selectedService, setSelectedService] = useState('all');
 			const [bookings, setBookings] = useState([]);
+			const [isLoading, setIsLoading] = useState(true);
 // <<< НАЧАЛО КОДА ПРОВЕРКИ ТОКЕНА >>>
 // <<< НАЧАЛО КОДА ПРОВЕРКИ ТОКЕНА (ОБНОВЛЕННЫЙ) >>>
 useEffect(() => {
@@ -423,6 +542,7 @@ useEffect(() => {
 useEffect(() => {
     // Эта функция будет "ходить на кухню за меню"
     const fetchData = async () => {
+        setIsLoading(true);
         try {
             // 1. Идем за пакетами
             const packagesResponse = await fetch('/api/packages');
@@ -437,11 +557,13 @@ useEffect(() => {
         } catch (error) {
             console.error("Ой, что-то пошло не так при загрузке данных:", error);
             // Здесь можно показать пользователю сообщение об ошибке
+        } finally {
+            setIsLoading(false);
         }
     };
 
     fetchData(); // Запускаем нашу функцию
-}, []); // Пустые скобки [] означают "сделать это один раз при загрузке страницы"
+}, []); // Пустые скобки [] означают "сделать это один раз при загрузке страницы
 // <<<< КОНЕЦ НОВОГО КОДА >>>>
             const filteredSalons = selectedService === 'all' ? salons : salons.filter(s => s.services.includes(selectedService));
 
@@ -524,29 +646,108 @@ const buyPackage = async (pkg) => {
 
 const SalonsPage = ({showToast}) => {
     const [selectedSalon, setSelectedSalon] = useState(null);
+    const [salons, setSalons] = useState([]);
+    const [selectedService, setSelectedService] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [salonsPerPage] = useState(6);
+    const { user } = useAuth();
+    
+    // Загружаем салоны при монтировании компонента
+    useEffect(() => {
+        const fetchSalons = async () => {
+            try {
+                const response = await fetch('/api/salons');
+                const data = await response.json();
+                setSalons(data);
+            } catch (error) {
+                console.error('Ошибка при загрузке салонов:', error);
+            }
+        };
+        
+        fetchSalons();
+    }, []);
+
+    // Фильтрация салонов по выбранной услуге
+    const filteredSalons = selectedService === 'all' 
+        ? salons 
+        : salons.filter(salon => salon.services.includes(selectedService));
+    
+    // Пагинация
+    const indexOfLastSalon = currentPage * salonsPerPage;
+    const indexOfFirstSalon = indexOfLastSalon - salonsPerPage;
+    const currentSalons = filteredSalons.slice(indexOfFirstSalon, indexOfLastSalon);
+    const totalPages = Math.ceil(filteredSalons.length / salonsPerPage);
 
     return (
         <div>
-            <h2 className="text-3xl font-bold text-pink-900 mb-6">პარტნიორი სალონები</h2>
+            <h2 className="text-3xl font-bold text-pink-900 mb-6">Партнерские салоны</h2>
+            
+            {/* Фильтр по услугам */}
+            <div className="mb-6">
+                <div className="flex flex-wrap gap-2">
+                    <button 
+                        onClick={() => setSelectedService('all')}
+                        className={`px-4 py-2 rounded-full ${selectedService === 'all' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-700'}`}
+                    >
+                        Все услуги
+                    </button>
+                    {['თმის შეჭრა', 'მანიკური', 'კოსმეტოლოგია', 'მასაჟი', 'სახის მოვლა'].map(service => (
+                        <button 
+                            key={service}
+                            onClick={() => setSelectedService(service)}
+                            className={`px-4 py-2 rounded-full ${selectedService === service ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-700'}`}
+                        >
+                            {service}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            
             <div className="grid md:grid-cols-2 gap-6">
-                {filteredSalons.map(salon => (
+                {currentSalons.map(salon => (
                     <div key={salon.id || salon._id} className="bg-white rounded-2xl p-6 border-2 border-pink-100 hover:border-pink-300 transition cursor-pointer" onClick={() => setSelectedSalon(salon)}>
                         <div className="flex justify-between items-start mb-3">
                             <h3 className="text-xl font-bold text-pink-900">{salon.name}</h3>
                             <div className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-sm font-semibold">⭐ {salon.rating}</div>
                         </div>
-                        {salon.salonPhotoUrl && (
-                            <img src={salon.salonPhotoUrl} alt={salon.name} className="w-full h-48 object-cover rounded-lg mb-3" />
+                        {salon && salon.salonPhotoUrl && (
+                            <img src={salon.salonPhotoUrl} alt={salon.name || 'Салон'} className="w-full h-48 object-cover rounded-lg mb-3" />
                         )}
-                        <p className="text-pink-600 mb-3 flex items-center"><MapPin className="w-4 h-4 mr-1" />{salon.address}</p>
+                        <p className="text-pink-600 mb-3 flex items-center"><MapPin className="w-4 h-4 mr-1" />{salon ? salon.address : 'Адрес не указан'}</p>
                         <div className="flex flex-wrap gap-2">
-                            {salon.services && salon.services.map((s, i) => (
+                           {salon && salon.services && salon.services.map((s, i) => (
                                 <span key={i} className="bg-pink-50 text-pink-700 px-3 py-1 rounded-full text-sm">{s}</span>
                             ))}
                         </div>
                     </div>
                 ))}
             </div>
+            
+            {/* Пагинация */}
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-8">
+                    <div className="flex space-x-2">
+                        <button 
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className={`px-4 py-2 rounded ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-pink-100 text-pink-700 hover:bg-pink-200'}`}
+                        >
+                            Предыдущая
+                        </button>
+                        <span className="px-4 py-2">
+                            Страница {currentPage} из {totalPages}
+                        </span>
+                        <button 
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className={`px-4 py-2 rounded ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-pink-100 text-pink-700 hover:bg-pink-200'}`}
+                        >
+                            Следующая
+                        </button>
+                    </div>
+                </div>
+            )}
+            
             {selectedSalon && <BookingModal salon={selectedSalon} onClose={() => setSelectedSalon(null)} showToast={showToast} />}
         </div>
     );
@@ -796,7 +997,7 @@ const ProfilePage = ({ user, setCurrentPage }) => {
                     <button onClick={() => setCurrentSalonTab('schedule')} className={`pb-2 px-1 font-semibold ${currentSalonTab === 'schedule' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}>განრიგი</button>
                 </div>
 
-                {currentSalonTab === 'info' && <SalonInfoTab user={user} showToast={showToast} />}
+                {currentSalonTab === 'info' && <SalonInfoTab user={user} showToast={showToast} setUser={setUser} />}
                 {currentSalonTab === 'services' && <SalonServicesTab showToast={showToast} />}
                 {currentSalonTab === 'schedule' && <SalonScheduleTab showToast={showToast} />}
             </div>
@@ -892,227 +1093,300 @@ const ProfilePage = ({ user, setCurrentPage }) => {
     );
 };
 // <<<< КОНЕЦ ПОЛНОГО КОДА >>>>
-// === START BALANCE_PAGE (ФИНАЛЬНАЯ ВЕРСИЯ) ===
-const BalancePage = () => {
-    const [amount, setAmount] = useState('');
-    const [showCardForm, setShowCardForm] = useState(false);
-    const [cardData, setCardData] = useState({ number: '', expiry: '', cvv: '' });
+// === START BALANCE_PAGE ===
+const BalancePage = ({ user, setUser, showToast }) => {
+  const [amount, setAmount] = React.useState('');
+  const [isProcessing, setIsProcessing] = React.useState(false);
 
-    if (!user) {
-        return (
-            <div className="text-center py-12">
-                <p className="text-pink-700 mb-4">გთხოვთ გაიაროთ რეგისტრაცია</p>
-                <button onClick={() => setCurrentPage('register')} className="bg-pink-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-pink-600 transition">რეგისტრაცია</button>
-            </div>
-        );
+  const handlePaymentWithBank = async (bank) => {
+    const amt = parseFloat(amount);
+    if (!amt || amt <= 0) {
+      showToast('გთხოვთ, შეიყვანოთ თანხა', 'error');
+      return;
     }
 
-    const addBalance = async () => {
-        const amt = parseFloat(amount);
-        if (amt && amt > 0) {
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetchWithAuth('/api/balance/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ amount: amt }),
-                });
+    setIsProcessing(true);
 
-                const result = await response.json();
+    try {
+      const response = await fetch('/api/transactions/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: amt, bank: bank })
+      });
 
-                if (response.ok) {
-                    setUser(result.user);
-                    setAmount('');
-                    showToast(`თქვენს ანგარიშზე დაემატა ₾${amt.toFixed(2)}`, 'error');
-                } else {
-                    showToast(result.message, 'error');
-                }
-            } catch (error) {
-                showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
-            }
+      const result = await response.json();
+
+      if (response.ok) {
+        showToast(
+          `თქვენ გადახვალთ ${bank === 'tbc' ? 'TBC Bank' : 'Bank of Georgia'} გვერდზე`,
+          'success'
+        );
+        window.open(result.paymentUrl, '_blank', 'width=800,height=600');
+        checkPaymentStatus(result.transactionId);
+      } else {
+        showToast(result.message, 'error');
+      }
+    } catch (error) {
+      showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const checkPaymentStatus = (transactionId) => {
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/transactions/${transactionId}/status`);
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          const updatedUser = { ...user, balance: user.balance + data.amount };
+          setUser(updatedUser);
+          showToast(`ბალანსი წარმატებით შეივსა: ₾${data.amount}`, 'success');
+          clearInterval(interval);
+        } else if (data.status === 'failed' || data.status === 'cancelled') {
+          showToast('გადახდა ვერ შესრულდა', 'error');
+          clearInterval(interval);
         }
-    };
+      } catch (error) {
+        console.error('Ошибка проверки статуса:', error);
+      }
+    }, 5000);
 
-    const addCard = () => {
-        if (cardData.number && cardData.expiry && cardData.cvv) {
-            setUser({ ...user, cards: [...(user.cards || []), { ...cardData, id: Date.now() }] }); // <-- Защитная проверка
-            setCardData({ number: '', expiry: '', cvv: '' });
-            setShowCardForm(false);
-            showToast('ბარათი წარმატებით დაემატა');
-        }
-    };
+    setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
+  };
 
+  if (!user) {
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
-            <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl p-8 text-white">
-                <p className="text-pink-100 mb-2">თქვენი ბალანსი</p>
-                <div className="text-5xl font-bold mb-4">₾{user.balance.toFixed(2)}</div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
-                <h3 className="text-xl font-bold text-pink-900 mb-4">ბალანსის შევსება</h3>
-                <div className="space-y-4">
-                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="თანხა (₾)" className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
-                    <button onClick={addBalance} className="w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">შევსება</button>
-                </div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
-                <h3 className="text-xl font-bold text-pink-900 mb-4">ჩემი ბარათები</h3>
-                {/* --- ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ --- */}
-                {(user.cards || []).length === 0 ? (
-                    <p className="text-pink-600 mb-4">არ გაქვს დამატებული ბარათები</p>
-                ) : (
-                    <div className="space-y-2 mb-4">
-                        {(user.cards || []).map(card => (
-                            <div key={card.id} className="bg-pink-50 rounded-lg p-4">
-                                <p className="font-mono text-pink-900">**** **** **** {card.number.slice(-4)}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-                {!showCardForm ? (
-                    <button onClick={() => setShowCardForm(true)} className="w-full bg-pink-100 text-pink-700 py-3 rounded-lg font-semibold hover:bg-pink-200 transition">+ ახალი ბარათის დამატება</button>
-                ) : (
-                    <div className="space-y-3">
-                        <input type="text" placeholder="ბარათის ნომერი" value={cardData.number} onChange={e => setCardData({...cardData, number: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
-                        <div className="grid grid-cols-2 gap-3">
-                            <input type="text" placeholder="MM/YY" value={cardData.expiry} onChange={e => setCardData({...cardData, expiry: e.target.value})} className="px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
-                            <input type="text" placeholder="CVV" value={cardData.cvv} onChange={e => setCardData({...cardData, cvv: e.target.value})} className="px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
-                        </div>
-                        <div className="flex gap-2">
-                            <button onClick={addCard} className="flex-1 bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">დამატება</button>
-                            <button onClick={() => setShowCardForm(false)} className="flex-1 bg-pink-100 text-pink-700 py-3 rounded-lg font-semibold hover:bg-pink-200 transition">გაუქმება</button>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </div>
+      <div className="text-center py-12">
+        <p className="text-pink-700 mb-4">გთხოვთ გაიაროთ რეგისტრაცია</p>
+      </div>
     );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl p-8 text-white">
+        <p className="text-pink-100 mb-2">თქვენი ბალანსი</p>
+        <div className="text-5xl font-bold mb-4">₾{user.balance.toFixed(2)}</div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
+        <h3 className="text-xl font-bold text-pink-900 mb-4">ბალანსის შევსება</h3>
+        <div className="space-y-4">
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="თანხა (₾)"
+            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
+            disabled={isProcessing}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* TBC Bank */}
+            <button
+              onClick={() => handlePaymentWithBank('tbc')}
+              disabled={isProcessing}
+              className="bg-white border-2 border-blue-500 text-white py-4 rounded-lg font-semibold hover:bg-blue-50 transition flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              <img 
+                src="/images/tbc-logo.png" 
+                alt="TBC Bank" 
+                style={{width: '65px', height: '65px', objectFit: 'contain'}}
+                onError={(e) => {e.target.style.display = 'none'}}
+              />
+              <span className="text-lg font-bold text-blue-600">TBC Bank</span>
+            </button>
+
+            {/* Bank of Georgia */}
+            <button
+              onClick={() => handlePaymentWithBank('bog')}
+              disabled={isProcessing}
+              className="bg-white border-2 border-orange-500 py-4 rounded-lg font-semibold hover:bg-orange-50 transition flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              <img 
+                src="/images/bog-logo.png" 
+                alt="Bank of Georgia" 
+                style={{width: '65px', height: '65px', objectFit: 'contain'}}
+                onError={(e) => {e.target.style.display = 'none'}}
+              />
+              <span className="text-lg font-bold text-orange-600">Bank of Georgia</span>
+            </button>
+          </div>
+
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>შენიშვნა:</strong> თქვენ გადახვალთ უსაფრთხო საბანკო გვერდზე, სადაც შეგიძლიათ უსაფრთხოდ განხორციელოთ გადახდის ოპერაცია. თქვენი საბანკო მონაცემები დაცულია ჩვენს სერვერზე.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 // === END BALANCE_PAGE ===
 // В файле index.html, обновите компонент BookingModal
 
 const BookingModal = ({ salon, onClose, showToast }) => {
+    // Проверяем, что объект salon существует
+    if (!salon) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+                    <p className="text-red-500 text-center">შეცდომა: ინფორმაცია სალონზე ატვირთული არ არის</p>
+                    <button onClick={onClose} className="mt-4 w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
+                        დახურვა
+                    </button>
+                </div>
+            </div>
+        );
+    }
     const [selectedService, setSelectedService] = useState('');
     const [salonServices, setSalonServices] = useState([]);
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+	const [imagePreview, setImagePreview] = useState(salon && salon.salonPhotoUrl ? salon.salonPhotoUrl : '');
     const [isLoadingServices, setIsLoadingServices] = useState(true);
+	const [formData, setFormData] = useState({
+    service: '',
+    date: '',
+    time: ''
+});
+	const [dateError, setDateError] = useState('');
 
     // Загружаем услуги салона
     useEffect(() => {
-        const fetchSalonServices = async () => {
-            if (salon.ownerId) {
-                try {
-                    const response = await fetchWithAuth(`/api/salons/${salon._id || salon.id}/services`);
-                    if (response.ok) {
-                        const services = await response.json();
-                        setSalonServices(services);
-                        if (services.length > 0) {
-                            setSelectedService(services[0].name);
-                        }
-                    }
-                } catch (error) {
-                    console.error('Ошибка при загрузке услуг:', error);
-                } finally {
-                    setIsLoadingServices(false);
-                }
-            } else {
-                // Если у салона нет ownerId, используем услуги из объекта салона
-                const services = salon.services.map(name => ({ name }));
-                setSalonServices(services);
-                if (services.length > 0) {
-                    setSelectedService(services[0].name);
-                }
-                setIsLoadingServices(false);
-            }
-        };
-
-        fetchSalonServices();
-    }, [salon]);
-
-    const handleBooking = async () => {
-        if (!user) {
-            showToast('გთხოვთ ჯერ გაიაროთ რეგისტრაცია', 'error');
-            setCurrentPage('register');
-            return;
-        }
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            showToast('თქვენი სესია დასრულდა. გთხოვთ, შეხვიდეთ სისტემაში.', 'error');
-            setUser(null);
-            setCurrentPage('login');
-            return;
-        }
-
-        if (!selectedDate || !selectedTime) {
-            showToast('გთხოვთ, აირჩიოთ თარიღი და დრო', 'error');
-            return;
-        }
-
-        const dateTimeString = `${selectedDate}T${selectedTime}:00`;
-        setIsLoading(true);
-
-        try {
-            const response = await fetchWithAuth('/api/bookings', { 
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        salonId: salon.id || salon._id,
-                        salonName: salon.name,
-                        service: selectedService,
-                        dateTime: dateTimeString,
-                    }),
-                });
-
-                const result = await response.json();
-
+    const fetchSalonServices = async () => {
+        if (salon.ownerId) {
+            try {
+                const response = await fetchWithAuth(`/api/salons/${salon._id || salon.id}/services`);
                 if (response.ok) {
-                    showToast(result.message, 'success');
-                    setUser(result.updatedUser);
-                    onClose();
-                } else {
-                    showToast(result.message, 'error');
+                    const services = await response.json();
+                    setSalonServices(services);
+                    if (services.length > 0) {
+                        setFormData(prev => ({ ...prev, service: services[0].name }));
+                    }
                 }
             } catch (error) {
-                showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
+                console.error('Ошибка при загрузке услуг:', error);
             } finally {
-                setIsLoading(false);
+                setIsLoadingServices(false);
             }
-        };
+        } else {
+            // Если у салона нет ownerId, используем услуги из объекта салона
+            const services = salon.services.map(name => ({ name }));
+            setSalonServices(services);
+            if (services.length > 0) {
+                setFormData(prev => ({ ...prev, service: services[0].name }));
+            }
+            setIsLoadingServices(false);
+        }
+    };
+
+    fetchSalonServices();
+}, [salon]);
+
+    const handleBooking = async () => {
+    if (!user) {
+        showToast('გთხოვთ ჯერ გაიაროთ რეგისტრაცია', 'error');
+        setCurrentPage('register');
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showToast('თქვენი სესია დასრულდა. გთხოვთ, შეხვიდეთ სისტემაში.', 'error');
+        setUser(null);
+        setCurrentPage('login');
+        return;
+    }
+
+    if (!formData.date || !formData.time) {
+        showToast('გთხოვთ, აირჩიოთ თარიღი და დრო', 'error');
+        return;
+    }
+
+    const dateTimeString = `${formData.date}T${formData.time}:00`;
+    setIsLoading(true);
+
+    try {
+        const response = await fetchWithAuth('/api/bookings', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    salonId: salon ? (salon.id || salon._id) : '',
+                    salonName: salon ? salon.name : 'უცნობი სალონი',
+                    service: formData.service,
+                    dateTime: dateTimeString,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                showToast(result.message, 'success');
+                setUser(result.updatedUser);
+                onClose();
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-                <h3 className="text-2xl font-bold text-pink-900 mb-4">დაჯავშნე {salon.name}</h3>
+                <h3 className="text-2xl font-bold text-pink-900 mb-4">დაჯავშნე {salon ? salon.name : 'სალონი'}</h3>
                 
-                <div className="mb-4">
-                    <label className="block text-pink-700 font-medium mb-2">მომსახურება</label>
-                    {isLoadingServices ? (
-                        <p>Загрузка услуг...</p>
-                    ) : (
-                        <select value={selectedService} onChange={e => setSelectedService(e.target.value)} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none">
-                            {salonServices.map(s => <option key={s._id || s.name} value={s.name}>{s.name} - ₾{s.price}</option>)}
-                        </select>
-                    )}
-                </div>
+          <div className="mb-4">
+    <label className="block text-pink-700 font-medium mb-2">მომსახურება</label>
+    {isLoadingServices ? (
+        <p>მომსახურეობის ატვირთვა..</p>
+    ) : (
+        <select value={formData.service} onChange={e => setFormData({...formData, service: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none">
+            {salonServices.map(s => <option key={s._id || s.name} value={s.name}>{s.name} - ₾{s.price}</option>)}
+        </select>
+    )}
+</div>
 
-                <div className="mb-4">
-                    <label className="block text-pink-700 font-medium mb-2">თარიღი</label>
-                    <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
-                </div>
+<div className="mb-4">
+    <label className="block text-pink-700 font-medium mb-2">თარიღი</label>
+    <input 
+        type="date" 
+        value={formData.date} 
+        onChange={e => {
+            const selectedDate = new Date(e.target.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) {
+                setDateError('Нельзя выбирать прошедшую дату');
+            } else {
+                setDateError('');
+            }
+            setFormData({...formData, date: e.target.value});
+        }} 
+        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" 
+        min={new Date().toISOString().split('T')[0]}
+    />
+    {dateError && <p className="text-red-500 text-sm mt-1">{dateError}</p>}
+</div>
 
-                <div className="mb-6">
-                    <label className="block text-pink-700 font-medium mb-2">დრო</label>
-                    <input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
-                </div>
+<div className="mb-6">
+    <label className="block text-pink-700 font-medium mb-2">დრო</label>
+    <input type="time" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
+</div>
 
                 <div className="flex gap-3">
                     <button onClick={handleBooking} disabled={isLoading} className="flex-1 bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
@@ -1133,7 +1407,7 @@ const BookingModal = ({ salon, onClose, showToast }) => {
                             <div className="flex items-center justify-between">
                                 <div className="text-2xl font-bold text-pink-600">BeautyPass</div>
                                 <nav className="hidden md:flex items-center space-x-6">
-                                    <nav className="hidden md:flex items-center space-x-6">
+<nav className="hidden md:flex items-center space-x-6">
     <button onClick={() => setCurrentPage('home')} className="text-pink-700 hover:text-pink-900 font-medium">მთავარი</button>
     <button onClick={() => setCurrentPage('packages')} className="text-pink-700 hover:text-pink-900 font-medium">პაკეტები</button>
     <button onClick={() => setCurrentPage('salons')} className="text-pink-700 hover:text-pink-900 font-medium">სალონები</button>
@@ -1162,14 +1436,11 @@ const BookingModal = ({ salon, onClose, showToast }) => {
                                 </button>
                             </div>
                             {mobileMenuOpen && (
-                                <nav className="md:hidden mt-4 space-y-2 pb-4">
-                                    <nav className="hidden md:flex items-center space-x-6">
-    <button onClick={() => setCurrentPage('home')} className="text-pink-700 hover:text-pink-900 font-medium">მთავარი</button>
-    <button onClick={() => setCurrentPage('packages')} className="text-pink-700 hover:text-pink-900 font-medium">პაკეტები</button>
-    <button onClick={() => setCurrentPage('salons')} className="text-pink-700 hover:text-pink-900 font-medium">სალონები</button>
-    <button onClick={() => setCurrentPage('about')} className="text-pink-700 hover:text-pink-900 font-medium">ჩვენ შესახებ</button> {/* <-- НОВАЯ КНОПКА */}
-    // ...
-</nav>
+                                <div className="md:hidden mt-4 space-y-2 pb-4">
+    <button onClick={() => setCurrentPage('home')} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">მთავარი</button>
+    <button onClick={() => setCurrentPage('packages')} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">პაკეტები</button>
+    <button onClick={() => setCurrentPage('salons')} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">სალონები</button>
+    <button onClick={() => setCurrentPage('about')} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">ჩვენს შესახებ</button>
                                     {!user ? (
                                         <button onClick={() => { setCurrentPage('register'); setMobileMenuOpen(false); }} className="block w-full text-left bg-pink-500 text-white px-4 py-2 rounded-lg font-semibold">რეგისტრაცია</button>
                                     ) : (
@@ -1185,21 +1456,29 @@ const BookingModal = ({ salon, onClose, showToast }) => {
                                             <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-500 hover:text-pink-700 font-medium py-2">გასვლა</button>
                                         </>
                                     )}
-                                </nav>
+                                </div>
                             )}
                         </div>
                     </header>
 
 <main className="max-w-7xl mx-auto px-4 py-8">
-    {currentPage === 'home' && <HomePage />}
-    {currentPage === 'packages' && <PackagesPage packages={packages} onBuyPackage={buyPackage} />}
-    {currentPage === 'salons' && <SalonsPage showToast={showToast} />}
-    {currentPage === 'about' && <AboutPage />}
-    {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} setUser={setUser} showToast={showToast} />}
-    {currentPage === 'register' && <RegisterPage setCurrentPage={setCurrentPage} setUser={setUser} showToast={showToast} />}
-    {currentPage === 'profile' && <ProfilePage user={user} setCurrentPage={setCurrentPage} showToast={showToast} />}
-    {currentPage === 'balance' && <BalancePage user={user} setUser={setUser} showToast={showToast} />}
-    {currentPage === 'admin' && user && user.isAdmin && <AdminPage showToast={showToast} />}
+    {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+            <div className="text-pink-600 text-xl">იტვირთება...</div>
+        </div>
+    ) : (
+        <>
+            {currentPage === 'home' && <HomePage />}
+            {currentPage === 'packages' && <PackagesPage packages={packages} onBuyPackage={buyPackage} />}
+            {currentPage === 'salons' && <SalonsPage showToast={showToast} />}
+            {currentPage === 'about' && <AboutPage />}
+            {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} setUser={setUser} showToast={showToast} />}
+            {currentPage === 'register' && <RegisterPage setCurrentPage={setCurrentPage} setUser={setUser} showToast={showToast} />}
+            {currentPage === 'profile' && <ProfilePage user={user} setCurrentPage={setCurrentPage} showToast={showToast} />}
+            {currentPage === 'balance' && <BalancePage user={user} setUser={setUser} showToast={showToast} />}
+            {currentPage === 'admin' && user && user.isAdmin && <AdminPage showToast={showToast} />}
+        </>
+    )}
 </main>
                     <footer className="bg-white border-t-2 border-pink-100 mt-16">
                         <div className="max-w-7xl mx-auto px-4 py-8">
