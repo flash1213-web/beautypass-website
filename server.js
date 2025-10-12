@@ -549,13 +549,37 @@ app.put('/api/admin/bookings/:id/cancel', authMiddleware, adminMiddleware, async
   }
 });
 
-// ==================== ПЛАТЕЖИ ====================
+// ==================== ПЛАТЕЖИ (ФИНАЛЬНАЯ ВЕРСИЯ) ====================
 app.post('/api/transactions/create', authMiddleware, async (req, res) => {
   try {
-    const { amount } = req.body; // Пока работаем только с TBC
+    const { amount } = req.body;
     const userId = req.user._id;
 
-    // 1. Создаем транзакцию у себя в базе со статусом 'pending'
+    // --- ШАГ 1: Получаем временный токен доступа (access token) ---
+    console.log('Шаг 1: Запрашиваем access token у TBC...');
+    
+    const credentials = Buffer.from(`${process.env.TBC_IPAY_KEY}:${process.env.TBC_IPAY_SECRET}`).toString('base64');
+
+    const tokenResponse = await axios.post(
+      process.env.TBC_OAUTH_URL, // 'https://api.tbcbank.ge/oauth/token'
+      'grant_type=client_credentials',
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${credentials}`
+        }
+      }
+    );
+
+    const accessToken = tokenResponse.data.access_token;
+    if (!accessToken) {
+        throw new Error('Не удалось получить access token от TBC');
+    }
+    console.log('Шаг 1: Access token успешно получен.');
+
+    // --- ШАГ 2: Создаем платеж, используя временный токен ---
+    console.log('Шаг 2: Создаем платеж с помощью access token...');
+
     const transaction = new Transaction({
       transactionId: `BP_${Date.now()}_${userId}`,
       userId,
@@ -565,34 +589,56 @@ app.post('/api/transactions/create', authMiddleware, async (req, res) => {
     });
     await transaction.save();
 
-    // 2. Готовим запрос к TBC iPay API
-    // !!! ВАЖНО: URL и поля в теле запроса могут отличаться. ПРОВЕРЬТЕ В ДОКУМЕНТАЦИИ TBC !!!
-    const tbcpaymentData = {
-      amount: amount * 100, // TBC часто требует сумму в тетри (в копейках)
-      currency: 'GEL',
-      // language: 'ka', // Язык страницы оплаты
-      order_id: transaction.transactionId,
-      description: `Пополнение баланса BeautyPass на сумму ${amount} GEL`,
-      // callback_url: `https://beautypass-website.onrender.com/api/payments/tbc-callback` // URL для уведомлений от TBC
+    // !!! ВАЖНО: Поля ниже - пример. Проверьте точные названия в документации TBC !!!
+    const paymentData = {
+      shop_order_id: transaction.transactionId,
+      purchase_amount: {
+        amount: amount * 100, // Сумма в тетри
+        currency: 'GEL'
+      },
+      language: 'ka',
+      callback_url: 'https://beautypass-website.onrender.com/api/payments/tbc-callback'
     };
+    console.log('Данные для платежа:', paymentData);
 
-    // 3. Отправляем запрос на сервер TBC
-   // ... внутри app.post('/api/transactions/create', ...)
+    const paymentResponse = await axios.post(
+      process.env.TBC_API_URL, // 'https://api.tbcbank.ge/v1/tpay/payments'
+      paymentData,
+      {
+        headers: {
+          'accept': 'application/json', // Добавляем заголовок из примера
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }
+    );
 
-// ... внутри app.post('/api/transactions/create', ...)
+    // Поле с URL может называться `redirect_url`, `payment_url` или `link`. Проверьте в документации.
+    const paymentUrl = paymentResponse.data.redirect_url; 
+    console.log('Шаг 2: Платеж создан. URL:', paymentUrl);
 
-console.log('Отправляю запрос в TBC с авторизацией через Bearer token...');
-const response = await axios.post(
-  process.env.TBC_API_URL, // 'https://api.tbcbank.ge/v1/tpay/payments'
-  tbcpaymentData,
-  {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.TBC_IPAY_KEY}` // <-- МЕНЯЕМ СПОСОБ АВТОРИЗАЦИИ
+    if (!paymentUrl) {
+        console.error('Ошибка: TBC не вернул ссылку на оплату. Ответ:', paymentResponse.data);
+        throw new Error('TBC не вернул ссылку на оплату');
     }
-    // Блок auth: { ... } полностью удаляем
+
+    res.status(201).json({
+      transactionId: transaction.transactionId,
+      paymentUrl: paymentUrl,
+      status: transaction.status
+    });
+
+  } catch (error) {
+    console.error('!!! ОШИБКА ПРИ СОЗДАНИИ ПЛАТЕЖА !!!');
+    if (error.response) {
+      console.error('Данные ответа:', error.response.data);
+      console.error('Статус:', error.response.status);
+    } else {
+      console.error('Сообщение:', error.message);
+    }
+    res.status(500).json({ message: 'Не удалось создать платеж. Попробуйте еще раз.' });
   }
-);
+});
 
     // 4. Получаем ответ от TBC
     const paymentUrl = response.data.payment_url; // <-- ПРОВЕРЬТЕ, КАК НАЗЫВАЕТСЯ ПОЛЕ С URL В ОТВЕТЕ
