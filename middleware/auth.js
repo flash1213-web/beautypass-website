@@ -7,6 +7,8 @@ const authMiddleware = async (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
     
     if (!token || token === 'null' || token === 'undefined') {
+      // Добавил лог для отладки
+      console.log('Ошибка аутентификации: Токен не предоставлен в заголовке Authorization.');
       return res.status(401).json({ message: 'ტოკენი არ არის, წვდომა აკრძალულია' });
     }
     
@@ -14,13 +16,15 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
+      // Добавил лог для отладки
+      console.log('Ошибка аутентификации: Пользователь для данного токена не найден.');
       return res.status(401).json({ message: 'მომხმარებელი არ მოიძებნა' });
     }
     
     req.user = user;
     next();
   } catch (error) {
-    console.error(error);
+    console.error('Ошибка аутентификации (невалидный токен):', error.message);
     return res.status(401).json({ message: 'არასწორი ტოკენი' });
   }
 };

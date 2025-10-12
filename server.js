@@ -1,3 +1,4 @@
+// ==================== ИНИЦИАЛИЗАЦИЯ И НАСТРОЙКА ====================
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -17,9 +18,8 @@ const Transaction = require('./models/Transaction');
 // Подключаем middleware
 const { authMiddleware, adminMiddleware, salonOwnerMiddleware } = require('./middleware/auth');
 
-// ==================== НАСТРОЙКА ====================
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000; // Берем порт из переменной окружения Render
 
 // Подключение к MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -55,7 +55,6 @@ const upload = multer({
 });
 
 // ==================== ПУБЛИЧНЫЕ МАРШРУТЫ ====================
-
 app.get('/api/status', (req, res) => {
   res.json({ message: 'Сервер работает!' });
 });
@@ -137,7 +136,6 @@ app.get('/api/salons/:id/services', async (req, res) => {
 });
 
 // ==================== АУТЕНТИФИКАЦИЯ ====================
-
 app.post('/api/register', async (req, res) => {
   try {
     const { login, personalNumber, password, phone, firstName, lastName, userType } = req.body;
@@ -222,7 +220,6 @@ app.get('/api/profile', authMiddleware, (req, res) => {
 });
 
 // ==================== ПОЛЬЗОВАТЕЛЬСКИЕ МАРШРУТЫ ====================
-
 app.post('/api/packages/buy', authMiddleware, async (req, res) => {
   try {
     const { packageId } = req.body;
@@ -312,7 +309,6 @@ app.get('/api/bookings', authMiddleware, async (req, res) => {
 });
 
 // ==================== МАРШРУТЫ ВЛАДЕЛЬЦА САЛОНА ====================
-
 app.get('/api/salon-owner/services', authMiddleware, salonOwnerMiddleware, async (req, res) => {
   try {
     const services = await Service.find({ ownerId: req.user._id });
@@ -431,7 +427,6 @@ app.put('/api/salon-owner/profile', authMiddleware, salonOwnerMiddleware, upload
 });
 
 // ==================== АДМИН МАРШРУТЫ ====================
-
 app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const users = await User.find().select('-password');
@@ -554,7 +549,6 @@ app.put('/api/admin/bookings/:id/cancel', authMiddleware, adminMiddleware, async
 });
 
 // ==================== ПЛАТЕЖИ ====================
-
 app.post('/api/transactions/create', authMiddleware, async (req, res) => {
   try {
     const { amount, bank } = req.body;
@@ -610,7 +604,6 @@ app.get('/api/transactions/:transactionId/status', async (req, res) => {
 });
 
 // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
-
 async function updateSalonServices(ownerId) {
   try {
     const services = await Service.find({ ownerId });
@@ -626,9 +619,7 @@ async function updateSalonServices(ownerId) {
   }
 }
 
-// ==================== ЗАПУСК СЕРВЕРА ====================
-
-app.listen(PORT, () => {
-  console.log(`🚀 Сервер запущен на порту ${PORT}`);
-  console.log(`🌐 Открыть сайт: http://localhost:${PORT}`);
+// ==================== ЗАПУСК СЕРВЕРА (В САМОМ КОНЦЕ ФАЙЛА) ====================
+app.listen(port, () => {
+  console.log(`🚀 Сервер запущен на порту ${port}`);
 });
