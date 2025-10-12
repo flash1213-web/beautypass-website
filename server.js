@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
+const axios = require('axios'); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
 
 // Подключаем модели
 const User = require('./models/User');
@@ -551,58 +552,67 @@ app.put('/api/admin/bookings/:id/cancel', authMiddleware, adminMiddleware, async
 // ==================== ПЛАТЕЖИ ====================
 app.post('/api/transactions/create', authMiddleware, async (req, res) => {
   try {
-    const { amount, bank } = req.body;
+    const { amount } = req.body; // Пока работаем только с TBC
     const userId = req.user._id;
 
+    // 1. Создаем транзакцию у себя в базе со статусом 'pending'
     const transaction = new Transaction({
       transactionId: `BP_${Date.now()}_${userId}`,
       userId,
       amount,
-      bank,
+      bank: 'tbc',
       status: 'pending'
     });
-
     await transaction.save();
 
-    let paymentUrl = '';
-    if (bank === 'bog') {
-      paymentUrl = `https://bankofgeorgia.ge/ge/services/payment?amount=${amount}&currency=GEL&order_id=${transaction.transactionId}`;
-    } else if (bank === 'tbc') {
-      paymentUrl = `https://tbconline.ge/ge/services/payment?amount=${amount}&currency=GEL&order_id=${transaction.transactionId}`;
+    // 2. Готовим запрос к TBC iPay API
+    // !!! ВАЖНО: URL и поля в теле запроса могут отличаться. ПРОВЕРЬТЕ В ДОКУМЕНТАЦИИ TBC !!!
+    const tbcpaymentData = {
+      amount: amount * 100, // TBC часто требует сумму в тетри (в копейках)
+      currency: 'GEL',
+      // language: 'ka', // Язык страницы оплаты
+      order_id: transaction.transactionId,
+      description: `Пополнение баланса BeautyPass на сумму ${amount} GEL`,
+      // callback_url: `https://beautypass-website.onrender.com/api/payments/tbc-callback` // URL для уведомлений от TBC
+    };
+
+    // 3. Отправляем запрос на сервер TBC
+    const response = await axios.post(
+      'https://ipay.ge/opay/api/v1/payments', // <-- ПРОВЕРЬТЕ ЭТОТ URL В ДОКУМЕНТАЦИИ TBC
+      tbcpaymentData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.TBC_IPAY_KEY}`, // Используем ключ из переменных окружения
+          // Некоторые API требуют Secret в заголовке, другие в теле. Проверьте доку!
+          // 'X-Ipay-Secret': process.env.TBC_IPAY_SECRET 
+        },
+        auth: {
+          username: process.env.TBC_IPAY_KEY, // Часто авторизация идет через Basic Auth
+          password: process.env.TBC_IPAY_SECRET
+        }
+      }
+    );
+
+    // 4. Получаем ответ от TBC
+    const paymentUrl = response.data.payment_url; // <-- ПРОВЕРЬТЕ, КАК НАЗЫВАЕТСЯ ПОЛЕ С URL В ОТВЕТЕ
+
+    if (!paymentUrl) {
+        throw new Error('TBC не вернул ссылку на оплату');
     }
 
+    // 5. Отправляем ссылку на фронтенд
     res.status(201).json({
       transactionId: transaction.transactionId,
       paymentUrl: paymentUrl,
       status: transaction.status
     });
+
   } catch (error) {
-    console.error('Ошибка создания транзакции:', error);
-    res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+    console.error('Ошибка при создании платежа в TBC:', error.response ? error.response.data : error.message);
+    res.status(500).json({ message: 'Не удалось создать платеж. Попробуйте еще раз.' });
   }
 });
-
-app.get('/api/transactions/:transactionId/status', async (req, res) => {
-  try {
-    const { transactionId } = req.params;
-    const transaction = await Transaction.findOne({ transactionId });
-
-    if (!transaction) {
-      return res.status(404).json({ message: 'Транзакция не найдена' });
-    }
-
-    res.status(200).json({
-      transactionId: transaction.transactionId,
-      status: transaction.status,
-      amount: transaction.amount,
-      bank: transaction.bank
-    });
-  } catch (error) {
-    console.error('Ошибка проверки статуса транзакции:', error);
-    res.status(500).json({ message: 'Внутренняя ошибка сервера' });
-  }
-});
-
 // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
 async function updateSalonServices(ownerId) {
   try {
