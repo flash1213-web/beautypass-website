@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
-const axios = require('axios'); // <-- ДОБАВИТЬ ЭТУ СТРОКУ
+const axios = require('axios'); // Добавлено для запросов к TBC
 
 // Подключаем модели
 const User = require('./models/User');
@@ -20,7 +20,7 @@ const Transaction = require('./models/Transaction');
 const { authMiddleware, adminMiddleware, salonOwnerMiddleware } = require('./middleware/auth');
 
 const app = express();
-const port = process.env.PORT || 3000; // Берем порт из переменной окружения Render
+const port = process.env.PORT || 3000;
 
 // Подключение к MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -64,13 +64,11 @@ app.get('/api/check-availability', async (req, res) => {
   try {
     const { type, value } = req.query;
     if (!type || !value) return res.status(400).json({ message: 'Неверный запрос' });
-
     let user;
     if (type === 'email') user = await User.findOne({ login: value });
     else if (type === 'phone') user = await User.findOne({ phone: value });
     else if (type === 'personalId') user = await User.findOne({ personalNumber: value });
     else return res.status(400).json({ message: 'Неверный тип проверки' });
-
     if (user) res.json({ available: false, message: 'უკვე დაკავებულია' });
     else res.json({ available: true });
   } catch (error) {
@@ -91,7 +89,6 @@ app.get('/api/packages', async (req, res) => {
 app.get('/api/salons', async (req, res) => {
   try {
     const salons = await Salon.find().populate('ownerId', 'firstName lastName');
-
     const salonsWithServices = await Promise.all(
       salons.map(async (salon) => {
         if (salon.ownerId) {
@@ -109,7 +106,6 @@ app.get('/api/salons', async (req, res) => {
         }
       })
     );
-
     res.json(salonsWithServices);
   } catch (error) {
     console.error(error);
@@ -120,10 +116,7 @@ app.get('/api/salons', async (req, res) => {
 app.get('/api/salons/:id/services', async (req, res) => {
   try {
     const salon = await Salon.findById(req.params.id);
-    if (!salon) {
-      return res.status(404).json({ message: 'Салон не найден' });
-    }
-
+    if (!salon) return res.status(404).json({ message: 'Салон не найден' });
     if (salon.ownerId) {
       const services = await Service.find({ ownerId: salon.ownerId });
       res.json(services);
@@ -140,36 +133,13 @@ app.get('/api/salons/:id/services', async (req, res) => {
 app.post('/api/register', async (req, res) => {
   try {
     const { login, personalNumber, password, phone, firstName, lastName, userType } = req.body;
-    
-    if (await User.findOne({ login })) 
-      return res.status(400).json({ message: 'მომხმარებელი ამ ლოგინით უკვე არსებობს' });
-    
-    if (await User.findOne({ personalNumber })) 
-      return res.status(400).json({ message: 'მომხმარებელი ამ პირადი ნომრით უკვე არსებობს' });
-
+    if (await User.findOne({ login })) return res.status(400).json({ message: 'მომხმარებელი ამ ლოგინით უკვე არსებობს' });
+    if (await User.findOne({ personalNumber })) return res.status(400).json({ message: 'მომხმარებელი ამ პირადი ნომრით უკვე არსებობს' });
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ 
-      login, personalNumber, password: hashedPassword, phone, 
-      firstName, lastName, userType 
-    });
-    
+    const user = new User({ login, personalNumber, password: hashedPassword, phone, firstName, lastName, userType });
     await user.save();
-    
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    const userPayload = {
-      id: user._id.toString(),
-      login: user.login,
-      personalNumber: user.personalNumber,
-      phone: user.phone,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      balance: user.balance,
-      purchases: user.purchases,
-      cards: user.cards,
-      isAdmin: user.isAdmin,
-      userType: user.userType
-    };
-    
+    const userPayload = { id: user._id.toString(), login: user.login, personalNumber: user.personalNumber, phone: user.phone, firstName: user.firstName, lastName: user.lastName, balance: user.balance, purchases: user.purchases, cards: user.cards, isAdmin: user.isAdmin, userType: user.userType };
     res.status(201).json({ message: 'რეგისტრაცია წარმატებით განხორციელდა!', token, user: userPayload });
   } catch (error) {
     console.error(error);
@@ -181,34 +151,11 @@ app.post('/api/login', async (req, res) => {
   try {
     const { login, password } = req.body;
     const user = await User.findOne({ personalNumber: login });
-    
-    if (!user) 
-      return res.status(400).json({ message: 'არასწორი პირადი ნომერი ან პაროლი' });
-    
+    if (!user) return res.status(400).json({ message: 'არასწორი პირადი ნომერი ან პაროლი' });
     const isMatch = await bcrypt.compare(password, user.password);
-    
-    if (!isMatch) 
-      return res.status(400).json({ message: 'არასწორი პირადი ნომერი ან პაროლი' });
-
+    if (!isMatch) return res.status(400).json({ message: 'არასწორი პირადი ნომერი ან პაროლი' });
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    const userPayload = {
-      id: user._id.toString(),
-      login: user.login,
-      personalNumber: user.personalNumber,
-      phone: user.phone,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      balance: user.balance,
-      purchases: user.purchases,
-      cards: user.cards,
-      isAdmin: user.isAdmin,
-      userType: user.userType,
-      salonName: user.salonName,
-      address: user.address,
-      salonDescription: user.salonDescription,
-      salonPhotoUrl: user.salonPhotoUrl
-    };
-    
+    const userPayload = { id: user._id.toString(), login: user.login, personalNumber: user.personalNumber, phone: user.phone, firstName: user.firstName, lastName: user.lastName, balance: user.balance, purchases: user.purchases, cards: user.cards, isAdmin: user.isAdmin, userType: user.userType, salonName: user.salonName, address: user.address, salonDescription: user.salonDescription, salonPhotoUrl: user.salonPhotoUrl };
     res.json({ token, user: userPayload });
   } catch (error) {
     console.error(error);
@@ -226,22 +173,10 @@ app.post('/api/packages/buy', authMiddleware, async (req, res) => {
     const { packageId } = req.body;
     const user = req.user;
     const pkg = await Package.findById(packageId);
-    
-    if (!pkg) 
-      return res.status(404).json({ message: 'პაკეტი არ მოიძებნა' });
-    
-    if (user.balance < pkg.price) 
-      return res.status(400).json({ message: 'არასაკმარისი ბალანსი.' });
-
+    if (!pkg) return res.status(404).json({ message: 'პაკეტი არ მოიძებნა' });
+    if (user.balance < pkg.price) return res.status(400).json({ message: 'არასაკმარისი ბალანსი.' });
     user.balance -= pkg.price;
-    user.purchases.push({
-      id: Date.now(),
-      package: pkg.name,
-      price: pkg.price,
-      date: new Date(),
-      visitsLeft: pkg.tokens
-    });
-    
+    user.purchases.push({ id: Date.now(), package: pkg.name, price: pkg.price, date: new Date(), visitsLeft: pkg.tokens });
     await user.save();
     res.json({ message: 'პაკეტი წარმატებით შეძენილია!', user: user });
   } catch (error) {
@@ -254,10 +189,7 @@ app.post('/api/balance/add', authMiddleware, async (req, res) => {
   try {
     const { amount } = req.body;
     const user = req.user;
-    
-    if (amount <= 0) 
-      return res.status(400).json({ message: 'თანხა უნდა იყოს დადებითი' });
-
+    if (amount <= 0) return res.status(400).json({ message: 'თანხა უნდა იყოს დადებითი' });
     user.balance += amount;
     await user.save();
     res.json({ message: 'ბალანსი წარმატებით შეივსა!', user: user });
@@ -271,28 +203,14 @@ app.post('/api/bookings', authMiddleware, async (req, res) => {
   try {
     const { salonId, salonName, service, dateTime } = req.body;
     const user = req.user;
-
     const activePackage = user.purchases.find(p => p.visitsLeft > 0);
-    
-    if (!activePackage) 
-      return res.status(400).json({ message: 'არ გაქვთ ხელმისაწვდომი ვიზიტები.' });
-
-    const newBooking = new Booking({ 
-      userId: user._id, salonId, salonName, service, 
-      dateTime: new Date(dateTime) 
-    });
-    
+    if (!activePackage) return res.status(400).json({ message: 'არ გაქვთ ხელმისაწვდომი ვიზიტები.' });
+    const newBooking = new Booking({ userId: user._id, salonId, salonName, service, dateTime: new Date(dateTime) });
     await newBooking.save();
-    
     const packageIndex = user.purchases.findIndex(p => p.id === activePackage.id);
     user.purchases[packageIndex].visitsLeft -= 1;
     await user.save();
-
-    res.status(201).json({ 
-      message: 'თქვენ წარმატებით დაიჯავშნეთ!', 
-      booking: newBooking, 
-      updatedUser: user 
-    });
+    res.status(201).json({ message: 'თქვენ წარმატებით დაიჯავშნეთ!', booking: newBooking, updatedUser: user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'სერვერის შეცდომა' });
@@ -311,245 +229,67 @@ app.get('/api/bookings', authMiddleware, async (req, res) => {
 
 // ==================== МАРШРУТЫ ВЛАДЕЛЬЦА САЛОНА ====================
 app.get('/api/salon-owner/services', authMiddleware, salonOwnerMiddleware, async (req, res) => {
-  try {
-    const services = await Service.find({ ownerId: req.user._id });
-    res.json(services);
-  } catch (error) {
-    res.status(500).json({ message: 'სერვერის შეცდომა' });
-  }
+  try { const services = await Service.find({ ownerId: req.user._id }); res.json(services); }
+  catch (error) { res.status(500).json({ message: 'სერვერის შეცდომა' }); }
 });
 
 app.post('/api/salon-owner/services', authMiddleware, salonOwnerMiddleware, async (req, res) => {
-  try {
-    const newService = new Service({ ...req.body, ownerId: req.user._id });
-    await newService.save();
-    await updateSalonServices(req.user._id);
-    res.status(201).json(newService);
-  } catch (error) {
-    res.status(500).json({ message: 'სერვერის შეცდომა' });
-  }
+  try { const newService = new Service({ ...req.body, ownerId: req.user._id }); await newService.save(); await updateSalonServices(req.user._id); res.status(201).json(newService); }
+  catch (error) { res.status(500).json({ message: 'სერვერის შეცდომა' }); }
 });
 
 app.put('/api/salon-owner/services/:id', authMiddleware, salonOwnerMiddleware, async (req, res) => {
-  try {
-    const service = await Service.findOne({ _id: req.params.id, ownerId: req.user._id });
-    
-    if (!service) 
-      return res.status(404).json({ message: 'Услуга не найдена' });
-    
-    Object.assign(service, req.body);
-    await service.save();
-    await updateSalonServices(req.user._id);
-    res.json(service);
-  } catch (error) {
-    res.status(500).json({ message: 'სერვერის შეცდომა' });
-  }
+  try { const service = await Service.findOne({ _id: req.params.id, ownerId: req.user._id }); if (!service) return res.status(404).json({ message: 'Услуга не найдена' }); Object.assign(service, req.body); await service.save(); await updateSalonServices(req.user._id); res.json(service); }
+  catch (error) { res.status(500).json({ message: 'სერვერის შეცდომა' }); }
 });
 
 app.delete('/api/salon-owner/services/:id', authMiddleware, salonOwnerMiddleware, async (req, res) => {
-  try {
-    const result = await Service.deleteOne({ _id: req.params.id, ownerId: req.user._id });
-    
-    if (result.deletedCount === 0) 
-      return res.status(404).json({ message: 'Услуга не найдена' });
-    
-    await updateSalonServices(req.user._id);
-    res.json({ message: 'Услуга удалена' });
-  } catch (error) {
-    res.status(500).json({ message: 'სერვერის შეცდომა' });
-  }
+  try { const result = await Service.deleteOne({ _id: req.params.id, ownerId: req.user._id }); if (result.deletedCount === 0) return res.status(404).json({ message: 'Услуга не найдена' }); await updateSalonServices(req.user._id); res.json({ message: 'Услуга удалена' }); }
+  catch (error) { res.status(500).json({ message: 'სერვერის შეცდომა' }); }
 });
 
 app.put('/api/salon-owner/profile', authMiddleware, salonOwnerMiddleware, upload.single('salonPhoto'), async (req, res) => {
   try {
     const { salonName, address, salonDescription, phone } = req.body;
-
     let salonPhotoUrl = req.body.salonPhotoUrl;
-    if (req.file) {
-      salonPhotoUrl = `/uploads/${req.file.filename}`;
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      { salonName, address, salonDescription, salonPhotoUrl, phone },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'Пользователь не найден' });
-    }
-
-    const services = await Service.find({ ownerId: req.user._id });
-    const serviceNames = services.map(service => service.name);
-
+    if (req.file) salonPhotoUrl = `/uploads/${req.file.filename}`;
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, { salonName, address, salonDescription, salonPhotoUrl, phone }, { new: true, runValidators: true });
+    if (!updatedUser) return res.status(404).json({ message: 'Пользователь не найден' });
+    const services = await Service.find({ ownerId: req.user._id }); const serviceNames = services.map(service => service.name);
     let salon = await Salon.findOne({ ownerId: req.user._id });
-
-    if (salon) {
-      salon.name = updatedUser.salonName;
-      salon.address = updatedUser.address;
-      salon.salonPhotoUrl = updatedUser.salonPhotoUrl;
-      salon.services = serviceNames;
-      await salon.save();
-    } else {
-      const newSalon = new Salon({
-        name: updatedUser.salonName,
-        address: updatedUser.address,
-        services: serviceNames,
-        rating: 0,
-        ownerId: req.user._id,
-        salonPhotoUrl: updatedUser.salonPhotoUrl
-      });
-      await newSalon.save();
-    }
-
-    const userPayload = {
-      id: updatedUser._id.toString(),
-      login: updatedUser.login,
-      personalNumber: updatedUser.personalNumber,
-      phone: updatedUser.phone,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      balance: updatedUser.balance,
-      purchases: updatedUser.purchases,
-      cards: updatedUser.cards,
-      isAdmin: updatedUser.isAdmin,
-      userType: updatedUser.userType,
-      salonName: updatedUser.salonName,
-      address: updatedUser.address,
-      salonDescription: updatedUser.salonDescription,
-      salonPhotoUrl: updatedUser.salonPhotoUrl,
-    };
-
+    if (salon) { salon.name = updatedUser.salonName; salon.address = updatedUser.address; salon.salonPhotoUrl = updatedUser.salonPhotoUrl; salon.services = serviceNames; await salon.save(); }
+    else { const newSalon = new Salon({ name: updatedUser.salonName, address: updatedUser.address, services: serviceNames, rating: 0, ownerId: req.user._id, salonPhotoUrl: updatedUser.salonPhotoUrl }); await newSalon.save(); }
+    const userPayload = { id: updatedUser._id.toString(), login: updatedUser.login, personalNumber: updatedUser.personalNumber, phone: updatedUser.phone, firstName: updatedUser.firstName, lastName: updatedUser.lastName, balance: updatedUser.balance, purchases: updatedUser.purchases, cards: updatedUser.cards, isAdmin: updatedUser.isAdmin, userType: updatedUser.userType, salonName: updatedUser.salonName, address: updatedUser.address, salonDescription: updatedUser.salonDescription, salonPhotoUrl: updatedUser.salonPhotoUrl, };
     res.json({ message: 'Профиль успешно обновлен!', user: userPayload });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Ошибка сервера при обновлении профиля' });
-  }
+  } catch (error) { console.error(error); res.status(500).json({ message: 'Ошибка сервера при обновлении профиля' }); }
 });
 
 // ==================== АДМИН МАРШРУТЫ ====================
-app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const users = await User.find().select('-password');
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-app.post('/api/admin/packages', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const newPackage = new Package(req.body);
-    await newPackage.save();
-    res.status(201).json(newPackage);
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-app.put('/api/admin/packages/:id', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const updatedPackage = await Package.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedPackage) return res.status(404).json({ message: 'Пакет не найден' });
-    res.json(updatedPackage);
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-app.delete('/api/admin/packages/:id', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const deletedPackage = await Package.findByIdAndDelete(req.params.id);
-    if (!deletedPackage) return res.status(404).json({ message: 'Пакет не найден' });
-    res.json({ message: 'Пакет успешно удален' });
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-app.get('/api/admin/salons', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const salons = await Salon.find();
-    res.json(salons);
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-app.post('/api/admin/salons', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const newSalon = new Salon(req.body);
-    await newSalon.save();
-    res.status(201).json(newSalon);
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-app.put('/api/admin/salons/:id', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const updatedSalon = await Salon.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedSalon) return res.status(404).json({ message: 'Салон не найден' });
-    res.json(updatedSalon);
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-app.delete('/api/admin/salons/:id', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const deletedSalon = await Salon.findByIdAndDelete(req.params.id);
-    if (!deletedSalon) return res.status(404).json({ message: 'Салон не найден' });
-    res.json({ message: 'Салон успешно удален' });
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
-app.get('/api/admin/bookings', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const bookings = await Booking.find()
-      .populate('userId', 'firstName lastName login personalNumber')
-      .sort({ dateTime: -1 });
-    res.json(bookings);
-  } catch (error) {
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
-});
-
+app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => { try { const users = await User.find().select('-password'); res.json(users); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
+app.post('/api/admin/packages', authMiddleware, adminMiddleware, async (req, res) => { try { const newPackage = new Package(req.body); await newPackage.save(); res.status(201).json(newPackage); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
+app.put('/api/admin/packages/:id', authMiddleware, adminMiddleware, async (req, res) => { try { const updatedPackage = await Package.findByIdAndUpdate(req.params.id, req.body, { new: true }); if (!updatedPackage) return res.status(404).json({ message: 'Пакет не найден' }); res.json(updatedPackage); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
+app.delete('/api/admin/packages/:id', authMiddleware, adminMiddleware, async (req, res) => { try { const deletedPackage = await Package.findByIdAndDelete(req.params.id); if (!deletedPackage) return res.status(404).json({ message: 'Пакет не найден' }); res.json({ message: 'Пакет успешно удален' }); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
+app.get('/api/admin/salons', authMiddleware, adminMiddleware, async (req, res) => { try { const salons = await Salon.find(); res.json(salons); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
+app.post('/api/admin/salons', authMiddleware, adminMiddleware, async (req, res) => { try { const newSalon = new Salon(req.body); await newSalon.save(); res.status(201).json(newSalon); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
+app.put('/api/admin/salons/:id', authMiddleware, adminMiddleware, async (req, res) => { try { const updatedSalon = await Salon.findByIdAndUpdate(req.params.id, req.body, { new: true }); if (!updatedSalon) return res.status(404).json({ message: 'Салон не найден' }); res.json(updatedSalon); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
+app.delete('/api/admin/salons/:id', authMiddleware, adminMiddleware, async (req, res) => { try { const deletedSalon = await Salon.findByIdAndDelete(req.params.id); if (!deletedSalon) return res.status(404).json({ message: 'Салон не найден' }); res.json({ message: 'Салон успешно удален' }); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
+app.get('/api/admin/bookings', authMiddleware, adminMiddleware, async (req, res) => { try { const bookings = await Booking.find().populate('userId', 'firstName lastName login personalNumber').sort({ dateTime: -1 }); res.json(bookings); } catch (error) { res.status(500).json({ message: 'Ошибка сервера' }); } });
 app.put('/api/admin/bookings/:id/cancel', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
-    
-    if (!booking) 
-      return res.status(404).json({ message: 'Запись не найдена' });
-    
-    if (booking.status !== 'scheduled') 
-      return res.status(400).json({ message: 'Эту запись уже нельзя отменить' });
-
+    if (!booking) return res.status(404).json({ message: 'Запись не найдена' });
+    if (booking.status !== 'scheduled') return res.status(400).json({ message: 'Эту запись уже нельзя отменить' });
     const user = await User.findById(booking.userId);
     if (user) {
-      const lastPurchase = user.purchases
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .find(p => p.visitsLeft >= 0);
-
-      if (lastPurchase) {
-        lastPurchase.visitsLeft += 1;
-        await user.save();
-      }
+      const lastPurchase = user.purchases.sort((a, b) => new Date(b.date) - new Date(a.date)).find(p => p.visitsLeft >= 0);
+      if (lastPurchase) { lastPurchase.visitsLeft += 1; await user.save(); }
     }
-
-    booking.status = 'cancelled';
-    await booking.save();
-
+    booking.status = 'cancelled'; await booking.save();
     res.json({ message: 'Запись успешно отменена, визит возвращен пользователю.' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Ошибка сервера' });
-  }
+  } catch (error) { console.error(error); res.status(500).json({ message: 'Ошибка сервера' }); }
 });
 
-// ==================== ПЛАТЕЖИ (ФИНАЛЬНАЯ ВЕРСИЯ) ====================
+// ==================== ПЛАТЕЖИ (ФИНАЛЬНАЯ ВЕРСИЯ С OAUTH) ====================
 app.post('/api/transactions/create', authMiddleware, async (req, res) => {
   try {
     const { amount } = req.body;
@@ -557,125 +297,63 @@ app.post('/api/transactions/create', authMiddleware, async (req, res) => {
 
     // --- ШАГ 1: Получаем временный токен доступа (access token) ---
     console.log('Шаг 1: Запрашиваем access token у TBC...');
-    
     const credentials = Buffer.from(`${process.env.TBC_IPAY_KEY}:${process.env.TBC_IPAY_SECRET}`).toString('base64');
-
-    const tokenResponse = await axios.post(
-      process.env.TBC_OAUTH_URL, // 'https://api.tbcbank.ge/oauth/token'
-      'grant_type=client_credentials',
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${credentials}`
-        }
-      }
-    );
-
+    const tokenResponse = await axios.post(process.env.TBC_OAUTH_URL, 'grant_type=client_credentials', {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': `Basic ${credentials}` }
+    });
     const accessToken = tokenResponse.data.access_token;
-    if (!accessToken) {
-        throw new Error('Не удалось получить access token от TBC');
-    }
+    if (!accessToken) { throw new Error('Не удалось получить access token от TBC'); }
     console.log('Шаг 1: Access token успешно получен.');
 
     // --- ШАГ 2: Создаем платеж, используя временный токен ---
     console.log('Шаг 2: Создаем платеж с помощью access token...');
-
-    const transaction = new Transaction({
-      transactionId: `BP_${Date.now()}_${userId}`,
-      userId,
-      amount,
-      bank: 'tbc',
-      status: 'pending'
-    });
+    const transaction = new Transaction({ transactionId: `BP_${Date.now()}_${userId}`, userId, amount, bank: 'tbc', status: 'pending' });
     await transaction.save();
 
-    // !!! ВАЖНО: Поля ниже - пример. Проверьте точные названия в документации TBC !!!
     const paymentData = {
       shop_order_id: transaction.transactionId,
-      purchase_amount: {
-        amount: amount * 100, // Сумма в тетри
-        currency: 'GEL'
-      },
+      purchase_amount: { amount: amount * 100, currency: 'GEL' },
       language: 'ka',
       callback_url: 'https://beautypass-website.onrender.com/api/payments/tbc-callback'
     };
     console.log('Данные для платежа:', paymentData);
 
-    const paymentResponse = await axios.post(
-      process.env.TBC_API_URL, // 'https://api.tbcbank.ge/v1/tpay/payments'
-      paymentData,
-      {
-        headers: {
-          'accept': 'application/json', // Добавляем заголовок из примера
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        }
-      }
-    );
-
-    // Поле с URL может называться `redirect_url`, `payment_url` или `link`. Проверьте в документации.
-    const paymentUrl = paymentResponse.data.redirect_url; 
-    console.log('Шаг 2: Платеж создан. URL:', paymentUrl);
-
-    if (!paymentUrl) {
-        console.error('Ошибка: TBC не вернул ссылку на оплату. Ответ:', paymentResponse.data);
-        throw new Error('TBC не вернул ссылку на оплату');
-    }
-
-    res.status(201).json({
-      transactionId: transaction.transactionId,
-      paymentUrl: paymentUrl,
-      status: transaction.status
+    const paymentResponse = await axios.post(process.env.TBC_API_URL, paymentData, {
+      headers: { 'accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }
     });
+
+    const paymentUrl = paymentResponse.data.redirect_url;
+    console.log('Шаг 2: Платеж создан. URL:', paymentUrl);
+    if (!paymentUrl) { console.error('Ошибка: TBC не вернул ссылку на оплату. Ответ:', paymentResponse.data); throw new Error('TBC не вернул ссылку на оплату'); }
+
+    res.status(201).json({ transactionId: transaction.transactionId, paymentUrl: paymentUrl, status: transaction.status });
 
   } catch (error) {
     console.error('!!! ОШИБКА ПРИ СОЗДАНИИ ПЛАТЕЖА !!!');
-    if (error.response) {
-      console.error('Данные ответа:', error.response.data);
-      console.error('Статус:', error.response.status);
-    } else {
-      console.error('Сообщение:', error.message);
-    }
+    if (error.response) { console.error('Данные ответа:', error.response.data); console.error('Статус:', error.response.status); } else { console.error('Сообщение:', error.message); }
     res.status(500).json({ message: 'Не удалось создать платеж. Попробуйте еще раз.' });
   }
 });
 
-    // 4. Получаем ответ от TBC
-    const paymentUrl = response.data.payment_url; // <-- ПРОВЕРЬТЕ, КАК НАЗЫВАЕТСЯ ПОЛЕ С URL В ОТВЕТЕ
-
-    if (!paymentUrl) {
-        throw new Error('TBC не вернул ссылку на оплату');
-    }
-
-    // 5. Отправляем ссылку на фронтенд
-    res.status(201).json({
-      transactionId: transaction.transactionId,
-      paymentUrl: paymentUrl,
-      status: transaction.status
-    });
-
-  } catch (error) {
-    console.error('Ошибка при создании платежа в TBC:', error.response ? error.response.data : error.message);
-    res.status(500).json({ message: 'Не удалось создать платеж. Попробуйте еще раз.' });
-  }
+app.get('/api/transactions/:transactionId/status', async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+    const transaction = await Transaction.findOne({ transactionId });
+    if (!transaction) return res.status(404).json({ message: 'Транзакция не найдена' });
+    res.status(200).json({ transactionId: transaction.transactionId, status: transaction.status, amount: transaction.amount, bank: transaction.bank });
+  } catch (error) { console.error('Ошибка проверки статуса транзакции:', error); res.status(500).json({ message: 'Внутренняя ошибка сервера' }); }
 });
+
 // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
 async function updateSalonServices(ownerId) {
   try {
     const services = await Service.find({ ownerId });
     const serviceNames = services.map(service => service.name);
-
-    await Salon.findOneAndUpdate(
-      { ownerId },
-      { services: serviceNames },
-      { new: true }
-    );
-  } catch (error) {
-    console.error('Ошибка обновления услуг салона:', error);
-  }
+    await Salon.findOneAndUpdate({ ownerId }, { services: serviceNames }, { new: true });
+  } catch (error) { console.error('Ошибка обновления услуг салона:', error); }
 }
 
-// ==================== ЗАПУСК СЕРВЕРА (В САМОМ КОНЦЕ ФАЙЛА) ====================
+// ==================== ЗАПУСК СЕРВЕРА ====================
 app.listen(port, () => {
   console.log(`🚀 Сервер запущен на порту ${port}`);
 });
