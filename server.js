@@ -578,7 +578,7 @@ app.post('/api/transactions/create', authMiddleware, async (req, res) => {
 
     // 3. Отправляем запрос на сервер TBC
     const response = await axios.post(
-       'https://api.ipay.ge/v1/checkout', // <-- ПОПРОБУЙТЕ ЭТОТ
+       'https://api.ipay.ge/v1/checkout', // <-- ПОПРОБУЙТЕ ЭТО
       tbcpaymentData,
       {
         headers: {
