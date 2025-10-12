@@ -579,15 +579,18 @@ app.post('/api/transactions/create', authMiddleware, async (req, res) => {
     // 3. Отправляем запрос на сервер TBC
    // ... внутри app.post('/api/transactions/create', ...)
 
-console.log('Отправляю запрос в TBC...');
+// ... внутри app.post('/api/transactions/create', ...)
+
+console.log('Отправляю запрос в TBC с авторизацией через Bearer token...');
 const response = await axios.post(
-  process.env.TBC_API_URL, // <-- ИСПОЛЬЗУЕМ URL ИЗ ПЕРЕМЕННОЙ ОКРУЖЕНИЯ
+  process.env.TBC_API_URL, // 'https://api.tbcbank.ge/v1/tpay/payments'
   tbcpaymentData,
   {
-    auth: {
-      username: process.env.TBC_IPAY_KEY,
-      password: process.env.TBC_IPAY_SECRET
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.TBC_IPAY_KEY}` // <-- МЕНЯЕМ СПОСОБ АВТОРИЗАЦИИ
     }
+    // Блок auth: { ... } полностью удаляем
   }
 );
 
