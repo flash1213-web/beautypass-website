@@ -577,22 +577,19 @@ app.post('/api/transactions/create', authMiddleware, async (req, res) => {
     };
 
     // 3. Отправляем запрос на сервер TBC
-    const response = await axios.post(
-       'https://api.tbcbank.ge/v1/tpay/payments', // <-- ПОПРОБУЙТЕ ЭТО
-      tbcpaymentData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.TBC_IPAY_KEY}`, // Используем ключ из переменных окружения
-          // Некоторые API требуют Secret в заголовке, другие в теле. Проверьте доку!
-          // 'X-Ipay-Secret': process.env.TBC_IPAY_SECRET 
-        },
-        auth: {
-          username: process.env.TBC_IPAY_KEY, // Часто авторизация идет через Basic Auth
-          password: process.env.TBC_IPAY_SECRET
-        }
-      }
-    );
+   // ... внутри app.post('/api/transactions/create', ...)
+
+console.log('Отправляю запрос в TBC...');
+const response = await axios.post(
+  process.env.TBC_API_URL, // <-- ИСПОЛЬЗУЕМ URL ИЗ ПЕРЕМЕННОЙ ОКРУЖЕНИЯ
+  tbcpaymentData,
+  {
+    auth: {
+      username: process.env.TBC_IPAY_KEY,
+      password: process.env.TBC_IPAY_SECRET
+    }
+  }
+);
 
     // 4. Получаем ответ от TBC
     const paymentUrl = response.data.payment_url; // <-- ПРОВЕРЬТЕ, КАК НАЗЫВАЕТСЯ ПОЛЕ С URL В ОТВЕТЕ
