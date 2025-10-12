@@ -30,24 +30,33 @@
 // --- НАЧАЛО ГЛОБАЛЬНОГО ОБРАБОТЧИКА ---
 // <<<< ЗАМЕНИТЕ ВСЮ ФУНКЦИЮ fetchWithAuth НА ЭТОТ ВАРИАНТ >>>>
 const fetchWithAuth = async (url, options = {}) => {
-    const token = localStorage.getItem('token');
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` }),
-            ...options.headers,
-        },
-    };
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    // Токен отсутствует - нужна повторная авторизация
+    window.location.reload();
+    throw new Error('No token found');
+  }
 
-    const response = await fetch(url, { ...defaultOptions, ...options });
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+    ...options.headers,
+  };
 
-    if (response.status === 401) {
-        localStorage.removeItem('token');
-        window.location.reload(); // Перезагрузка страницы - простой и надежный способ
-        throw new Error('Unauthorized');
-    }
+  const response = await fetch(url, { 
+    ...options, 
+    headers 
+  });
 
-    return response;
+  if (response.status === 401) {
+    // Токен истек - очищаем и перенаправляем на логин
+    localStorage.removeItem('token');
+    window.location.reload();
+    throw new Error('Unauthorized - please login again');
+  }
+
+  return response;
 };
 // <<<< КОНЕЦ КОДА ФУНКЦИИ >>>>
 // --- КОНЕЦ ГЛОБАЛЬНОГО ОБРАБОТЧИКА ---
