@@ -1102,7 +1102,7 @@ const ProfilePage = ({ user, setCurrentPage }) => {
     );
 };
 // <<<< КОНЕЦ ПОЛНОГО КОДА >>>>
-// === START BALANCE_PAGE ===
+// === START BALANCE_PAGE (ИСПРАВЛЕННАЯ ВЕРСИЯ) ===
 const BalancePage = ({ user, setUser, showToast }) => {
   const [amount, setAmount] = React.useState('');
   const [isProcessing, setIsProcessing] = React.useState(false);
@@ -1117,9 +1117,11 @@ const BalancePage = ({ user, setUser, showToast }) => {
     setIsProcessing(true);
 
     try {
-      const response = await fetch('/api/transactions/create', {
+      // !!! ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ !!!
+      // Заменяем fetch на fetchWithAuth
+      const response = await fetchWithAuth('/api/transactions/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // headers убираем, так как fetchWithAuth добавит их сам
         body: JSON.stringify({ amount: amt, bank: bank })
       });
 
@@ -1136,7 +1138,10 @@ const BalancePage = ({ user, setUser, showToast }) => {
         showToast(result.message, 'error');
       }
     } catch (error) {
-      showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
+      // Ошибка 'Unauthorized' будет поймана в fetchWithAuth, страница перезагрузится
+      if (error.message !== 'Unauthorized') {
+        showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
+      }
     } finally {
       setIsProcessing(false);
     }
