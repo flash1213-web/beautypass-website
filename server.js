@@ -2729,15 +2729,53 @@ app.post('/api/balance/add', authMiddleware, async (req, res) => {
     const user = req.user;
     
     if (amount <= 0) {
-      return res.status(400).json({ message: 'Сумма должна быть положительной' });
+      return res.status(400).json({ message: 'თანხა უნდა იყოს დადებითი' });
     }
     
     user.balance += amount;
     await user.save();
-    res.json({ message: 'Баланс успешно пополнен!', user: user });
+    
+    // Send email notification
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+      
+      await transporter.sendMail({
+        from: `"Beauty Pass" <${process.env.EMAIL_USER}>`,
+        to: user.email,
+        subject: 'ბალანსი შევსებულია - Beauty Pass',
+        html: `
+          <div style="font-family: 'Noto Sans Georgian', Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+              <h2 style="color: #ff6b9d; text-align: center;">🌸 Beauty Pass</h2>
+              <p style="font-size: 16px; color: #333;">გამარჯობა, ${user.firstName || user.login}!</p>
+              <p style="font-size: 16px; color: #333;">თქვენი ბალანსი წარმატებით შეივსო!</p>
+              <div style="background-color: #d4edda; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;">
+                <p style="color: #155724; margin: 0;">შევსებული თანხა:</p>
+                <p style="font-size: 32px; font-weight: bold; color: #155724; margin: 10px 0;">+${amount} BP</p>
+              </div>
+              <div style="background-color: #ffe0e8; padding: 15px; border-radius: 10px; text-align: center;">
+                <p style="color: #ff6b9d; margin: 0;">მიმდინარე ბალანსი:</p>
+                <p style="font-size: 24px; font-weight: bold; color: #ff6b9d; margin: 10px 0;">${user.balance} BP</p>
+              </div>
+            </div>
+          </div>
+        `
+      });
+      console.log(`✅ Balance email sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('Email error:', emailError);
+    }
+    
+    res.json({ message: 'ბალანსი წარმატებით შეივსო!', user: user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ message: 'სერვერის შეცდომა' });
   }
 });
 
