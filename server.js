@@ -985,9 +985,10 @@ app.post('/api/booking/slot', authMiddleware, async (req, res) => {
     
     const price = slot.bpPrice || 10;
     
-    // Проверка баланса
-    if ((user.beautyPoints || 0) < price) {
-      return res.status(400).json({ message: `არასაკმარისი BP. საჭიროა ${price} BP / Insufficient BP. Need ${price} BP` });
+    // Проверка баланса (используем balance или beautyPoints)
+    const userBalance = (user.balance || 0) + (user.beautyPoints || 0);
+    if (userBalance < price) {
+      return res.status(400).json({ message: `არასაკმარისი BP. საჭიროა ${price} BP, გაქვთ ${userBalance} BP / Insufficient BP. Need ${price} BP, have ${userBalance} BP` });
     }
     
     // Генерируем уникальный код
@@ -1030,8 +1031,15 @@ app.post('/api/booking/slot', authMiddleware, async (req, res) => {
     slot.bookingId = booking._id;
     await slot.save();
     
-    // Списываем BP
-    user.beautyPoints = (user.beautyPoints || 0) - price;
+    // Списываем BP (сначала из balance, потом из beautyPoints)
+    if ((user.balance || 0) >= price) {
+      user.balance = user.balance - price;
+    } else {
+      const fromBalance = user.balance || 0;
+      const fromBP = price - fromBalance;
+      user.balance = 0;
+      user.beautyPoints = (user.beautyPoints || 0) - fromBP;
+    }
     
     // Начисляем XP за бронирование (+10 XP)
     const oldLevel = Math.floor((user.xp || 0) / 100) + 1;
