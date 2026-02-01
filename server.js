@@ -4238,7 +4238,7 @@ app.put('/api/booking/:bookingId/cancel', authMiddleware, async (req, res) => {
       return res.status(404).json({ message: 'ჯავშანი ვერ მოიძებნა' });
     }
     
-    if (booking.status !== 'pending' && booking.status !== 'confirmed') {
+    if (booking.status !== 'pending' && booking.status !== 'confirmed' && booking.status !== 'booked') {
       return res.status(400).json({ message: 'ამ ჯავშნის გაუქმება შეუძლებელია' });
     }
     
@@ -4322,7 +4322,7 @@ app.put('/api/booking/:bookingId/change', authMiddleware, async (req, res) => {
       return res.status(404).json({ message: 'ჯავშანი ვერ მოიძებნა' });
     }
     
-    if (booking.status !== 'pending' && booking.status !== 'confirmed') {
+    if (booking.status !== 'pending' && booking.status !== 'confirmed' && booking.status !== 'booked') {
       return res.status(400).json({ message: 'ამ ჯავშნის შეცვლა შეუძლებელია' });
     }
     

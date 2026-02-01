@@ -1462,7 +1462,7 @@ async function loadUserBookings() {
       const daysLeft = Math.ceil((bookingDate - now) / (1000 * 60 * 60 * 24));
       
       // Кнопки доступны только для активных бронирований
-      const isActive = b.status === "pending" || b.status === "confirmed";
+      const isActive = b.status === "pending" || b.status === "confirmed" || b.status === "booked";
       const canModify = isActive && daysLeft >= 2; // И изменение и отмена доступны если >= 2 дней
       
       let buttonsHtml = '';
@@ -1506,6 +1506,7 @@ function getClientBookingStatusText(status) {
   const map = {
     pending: "📅 მოლოდინში",
     confirmed: "✅ დადასტურებული",
+    booked: "✅ დადასტურებული",
     completed: "✨ დასრულებული",
     cancelled: "❌ გაუქმებული",
     'no-show': "⚠️ არ გამოცხადდა"
