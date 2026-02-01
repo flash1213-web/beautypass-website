@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Queen Icon for favicon -->
+  <!-- Crown balls -->
+  <circle cx="30" cy="8" r="5" fill="#e84393"/>
+  <circle cx="42" cy="13" r="4" fill="#e84393"/>
+  <circle cx="50" cy="6" r="5" fill="#e84393"/>
+  <circle cx="58" cy="13" r="4" fill="#e84393"/>
+  <circle cx="70" cy="8" r="5" fill="#e84393"/>
+  <!-- Crown stems -->
+  <line x1="30" y1="14" x2="30" y2="24" stroke="#e84393" stroke-width="4" stroke-linecap="round"/>
+  <line x1="42" y1="17" x2="42" y2="24" stroke="#e84393" stroke-width="4" stroke-linecap="round"/>
+  <line x1="50" y1="12" x2="50" y2="24" stroke="#e84393" stroke-width="4" stroke-linecap="round"/>
+  <line x1="58" y1="17" x2="58" y2="24" stroke="#e84393" stroke-width="4" stroke-linecap="round"/>
+  <line x1="70" y1="14" x2="70" y2="24" stroke="#e84393" stroke-width="4" stroke-linecap="round"/>
+  <!-- Head oval -->
+  <ellipse cx="50" cy="50" rx="28" ry="24" fill="none" stroke="#e84393" stroke-width="5"/>
+  <!-- Outer hair left -->
+  <path d="M22 50 C8 70 18 92 38 98" fill="none" stroke="#e84393" stroke-width="5" stroke-linecap="round"/>
+  <!-- Outer hair right -->
+  <path d="M78 50 C92 70 82 92 62 98" fill="none" stroke="#e84393" stroke-width="5" stroke-linecap="round"/>
+  <!-- Inner hair left -->
+  <path d="M35 32 C44 55 36 75 44 95" fill="none" stroke="#e84393" stroke-width="4" stroke-linecap="round"/>
+  <!-- Inner hair right -->
+  <path d="M65 32 C56 55 64 75 56 95" fill="none" stroke="#e84393" stroke-width="4" stroke-linecap="round"/>
+  <!-- Face V -->
+  <path d="M40 55 L50 72 L60 55" fill="none" stroke="#e84393" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Lips -->
+  <path d="M44 80 Q50 87 56 80" fill="#e84393"/>
+  <!-- Curl bottom left -->
+  <path d="M36 95 C18 102 10 90 20 82" fill="none" stroke="#e84393" stroke-width="4" stroke-linecap="round"/>
+</svg>

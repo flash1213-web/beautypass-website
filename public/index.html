@@ -1,1883 +1,1183 @@
 ﻿<!DOCTYPE html>
 <html lang="ka">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeautyPass - სილამაზის აბონემენტები</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-                sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        * {
-            box-sizing: border-box;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Beauty Pass - Your gateway to unlimited beauty services. One card, endless possibilities at premium partner salons.">
+  <meta name="keywords" content="beauty pass, salon booking, beauty services, spa, nails, hair, makeup">
+  <meta name="theme-color" content="#7c3aed">
+  <!-- Updated: 2025-11-14 -->
+  <title>One Card, Unlimited Beauty</title>
+
+  <!-- Preconnect to improve performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Google Fonts for Georgian support - Condensed versions -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=Inter+Tight:wght@400;500;600;700;800;900&family=Roboto+Condensed:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles.css?v=20251224-DESIGN-UPDATE">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/beautypass-logo.png">
+  
+  <!-- Preload Logo -->
+  <!-- Logo is text-based now -->
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-// --- НАЧАЛО ГЛОБАЛЬНОГО ОБРАБОТЧИКА ---
-// <<<< ЗАМЕНИТЕ ВСЮ ФУНКЦИЮ fetchWithAuth НА ЭТОТ ВАРИАНТ >>>>
-const fetchWithAuth = async (url, options = {}) => {
-  const token = localStorage.getItem('token');
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-spinner"></div>
+    <p data-en="Loading Beauty Pass..." data-ka="იტვირთება Beauty Pass...">იტვირთება Beauty Pass...</p>
+  </div>
+
+  <!-- Header Navigation -->
+  <header id="mainHeader">
+    <nav class="navbar">
+      <div class="container nav-container">
+        <div class="logo" onclick="window.location.hash = '#home'" style="cursor: pointer;">
+          <img src="images/beautypass-logo.png" alt="BeautyPass" class="logo-img" style="height: 40px; width: auto;">
+          <span class="logo-text">BeautyPass</span>
+        </div>
+        
+        <!-- Desktop Navigation -->
+        <div class="nav-links">
+          <a href="javascript:void(0)" onclick="navigate('#home')" data-en="Home" data-ka="მთავარი">მთავარი</a>
+          <a href="javascript:void(0)" onclick="scrollToMap()" data-en="Salons" data-ka="სალონები">სალონები</a>
+          <a href="javascript:void(0)" onclick="navigate('#tariffs')" data-en="Tariffs" data-ka="ტარიფები">ტარიფები</a>
+          <a href="javascript:void(0)" onclick="showAboutModal()" data-en="About Us" data-ka="ჩვენ შესახებ">ჩვენ შესახებ</a>
+          <a href="javascript:void(0)" onclick="navigate('#contact')" data-en="Contact" data-ka="კონტაქტი">კონტაქტი</a>
+          <a href="javascript:void(0)" onclick="if(typeof CommunityApp !== 'undefined') CommunityApp.show();" class="community-nav-link" data-en="Community" data-ka="ქომიუნითი">
+            <span>👥</span> <span data-en="Community" data-ka="ქომიუნითი">Community</span>
+          </a>
+        </div>
+        
+        <!-- Desktop Auth Buttons -->
+        <div class="auth-actions" id="authActions">
+          <button class="btn btn-outline" onclick="showLoginForm()">შესვლა</button>
+          <button class="btn btn-primary" onclick="showRegisterForm()">რეგისტრაცია</button>
+        </div>
+        
+        <!-- Profile Circle (shown when logged in) -->
+        <div class="profile-circle" id="profileCircle" style="display:none;">
+          <div class="profile-avatar" id="profileAvatar" onclick="toggleProfileDropdown()"></div>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dropdown-menu">
+              <a href="javascript:void(0)" class="profile-dropdown-item" id="profileDashboardLink">
+                <span>📊</span>
+                <span id="profileDashboardText">Dashboard</span>
+              </a>
+              <a href="javascript:void(0)" class="profile-dropdown-item" onclick="if(typeof toggleMessenger === 'function') toggleMessenger(); toggleProfileDropdown();">
+                <span>💬</span>
+                <span>Messages</span>
+              </a>
+              <div class="profile-dropdown-divider"></div>
+              <a href="javascript:void(0)" class="profile-dropdown-item profile-dropdown-logout" id="profileLogoutLink">
+                <span>🚪</span>
+                <span>Logout</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Desktop Language Switcher -->
+        <div class="language-switcher">
+          <button class="lang-btn" onclick="switchLanguage('ka')" data-lang="ka">
+            <span class="lang-text">KA</span>
+          </button>
+          <button class="lang-btn" onclick="switchLanguage('en')" data-lang="en">
+            <span class="lang-text">EN</span>
+          </button>
+        </div>
+        
+        <!-- Hamburger Button -->
+        <button class="hamburger" onclick="toggleMobileMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- Mobile Menu Panel -->
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="mobile-menu-header">
+        <div class="logo" onclick="window.location.hash = '#home'; toggleMobileMenu(false);" style="cursor: pointer;">
+          <img src="images/beautypass-logo.png" alt="BeautyPass" class="logo-img" style="height: 36px; width: auto;">
+          <span class="logo-text">BeautyPass</span>
+        </div>
+        <button class="mobile-close" onclick="toggleMobileMenu()">✕</button>
+      </div>
+      
+      <!-- Mobile User Profile -->
+      <div class="mobile-menu-top">
+        <div id="mobileAuthActionsTop"></div>
+      </div>
+      
+      <nav class="mobile-nav-links">
+        <div class="mobile-menu-section">
+          <a href="javascript:void(0)" onclick="navigate('#home'); toggleMobileMenu()">მთავარი / Home</a>
+          <a href="javascript:void(0)" onclick="scrollToMap(); toggleMobileMenu()" data-en="Salons" data-ka="სალონები">სალონები / Salons</a>
+          <a href="javascript:void(0)" onclick="navigate('#tariffs'); toggleMobileMenu()">ტარიფები / Tariffs</a>
+          <a href="javascript:void(0)" onclick="navigate('#services'); toggleMobileMenu()">სერვისები / Services</a>
+          <a href="#contact" onclick="toggleMobileMenu()">კონტაქტი / Contact</a>
+        </div>
+        
+        <div class="mobile-menu-divider"></div>
+        
+        <div class="mobile-menu-section">
+          <span class="mobile-menu-label">სწრაფი ლინკები / Quick Links</span>
+          <a href="javascript:void(0)" onclick="handleProfileClick(); toggleMobileMenu();">ჩემი პროფილი / My Profile</a>
+        </div>
+        
+        <div class="mobile-menu-divider"></div>
+        
+        <div class="mobile-menu-section">
+          <span class="mobile-menu-label">ინფორმაცია / Information</span>
+          <a href="javascript:void(0)" onclick="showAboutModal(); toggleMobileMenu();">ჩვენ შესახებ / About Us</a>
+          <a href="#policy" onclick="toggleMobileMenu()">კონფიდენციალურობა / Privacy</a>
+          <a href="#refund" onclick="toggleMobileMenu()">დაბრუნება / Refund</a>
+        </div>
+        
+        <div class="mobile-menu-divider"></div>
+        
+        <div class="mobile-menu-section">
+          <span class="mobile-menu-label">ენა / Language</span>
+          <div class="mobile-language-switcher">
+            <button class="lang-btn mobile-lang-btn" onclick="switchLanguage('ka')" data-lang="ka">
+              <span class="lang-text">🇬🇪 ქართული</span>
+            </button>
+            <button class="lang-btn mobile-lang-btn" onclick="switchLanguage('en')" data-lang="en">
+              <span class="lang-text">🇬🇧 English</span>
+            </button>
+          </div>
+        </div>
+      </nav>
+      
+      <!-- Mobile Logout Button -->
+      <div class="mobile-menu-footer" id="mobileLogoutSection" style="display: none;">
+        <button class="btn btn-outline btn-block mobile-logout-btn" onclick="logout(); toggleMobileMenu();">
+          <span data-ka="გამოსვლა" data-en="Logout">გამოსვლა / Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Home Section -->
+    <section id="home" class="page-section active">
+      <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+          <div class="hero-badges">
+            <span class="hero-badge">🏆 Top Rated</span>
+            <span class="hero-badge">⚡ Fast Booking</span>
+            <span class="hero-badge">💎 Premium Quality</span>
+          </div>
+          <h1 class="hero-title" data-en="One Card — Unlimited Beauty" data-ka="ერთი ბარათი — შეუზღუდავი სილამაზე">ერთი ბარათი — შეუზღუდავი სილამაზე<br><small class="hero-translation">One Card — Unlimited Beauty</small></h1>
+          <p class="hero-subtitle" data-en="Unlimited access to premium salons. Choose your tariff and start your beauty journey." data-ka="შეუზღუდავი წვდომა პრემიუმ სალონებში. აირჩიე შენი ტარიფი და დაიწყე მოგზაურობა სილამაზის სამყაროში.">შეუზღუდავი წვდომა პრემიუმ სალონებში. აირჩიე შენი ტარიფი და დაიწყე მოგზაურობა სილამაზის სამყაროში.<br><em class="hero-translation">Unlimited access to premium salons. Choose your tariff and start your beauty journey.</em></p>
+          <div class="hero-actions">
+            <button class="btn btn-primary btn-large" onclick="navigate('#tariffs')">
+              <span data-en="View Tariffs" data-ka="ტარიფების ნახვა">ტარიფების ნახვა / View Tariffs</span>
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <button class="btn btn-outline btn-large" onclick="navigate('#about')">
+              <span data-en="Learn More" data-ka="გაიგე მეტი">გაიგე მეტი / Learn More</span>
+            </button>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-item stat-animated">
+              <div class="stat-icon">👥</div>
+              <span class="stat-number" id="stat-clients" data-count="0">0</span><span class="stat-plus">+</span>
+              <span class="stat-label" data-en="Happy Clients" data-ka="კმაყოფილი კლიენტი">კმაყოფილი კლიენტი</span>
+              <div class="stat-progress">
+                <div class="stat-progress-bar" id="progress-clients" data-progress="0"></div>
+              </div>
+            </div>
+            <div class="stat-item stat-animated">
+              <div class="stat-icon">💎</div>
+              <span class="stat-number" id="stat-salons" data-count="0">0</span><span class="stat-plus">+</span>
+              <span class="stat-label" data-en="Partner Salons" data-ka="პარტნიორი სალონი">პარტნიორი სალონი</span>
+              <div class="stat-progress">
+                <div class="stat-progress-bar" id="progress-salons" data-progress="0"></div>
+              </div>
+            </div>
+            <div class="stat-item stat-animated">
+              <div class="stat-icon">✨</div>
+              <span class="stat-number" id="stat-bookings" data-count="0">0</span><span class="stat-plus">+</span>
+              <span class="stat-label" data-en="Completed Visits" data-ka="დასრულებული ვიზიტი">დასრულებული ვიზიტი</span>
+              <div class="stat-progress">
+                <div class="stat-progress-bar" id="progress-bookings" data-progress="0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Promo Carousel -->
+        <div class="promo-carousel-container">
+          <div class="promo-carousel" id="promoCarousel">
+            <!-- Slide 1 - First in Georgia -->
+            <div class="promo-slide active" style="background: linear-gradient(135deg, #e84393, #a29bfe);">
+              <div class="promo-content">
+                <span class="promo-badge">🇬🇪 ექსკლუზივი</span>
+                <h3>პირველად საქართველოში!</h3>
+                <p>სილამაზის სერვისების <strong>ერთიანი პლატფორმა</strong> — დაჯავშნე, გადაიხადე, ისარგებლე!</p>
+                <button class="promo-btn" onclick="showRegisterForm()">შემოგვიერთდი →</button>
+              </div>
+              <div class="promo-visual">🚀✨</div>
+            </div>
+            
+            <!-- Slide 2 - Free Registration -->
+            <div class="promo-slide" style="background: linear-gradient(135deg, #6c5ce7, #00cec9);">
+              <div class="promo-content">
+                <span class="promo-badge">🎁 საჩუქარი</span>
+                <h3>უფასო რეგისტრაცია</h3>
+                <p>დარეგისტრირდი დღეს და მიიღე <strong>50 BP საჩუქრად!</strong></p>
+                <button class="promo-btn" onclick="showRegisterForm()">დარეგისტრირდი →</button>
+              </div>
+              <div class="promo-visual">💅💫</div>
+            </div>
+            
+            <!-- Slide 3 - Premium Package -->
+            <div class="promo-slide" style="background: linear-gradient(135deg, #fd79a8, #fdcb6e);">
+              <div class="promo-content">
+                <span class="promo-badge">💎 VIP</span>
+                <h3>Premium პაკეტი</h3>
+                <p>300 BP თვეში — <strong>შეუზღუდავი სილამაზე!</strong></p>
+                <button class="promo-btn" onclick="navigate('#tariffs')">ნახე ტარიფები →</button>
+              </div>
+              <div class="promo-visual">👑🌟</div>
+            </div>
+            
+            <!-- Slide 4 - Invite Friend -->
+            <div class="promo-slide" style="background: linear-gradient(135deg, #00b894, #55a3ff);">
+              <div class="promo-content">
+                <span class="promo-badge">👯 მეგობარი</span>
+                <h3>მოიწვიე მეგობარი</h3>
+                <p>თითოეულ მოწვეულზე მიიღე <strong>25 BP ბონუსი!</strong></p>
+                <button class="promo-btn" onclick="navigate('#client')">მოიწვიე →</button>
+              </div>
+              <div class="promo-visual">🎉💖</div>
+            </div>
+          </div>
+          
+          <!-- Carousel Controls -->
+          <div class="promo-controls">
+            <button class="promo-arrow prev" onclick="movePromoSlide(-1)">❮</button>
+            <div class="promo-dots" id="promoDots"></div>
+            <button class="promo-arrow next" onclick="movePromoSlide(1)">❯</button>
+          </div>
+        </div>
+
+        <!-- Interactive Tbilisi Map with Filters -->
+        <div class="map-section" id="mapSection">
+          <div class="section-header">
+            <h2 data-en="Find Salons on Map" data-ka="იპოვე სალონები რუკაზე">🗺️ იპოვე სალონები რუკაზე / Find Salons on Map</h2>
+            <p data-en="Interactive map of our partner salons in Tbilisi" data-ka="თბილისში ჩვენი პარტნიორი სალონების ინტერაქტიული რუკა">თბილისში ჩვენი პარტნიორი სალონების ინტერაქტიული რუკა / Interactive map of our partner salons in Tbilisi</p>
+          </div>
+          
+          <!-- Map Filters -->
+          <div class="map-filters-bar">
+            <div class="map-search-box">
+              <input type="text" id="mapSearchInput" class="map-search" placeholder="🔍 მოძებნე სალონი / Search salon..." oninput="handleMapSearch()">
+            </div>
+            <div class="category-pills" id="categoryPills">
+              <button class="category-pill active" data-category="all" onclick="handleCategoryFilter('all', this)">
+                🌟 ყველა / All
+              </button>
+              <button class="category-pill" data-category="nails" onclick="handleCategoryFilter('nails', this)">
+                💅 ფრჩხილები / Nails
+              </button>
+              <button class="category-pill" data-category="hair" onclick="handleCategoryFilter('hair', this)">
+                💇 თმა / Hair
+              </button>
+              <button class="category-pill" data-category="face" onclick="handleCategoryFilter('face', this)">
+                🧖 სახე / Face
+              </button>
+              <button class="category-pill" data-category="body" onclick="handleCategoryFilter('body', this)">
+                💆 სხეული / Body
+              </button>
+              <button class="category-pill" data-category="makeup" onclick="handleCategoryFilter('makeup', this)">
+                💄 მაკიაჟი / Makeup
+              </button>
+            </div>
+            <div class="rating-filter">
+              <select id="ratingFilter" class="filter-select" onchange="handleRatingFilter()">
+                <option value="">⭐ ყველა რეიტინგი / All ratings</option>
+                <option value="4">⭐ 4+ რეიტინგი</option>
+                <option value="4.5">⭐ 4.5+ რეიტინგი</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Map + Sidebar Layout -->
+          <div class="map-section-container">
+            <div class="map-wrapper">
+              <div class="map-overlay-title">
+                <h3>💅 Beauty Pass პარტნიორები</h3>
+              </div>
+              <div id="tbilisiMap"></div>
+            </div>
+            
+            <!-- Sidebar with Salon List -->
+            <div class="map-sidebar">
+              <h3>📍 სალონების სია / Salons List</h3>
+              <div id="mapSalonsList" class="salon-list">
+                <!-- Populated by JavaScript -->
+                <div class="loading-salons">
+                  <div class="loading-spinner-small"></div>
+                  <p>იტვირთება... / Loading...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tariffs Section -->
+        <div class="section-header" id="tariffs">
+          <h2 data-en="Tariffs" data-ka="ტარიფები">ტარიფები / Tariffs</h2>
+          <p data-en="Choose the plan that suits you" data-ka="აირჩიე შენთვის შესაფერისი გეგმა">აირჩიე შენთვის შესაფერისი გეგმა / Choose the plan that suits you</p>
+        </div>
+        <div class="tariffs-grid" id="tariffsGrid"></div>
+      </div>
+    </section>
+
+    <!-- About Modal (Popup) -->
+    <div class="about-modal" id="aboutModal">
+      <div class="about-modal-overlay" onclick="closeAboutModal()"></div>
+      <div class="about-modal-content">
+        <button class="about-modal-close" onclick="closeAboutModal()">&times;</button>
+        
+        <div class="about-modal-header">
+          <h2 data-en="✨ About Us — Beauty Pass" data-ka="✨ ჩვენ შესახებ — Beauty Pass">✨ ჩვენ შესახებ — Beauty Pass</h2>
+        </div>
+        
+        <div class="about-modal-body">
+          <p class="about-intro" data-en="Beauty Pass was born from one simple idea: <strong>to make beauty accessible.</strong>" data-ka="Beauty Pass დაიბადა ერთი მარტივი იდეიდან: <strong>სილამაზე ყველასთვის ხელმისაწვდომი გახდეს.</strong>">
+            Beauty Pass დაიბადა ერთი მარტივი იდეიდან: <strong>სილამაზე ყველასთვის ხელმისაწვდომი გახდეს.</strong>
+          </p>
+          <p data-en="We believe that self-care is not a luxury — it's a lifestyle." data-ka="ჩვენ გვჯერა, რომ თავის მოვლა ფუფუნება კი არა — ცხოვრების წესია.">ჩვენ გვჯერა, რომ თავის მოვლა ფუფუნება კი არა — ცხოვრების წესია.</p>
+          
+          <h3 data-en="💎 Our Mission" data-ka="💎 ჩვენი მისია">💎 ჩვენი მისია</h3>
+          <p data-en="Our mission is to connect you with the best partner salons across Georgia through one elegant digital platform." data-ka="ჩვენი მისიაა დაგაკავშიროთ საქართველოს საუკეთესო პარტნიორ სალონებთან ერთი ელეგანტური ციფრული პლატფორმის საშუალებით.">ჩვენი მისიაა დაგაკავშიროთ საქართველოს საუკეთესო პარტნიორ სალონებთან ერთი ელეგანტური ციფრული პლატფორმის საშუალებით.</p>
+          <p data-en="With your Beauty Pass, you can find top salons, choose premium procedures, easily book and enjoy a journey in the world of beauty." data-ka="Beauty Pass-ით თქვენ შეგიძლიათ იპოვოთ საუკეთესო სალონები, აირჩიოთ პრემიუმ პროცედურები, მარტივად დაჯავშნოთ და დატკბეთ სილამაზის სამყაროში მოგზაურობით.">Beauty Pass-ით თქვენ შეგიძლიათ იპოვოთ საუკეთესო სალონები, აირჩიოთ პრემიუმ პროცედურები, მარტივად დაჯავშნოთ და დატკბეთ სილამაზის სამყაროში მოგზაურობით.</p>
+          
+          <h3 data-en="🌟 What makes us different" data-ka="🌟 რა გამოგვარჩევს">🌟 რა გამოგვარჩევს</h3>
+          <div class="about-values-grid">
+            <div class="about-value">
+              <span class="value-icon">💰</span>
+              <strong data-en="Transparency" data-ka="გამჭვირვალობა">გამჭვირვალობა</strong>
+              <p data-en="Clear pricing in Beauty Points (BP)" data-ka="მკაფიო ფასები Beauty Points-ში (BP)">მკაფიო ფასები Beauty Points-ში (BP)</p>
+            </div>
+            <div class="about-value">
+              <span class="value-icon">🔄</span>
+              <strong data-en="Flexibility" data-ka="მოქნილობა">მოქნილობა</strong>
+              <p data-en="Book, cancel, or reschedule anytime" data-ka="დაჯავშნეთ, გააუქმეთ ან გადაანაცვლეთ ნებისმიერ დროს">დაჯავშნეთ, გააუქმეთ ან გადაანაცვლეთ ნებისმიერ დროს</p>
+            </div>
+            <div class="about-value">
+              <span class="value-icon">🚀</span>
+              <strong data-en="Innovation" data-ka="ინოვაცია">ინოვაცია</strong>
+              <p data-en="Secure profiles & loyalty rewards" data-ka="უსაფრთხო პროფილები და ლოიალობის ჯილდოები">უსაფრთხო პროფილები და ლოიალობის ჯილდოები</p>
+            </div>
+            <div class="about-value">
+              <span class="value-icon">🤝</span>
+              <strong data-en="Community" data-ka="ქომიუნითი">ქომიუნითი</strong>
+              <p data-en="Quality-selected partner salons" data-ka="ხარისხით შერჩეული პარტნიორი სალონები">ხარისხით შერჩეული პარტნიორი სალონები</p>
+            </div>
+          </div>
+          
+          <div class="about-cta-box">
+            <p class="tagline" data-en="Beauty Pass — One Card, Unlimited Possibilities." data-ka="Beauty Pass — ერთი ბარათი, შეუზღუდავი შესაძლებლობები.">Beauty Pass — ერთი ბარათი, შეუზღუდავი შესაძლებლობები.</p>
+            <button class="btn btn-primary" onclick="closeAboutModal(); navigate('#tariffs');" data-en="Get Your Pass Now 💅" data-ka="მიიღე შენი პასი ახლავე 💅">
+              მიიღე შენი პასი ახლავე 💅
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Client Login/Profile Section -->
+    <section id="client" class="page-section">
+      <div class="container">
+        
+        <!-- LOGIN CARD -->
+        <div class="auth-card" id="loginFormCard">
+          <div class="card-header">
+            <h2 data-en="Welcome Back" data-ka="მოგესალმებით">მოგესალმებით / Welcome Back</h2>
+            <p data-en="Sign in to your account" data-ka="შედით თქვენს ანგარიშში">შედით თქვენს ანგარიშში / Sign in to your account</p>
+          </div>
+          <form class="auth-form" id="loginForm" onsubmit="event.preventDefault(); loginClient();">
+            <div class="form-group">
+              <label for="loginEmail" data-en="Email" data-ka="ელფოსტა">ელფოსტა / Email</label>
+              <input type="email" id="loginEmail" class="form-input" placeholder="example@mail.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="loginPassword" data-en="Password" data-ka="პაროლი">პაროლი / Password</label>
+              <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-block" id="loginSubmitBtn" data-en="Sign In" data-ka="შესვლა">შესვლა / Sign In</button>
+            </div>
+            <div class="auth-switch">
+              <a href="javascript:void(0)" onclick="showForgotPasswordForm()" class="forgot-password-link" data-en="Forgot Password?" data-ka="დაგავიწყდათ პაროლი?">დაგავიწყდათ პაროლი? / Forgot Password?</a>
+            </div>
+            <div class="auth-switch">
+              <p data-en="Don't have an account?" data-ka="არ გაქვთ ანგარიში?">არ გაქვთ ანგარიში? / Don't have an account?</p>
+              <a href="javascript:void(0)" onclick="showRegisterForm()" data-en="Register here" data-ka="დარეგისტრირდით აქ">დარეგისტრირდით აქ / Register here</a>
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+              <button type="button" onclick="testBackendConnection()" class="btn btn-outline btn-sm" style="font-size: 0.8rem; opacity: 0.7;">
+                🔌 Test Server Connection
+              </button>
+              <div id="connectionStatus" style="font-size: 0.8rem; margin-top: 5px;"></div>
+            </div>
+          </form>
+        </div>
+
+        <!-- FORGOT PASSWORD CARD -->
+        <div class="auth-card" id="forgotPasswordCard" style="display: none;">
+          <div class="card-header">
+            <h2 data-en="Reset Password" data-ka="პაროლის აღდგენა">პაროლის აღდგენა / Reset Password</h2>
+            <p data-en="Enter your email to receive a code" data-ka="შეიყვანეთ ელფოსტა კოდის მისაღებად">შეიყვანეთ ელფოსტა კოდის მისაღებად</p>
+          </div>
+          <form class="auth-form" id="forgotPasswordForm" onsubmit="event.preventDefault(); requestPasswordReset();">
+            <div class="form-group">
+              <label for="forgotEmail" data-en="Email" data-ka="ელფოსტა">ელფოსტა / Email</label>
+              <input type="email" id="forgotEmail" class="form-input" placeholder="example@mail.com" required>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-block" id="forgotSubmitBtn" data-en="Send Code" data-ka="კოდის გაგზავნა">კოდის გაგზავნა / Send Code</button>
+            </div>
+            <div class="auth-switch">
+              <a href="javascript:void(0)" onclick="showLoginForm()" data-en="Back to Login" data-ka="უკან შესვლაზე">უკან შესვლაზე / Back to Login</a>
+            </div>
+          </form>
+        </div>
+
+        <!-- RESET PASSWORD CARD -->
+        <div class="auth-card" id="resetPasswordCard" style="display: none;">
+          <div class="card-header">
+            <h2 data-en="New Password" data-ka="ახალი პაროლი">ახალი პაროლი / New Password</h2>
+            <p data-en="Enter code and new password" data-ka="შეიყვანეთ კოდი და ახალი პაროლი">შეიყვანეთ კოდი და ახალი პაროლი</p>
+          </div>
+          <form class="auth-form" id="resetPasswordForm" onsubmit="event.preventDefault(); completePasswordReset();">
+            <div class="form-group">
+              <label for="resetOtp" data-en="Verification Code" data-ka="დამადასტურებელი კოდი">დამადასტურებელი კოდი / Verification Code</label>
+              <input type="text" id="resetOtp" class="form-input" placeholder="123456" required maxlength="6" pattern="\d{6}">
+            </div>
+            <div class="form-group">
+              <label for="resetNewPassword" data-en="New Password" data-ka="ახალი პაროლი">ახალი პაროლი / New Password</label>
+              <input type="password" id="resetNewPassword" class="form-input" placeholder="Min 8 chars + special" required>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-block" id="resetSubmitBtn" data-en="Reset Password" data-ka="პაროლის შეცვლა">პაროლის შეცვლა / Reset Password</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- REGISTER CARD -->
+        <div class="auth-card" id="registerFormCard" style="display: none;">
+          <div class="card-header">
+            <h2 data-en="Create Account" data-ka="ანგარიშის შექმნა">ანგარიშის შექმნა / Create Account</h2>
+            <p data-en="Join Beauty Pass today" data-ka="შემოუერთდით Beauty Pass-ს დღესვე">შემოუერთდით Beauty Pass-ს დღესვე / Join Beauty Pass today</p>
+          </div>
+          <form class="auth-form" id="registerForm" onsubmit="event.preventDefault(); registerClient();">
+            <div class="form-group">
+              <label for="registerName" data-en="Full Name" data-ka="სახელი და გვარი">სახელი და გვარი / Full Name</label>
+              <input type="text" id="registerName" class="form-input" placeholder="თქვენი სახელი / Your Name" required autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label for="registerEmail" data-en="Email" data-ka="ელფოსტა">ელფოსტა / Email</label>
+              <input type="email" id="registerEmail" class="form-input" placeholder="example@mail.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="registerPhone" data-en="Phone" data-ka="ტელეფონი">ტელეფონი / Phone</label>
+              <input type="tel" id="registerPhone" class="form-input" placeholder="+995 5XX XXX XXX" required autocomplete="tel">
+            </div>
+            <div class="form-group">
+              <label for="registerBirthDate" data-en="Birth Date" data-ka="დაბადების თარიღი">დაბადების თარიღი / Birth Date</label>
+              <input type="date" id="registerBirthDate" class="form-input" autocomplete="bday">
+            </div>
+            <div class="form-group">
+              <label for="registerPassword" data-en="Password" data-ka="პაროლი">პაროლი / Password</label>
+              <input type="password" id="registerPassword" class="form-input" placeholder="Min 8 chars + special" required autocomplete="new-password">
+              <small class="form-hint" data-en="Min 8 chars, 1 special char" data-ka="მინ. 8 სიმბოლო, 1 სპეციალური სიმბოლო">მინ. 8 სიმბოლო, 1 სპეციალური სიმბოლო / Min 8 chars, 1 special char</small>
+            </div>
+            <div class="form-group">
+              <label for="registerReferral" data-en="Referral Code (optional)" data-ka="რეფერალ კოდი (არასავალდებულო)">რეფერალ კოდი (არასავალდებულო) / Referral Code</label>
+              <input type="text" id="registerReferral" class="form-input" placeholder="BP-XXXX">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-block" id="registerSubmitBtn" data-en="Register" data-ka="რეგისტრაცია">რეგისტრაცია / Register</button>
+            </div>
+            <div class="auth-switch">
+              <p data-en="Already have an account?" data-ka="უკვე გაქვთ ანგარიში?">უკვე გაქვთ ანგარიში? / Already have an account?</p>
+              <a href="javascript:void(0)" onclick="showLoginForm()" data-en="Login here" data-ka="შედით აქ">შედით აქ / Login here</a>
+            </div>
+          </form>
+        </div>
+
+          <!-- 2FA Verification -->
+          <div class="auth-card" id="twofaCard" style="display: none;">
+            <div class="card-header">
+              <h2 data-en="Two-Factor Authentication" data-ka="ორფაქტორიანი ავტორიზაცია">ორფაქტორიანი ავტორიზაცია / Two-Factor Authentication</h2>
+              <p data-en="Enter the 6-digit code sent to your email" data-ka="შეიყვანეთ 6-ნიშნა კოდი, რომელიც გამოგზავნილია თქვენს ელფოსტაზე">შეიყვანეთ 6-ნიშნა კოდი, რომელიც გამოგზავნილია თქვენს ელფოსტაზე / Enter the 6-digit code sent to your email</p>
+            </div>
+            <div class="auth-form">
+              <div class="form-group">
+                <input type="text" id="otpCode" class="form-input text-center" placeholder="123456" maxlength="6" inputmode="numeric" style="font-size: 1.5rem; letter-spacing: 0.5rem;">
+                <div id="otpHint" class="form-hint" style="display: none;"></div>
+                <div id="otpTimer" class="form-hint" style="text-align: center; margin-top: 10px;"></div>
+              </div>
+              <div class="form-actions">
+              <button class="btn btn-primary btn-block" onclick="submit2FACode()" data-en="Verify" data-ka="დადასტურება">დადასტურება / Verify</button>
+                <button id="resendBtn" class="btn btn-outline btn-block" onclick="resend2FA()" data-en="Resend Code" data-ka="კოდის ხელახლა გაგზავნა">კოდის ხელახლა გაგზავნა / Resend Code</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Client Profile -->
+        <div class="profile-container" id="clientProfile" style="display: none;">
+          <div class="profile-header">
+            <div class="profile-info">
+              <h2 id="profileName">კლიენტი / Client</h2>
+              <p id="profileEmail" class="text-muted">email@example.com</p>
+            </div>
+            <button class="btn btn-outline" onclick="logoutClient()" data-en="Logout" data-ka="გამოსვლა">გამოსვლა / Logout</button>
+          </div>
+
+          <!-- Balance Cards -->
+          <div class="balance-cards-grid">
+            <div class="balance-card">
+              <div class="balance-icon">💳</div>
+              <div class="balance-info">
+                <span class="balance-label">GEL ბალანსი / Balance</span>
+                <span class="balance-amount" id="userBalance">0₾</span>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="PaymentSystem.showTopUpModal()">+ შევსება</button>
+            </div>
+            <div class="balance-card bp-card">
+              <div class="balance-icon">⭐</div>
+              <div class="balance-info">
+                <span class="balance-label">BEAUTY POINTS</span>
+                <span class="balance-amount" id="userBP">0 BP</span>
+              </div>
+            </div>
+            <div class="balance-card plan-card">
+              <div class="balance-icon">💎</div>
+              <div class="balance-info">
+                <span class="balance-label" data-en="Active Plan" data-ka="აქტიური პაკეტი">აქტიური პაკეტი</span>
+                <span class="balance-amount" id="userActivePlan">
+                  <span class="no-plan" data-en="No plan" data-ka="პაკეტი არ არის">პაკეტი არ არის</span>
+                </span>
+              </div>
+              <button class="btn btn-sm btn-outline btn-packages" onclick="showPackagesModal()" data-en="Plans" data-ka="პაკეტები">პაკეტები</button>
+            </div>
+          </div>
+
+          <!-- Gamification Stats -->
+          <div class="gamification-section">
+            <div class="level-card">
+              <div class="level-info">
+                <div class="level-badge">
+                  <span class="level-icon">🏆</span>
+                  <span class="level-text" id="userLevel">1</span>
+                </div>
+                <div class="level-details">
+                  <span class="level-title">დონე / Level</span>
+                  <span class="level-subtitle" id="levelName">Beginner</span>
+                </div>
+              </div>
+              <div class="level-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" id="levelProgress" style="width: 0%"></div>
+                </div>
+                <span class="progress-text" id="levelProgressText">0 / 100 XP</span>
+              </div>
+              <div class="next-reward" id="nextReward">🎁 Level 5: +50 BP (500 XP-მდე)</div>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-content">
+                  <span class="stat-value" id="userStreak">0</span>
+                  <span class="stat-label">სტრიქი / Streak</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                  <span class="stat-value" id="totalBookings">0</span>
+                  <span class="stat-label">ჯავშნები / Bookings</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🏅</div>
+                <div class="stat-content">
+                  <span class="stat-value" id="achievementCount">0</span>
+                  <span class="stat-label">მიღწევები / Achievements</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="achievements-section">
+              <h4>🎖️ მიღწევები / Achievements</h4>
+              <div class="achievements-grid" id="achievementsList">
+                <!-- Achievements will be rendered here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="profile-actions">
+            <button class="btn btn-outline" onclick="showEditProfile()">
+              <span>✏️ პროფილის რედაქტირება</span>
+            </button>
+            <button class="btn btn-primary" onclick="PaymentSystem.showTopUpModal()">
+              <span>💳 ბალანსის შევსება</span>
+            </button>
+            <button class="btn btn-outline" onclick="navigate('#tariffs')">
+              <span>💎 ტარიფების ნახვა</span>
+            </button>
+          </div>
+
+          <!-- Referral Section -->
+          <div class="profile-section referral-section">
+            <h3>🎁 რეფერალ პროგრამა / Referral Program</h3>
+            <div class="referral-card">
+              <div class="referral-info">
+                <p data-ka="მოიწვიე მეგობარი და მიიღე 20 BP ბონუსი!" data-en="Invite a friend and get 20 BP bonus!">
+                  მოიწვიე მეგობარი და მიიღე 20 BP ბონუსი! / Invite a friend and get 20 BP bonus!
+                </p>
+                <div class="referral-code-box">
+                  <span class="referral-label">თქვენი კოდი / Your Code:</span>
+                  <div class="referral-code" id="referralCode">BP-XXXX</div>
+                  <button class="btn btn-sm btn-outline" onclick="copyReferralCode()">📋 კოპირება</button>
+                </div>
+              </div>
+              <div class="referral-stats">
+                <div class="referral-stat">
+                  <span class="referral-stat-value" id="referralCount">0</span>
+                  <span class="referral-stat-label">მოწვეული / Invited</span>
+                </div>
+                <div class="referral-stat">
+                  <span class="referral-stat-value" id="referralBonus">0 BP</span>
+                  <span class="referral-stat-label">მიღებული / Earned</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Info Card -->
+          <!-- Внутри #clientProfile -->
+<div class="profile-section user-info-card">
   
-  if (!token) {
-    // Токен отсутствует - нужна повторная авторизация
-    window.location.reload();
-    throw new Error('No token found');
-  }
+  <!-- КНОПКИ ДЕЙСТВИЙ -->
+  <div class="profile-actions">
+    <button class="btn btn-outline" onclick="showEditProfile()">✎ რედაქტირება</button>
+  </div>
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
-    ...options.headers,
-  };
-
-  const response = await fetch(url, { 
-    ...options, 
-    headers 
-  });
-
-  if (response.status === 401) {
-    // Токен истек - очищаем и перенаправляем на логин
-    localStorage.removeItem('token');
-    window.location.reload();
-    throw new Error('Unauthorized - please login again');
-  }
-
-  return response;
-};
-// <<<< КОНЕЦ КОДА ФУНКЦИИ >>>>
-// --- КОНЕЦ ГЛОБАЛЬНОГО ОБРАБОТЧИКА ---
-        
-        const Menu = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-        );
-        
-        const X = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        );
-        
-        const User = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-        );
-        
-        const CreditCard = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-        );
-        
-        const LogOut = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-        );
-        
-        const MapPin = ({ className = "w-6 h-6" }) => (
-            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-        );
-
-        const useAuth = () => {
-    const [user, setUser] = useState(null);
-    const login = (userData) => setUser(userData);
+  <!-- РЕЖИМ ПРОСМОТРА (По умолчанию виден) -->
+  <div id="viewProfileInfo">
+    <h2>პირადი ინფორმაცია</h2>
     
-    // --- ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ ---
-    const logout = () => {
-        localStorage.removeItem('token'); // 1. Удаляем токен из хранилища
-        setUser(null);                  // 2. Очищаем пользователя в состоянии приложения
-    };
-    
-    // Эта функция больше не используется, так как регистрация идет через API,
-    // но я оставлю ее, чтобы не ломать код. Можно ее удалить.
-    const register = (userData) => {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const existingUser = users.find(u => u.email === userData.email || u.phone === userData.phone);
-        if (existingUser) {
-            showToast('ეს ელ-ფოსტა ან ტელეფონი უკვე რეგისტრირებულია!');
-            return;
-        }
-        const newUser = {
-            ...userData,
-            id: Date.now(),
-            balance: 0,
-            registeredDate: new Date().toISOString(),
-            purchases: [],
-            cards: []
-        };
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-        setUser(newUser);
-    };
-    
-    return { user, login, logout, register, setUser };
-};
-
-        
-
-        
-        const serviceTypes = ['all', 'თმის შეჭრა', 'მანიკური', 'კოსმეტოლოგია', 'მასაჟი', 'სახის მოვლა'];
-		// <<<< ВСТАВЬТЕ ЭТОТ КОД СРАЗУ ПОСЛЕ КОНСТАНТЫ packages >>>>
-// <<<< ОБНОВЛЕННЫЙ КОМПОНЕНТ PackagesPage >>>>
-const PackagesPage = ({ packages, onBuyPackage }) => {
-    return (
-        <div>
-            <h2 className="text-3xl font-bold text-pink-900 mb-6">ჩვენი პაკეტები</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-                {packages.map(pkg => (
-                    <PackageCard key={pkg.id} pkg={pkg} onBuy={onBuyPackage} />
-                ))}
-            </div>
-        </div>
-    );
-};
-// <<<< КОНЕЦ КОДА >>>>
-// <<<< НАЧАЛО КОМПОНЕНТА PackageCard >>>>
-const PackageCard = ({ pkg, onBuy }) => {
-    return (
-        <div className={`bg-white rounded-2xl p-6 border-2 ${pkg.popular ? 'border-pink-500 shadow-lg' : 'border-pink-100'}`}>
-            {pkg.popular && <div className="bg-pink-500 text-white text-sm font-semibold px-3 py-1 rounded-full inline-block mb-3">პოპულარული</div>}
-            <h3 className="text-2xl font-bold text-pink-900 mb-2">{pkg.name}</h3>
-            <p className="text-pink-600 mb-4">{pkg.description}</p>
-            <div className="text-4xl font-bold text-pink-900 mb-4">₾{pkg.price}<span className="text-lg text-pink-600">/თვე</span></div>
-            <ul className="space-y-2 mb-6">
-                {pkg.features.map((f, i) => (
-                    <li key={i} className="text-pink-700 flex items-start"><span className="text-pink-500 mr-2">✓</span>{f}</li>
-                ))}
-            </ul>
-            <button onClick={() => onBuy(pkg)} className="w-full bg-pink-500 text-white py-3 rounded-full font-semibold hover:bg-pink-600 transition">შეძენა</button>
-        </div>
-    );
-};
-// <<<< КОНЕЦ КОМПОНЕНТА PackageCard >>>>
-
-const Toast = ({ id, message, type, onClose }) => { // 1. Добавляем id в props
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            onClose(id); // 2. Вызываем onClose с id этого уведомления
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, [id, onClose]); // 3. Добавляем id в зависимости
-
-    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-
-    return (
-        <div className={`fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 ease-in-out`}>
-            {message}
-        </div>
-    );
-};
-
-// <<<< НАЧАЛО ХУКА useToast >>>>
-const useToast = () => {
-    const [toasts, setToasts] = useState([]);
-
-    const showToast = (message, type = 'success') => {
-        const id = Date.now();
-        setToasts(prev => [...prev, { id, message, type }]);
-    };
-
-    const closeToast = (id) => {
-        setToasts(prev => prev.filter(toast => toast.id !== id));
-    };
-
-    return { toasts, showToast, closeToast };
-};
-// <<<< КОНЕЦ ХУКА useToast >>>>
-// <<<< НАЧАЛО КОМПОНЕНТОВ ДЛЯ ПРОФИЛЯ САЛОНА >>>>
-
-// Вкладка для управления услугами
-const SalonServicesTab = ({ showToast }) => {
-    const [services, setServices] = useState([]);
-    const [editingService, setEditingService] = useState(null);
-    const [formData, setFormData] = useState({ name: '', description: '', price: '', durationMinutes: '' });
-
-    const loadServices = async () => {
-        const response = await fetchWithAuth('/api/salon-owner/services');
-        setServices(await response.json());
-    };
-
-    useEffect(() => { loadServices(); }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (editingService) {
-            await fetchWithAuth(`/api/salon-owner/services/${editingService._id}`, { method: 'PUT', body: JSON.stringify(formData) });
-        } else {
-            await fetchWithAuth('/api/salon-owner/services', { method: 'POST', body: JSON.stringify(formData) });
-        }
-        setFormData({ name: '', description: '', price: '', durationMinutes: '' });
-        setEditingService(null);
-        loadServices();
-    };
-
-    const handleEdit = (service) => {
-        setEditingService(service);
-        setFormData({ name: service.name, description: service.description, price: service.price, durationMinutes: service.durationMinutes });
-    };
-
-    const handleDelete = async (id) => {
-        if (confirm('ნამდვილად გსურთ მომსახურების წაშლა?')) {
-            await fetchWithAuth(`/api/salon-owner/services/${id}`, { method: 'DELETE' });
-            loadServices();
-        }
-    };
-
-    return (
-        <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-pink-900">მომსახურება</h3>
-            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
-                <h4 className="text-xl font-semibold mb-4">{editingService ? 'მომსახურების რედაქტირება' : 'მომსახურების დამატება'}</h4>
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" placeholder="დასახელება" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="p-3 border rounded-lg" required />
-                    <input type="number" placeholder="ფასი (BP)" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="p-3 border rounded-lg" required />
-                    <input type="text" placeholder="აღწერა" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="p-3 border rounded-lg" />
-                    <input type="number" placeholder="ხანგრძლივობა (წთ)" value={formData.durationMinutes} onChange={e => setFormData({...formData, durationMinutes: e.target.value})} className="p-3 border rounded-lg" required />
-                    <button type="submit" className="bg-pink-500 text-white p-3 rounded-lg hover:bg-pink-600">{editingService ? 'შენახვა' : 'დამატება'}</button>
-                </form>
-            </div>
-            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
-                <h4 className="text-xl font-semibold mb-4">ჩემი მომსახურება</h4>
-                <div className="space-y-3">
-                    {services.map(s => (
-                        <div key={s._id} className="flex justify-between items-center p-4 bg-pink-50 rounded-lg">
-                            <div>
-                                <h5 className="font-bold">{s.name} - ₾{s.price}</h5>
-                                <p className="text-sm text-gray-600">{s.description} ({s.durationMinutes} мин)</p>
-                            </div>
-                            <div className="space-x-2">
-                                <button onClick={() => handleEdit(s)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">რედაქტირება</button>
-                                <button onClick={() => handleDelete(s._id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">წაშლა</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// Вкладка для управления расписанием
-const SalonScheduleTab = ({ showToast }) => {
-    return (
-        <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-pink-900">განრიგი</h3>
-            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
-                <p className="text-pink-600">აქ იქნება ფორმა თავისუფალო ადგილების შესაქმნელად, როგორც ადმინ-პანელზე.</p>
-            </div>
-        </div>
-    );
-};
-
-// <<<< ПОЛНОСТЬЮ ФУНКЦИОНАЛЬНЫЙ SalonInfoTab >>>>
-const SalonInfoTab = ({ user, showToast, setUser }) => {
-    const [formData, setFormData] = useState({
-    salonName: user.salonName || '',
-    address: user.address || '',
-    salonDescription: user.salonDescription || '',
-    salonPhotoUrl: user.salonPhotoUrl || '',
-    phone: user.phone || '',
-});
-    const [isLoading, setIsLoading] = useState(false);
-	const [imagePreview, setImagePreview] = useState(formData.salonPhotoUrl || '');
-	const [isUploading, setIsUploading] = useState(false);
-
-const handleImageUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  // Проверка размера файла (максимум 2MB)
-  if (file.size > 2 * 1024 * 1024) {
-    showToast('Файл слишком большой. Максимальный размер - 2MB.', 'error');
-    return;
-  }
-
-  setIsUploading(true);
-
-  try {
-    const formData = new FormData();
-    formData.append('salonPhoto', file);
-
-    // Добавляем остальные данные формы
-    formData.append('salonName', formData.salonName);
-    formData.append('address', formData.address);
-    formData.append('salonDescription', formData.salonDescription);
-    formData.append('phone', formData.phone);
-
-    const response = await fetchWithAuth('/api/salon-owner/profile', {
-      method: 'PUT',
-      body: formData, // Не устанавливаем Content-Type, браузер сделает это автоматически с правильным boundary
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      showToast(result.message, 'success');
-      setUser(result.user);
-      
-      // Обновляем локальное состояние
-      setFormData({
-        salonName: result.user.salonName || '',
-        address: result.user.address || '',
-        salonDescription: result.user.salonDescription || '',
-        salonPhotoUrl: result.user.salonPhotoUrl || '',
-        phone: result.user.phone || '',
-      });
-      
-      setImagePreview(result.user.salonPhotoUrl || '');
-    } else {
-      showToast(result.message, 'error');
-    }
-  } catch (error) {
-    showToast('Ошибка при загрузке фотографии.', 'error');
-    console.error('Ошибка загрузки изображения:', error);
-  } finally {
-    setIsUploading(false);
-  }
-};
-const handleRemoveImage = () => {
-    setImagePreview('');
-    setFormData(prev => ({ ...prev, salonPhotoUrl: '' }));
-    showToast('სურათი წაშლილია', 'success');
-};
-const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-};
-    const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Валидация формы
-    if (!formData.salonName.trim()) {
-        showToast('გთხოვთ, შეიყვანოთ სალონის დასახელება', 'error');
-        return;
-    }
-    
-    if (!formData.address.trim()) {
-        showToast('გთხოვთ, შეიყვანოთ სალონის მისამართი', 'error');
-        return;
-    }
-    
-    if (!formData.phone.trim()) {
-        showToast('გთხოვთ, შეიყვანოთ საკონტაქტო ტელეფონი', 'error');
-        return;
-    }
-    
-    setIsLoading(true);
-    
-    // Добавим для отладки
-    console.log('გაგზავნილი მონაცემები სერვერზე:', formData);
-    
-    try {
-        const response = await fetchWithAuth('/api/salon-owner/profile', {
-            method: 'PUT',
-            body: JSON.stringify(formData),
-        });
-
-        const result = await response.json();
-        
-        // Добавим для отладки
-        console.log('სერვერის პასუხი:', result);
-
-        if (response.ok) {
-            showToast(result.message, 'success');
-            // Обновляем глобального пользователя, чтобы изменения сразу отобразились
-            setUser(result.user);
-            
-            // Также обновляем локальное состояние formData
-            setFormData({
-                salonName: result.user.salonName || '',
-                address: result.user.address || '',
-                salonDescription: result.user.salonDescription || '',
-                salonPhotoUrl: result.user.salonPhotoUrl || '',
-                phone: result.user.phone || '',
-            });
-            
-            // Обновляем предпросмотр изображения
-            setImagePreview(result.user.salonPhotoUrl || '');
-            
-            // Добавим для отладки
-            console.log('ფოტო შენახულილია სერვერზე:', result.user.salonPhotoUrl);
-        } else {
-            showToast(result.message, 'error');
-        }
-    } catch (error) {
-        showToast('პროფილის განახლება ვერ მოხერხდა.', 'error');
-        console.error('ფორმის გაგზავნის შეცდომა:', error);
-    } finally {
-        setIsLoading(false);
-    }
-};
-    return (
-        <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-pink-900">Информация о салоне</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-pink-700 font-medium mb-2">Название салона</label>
-                    <input
-                        type="text"
-                        name="salonName"
-                        value={formData.salonName}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                        placeholder="Например: 'Элеганс'"
-                    />
-                </div>
-                <div>
-                    <label className="block text-pink-700 font-medium mb-2">Адрес</label>
-                    <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                        placeholder="Например: г. Тбилиси, ул. Руставели, 1"
-                    />
-                </div>
-                <div>
-                    <label className="block text-pink-700 font-medium mb-2">Описание</label>
-                    <textarea
-                        name="salonDescription"
-                        value={formData.salonDescription}
-                        onChange={handleChange}
-                        rows="4"
-                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                        placeholder="Расскажите о вашем салоне, услугах, атмосфере..."
-                    />
-                </div>
-                <div>
-    <div>
-    <label className="block text-pink-700 font-medium mb-2">სალონის ფოტო</label>
-    <input
-        type="file"
-        name="salonPhoto"
-        accept="image/*"
-        onChange={handleImageUpload}
-        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-        disabled={isUploading}
-    />
-    {isUploading && (
-        <div className="mt-2 text-pink-600 text-sm">
-            ფაილის ატვირთვა...
-        </div>
-    )}
-   {imagePreview && (
-    <div className="mt-3">
-        <div className="flex justify-between items-center mb-2">
-            <p className="text-sm text-gray-600">წინასწარი ნახვა:</p>
-            <button 
-                type="button" 
-                onClick={handleRemoveImage}
-                className="text-red-500 hover:text-red-700 text-sm"
-            >
-                სურათის წაშლა 
-            </button>
-        </div>
-        <img src={imagePreview} alt="სალონის სურათის წინასწარი ნახვა" className="w-full h-48 object-cover rounded-lg" />
+    <div class="info-row">
+      <span class="info-label">სახელი:</span>
+      <span class="info-value" id="profileFullName">სახელი გვარი</span>
     </div>
-)}
-    <p className="text-xs text-gray-500 mt-1">აირჩიეთ ფაილი კომპიუტერიდან JPG, PNG, GIF ფორმატის.</p>
+    <div class="info-row">
+      <span class="info-label">ტელეფონი:</span>
+      <span class="info-value" id="profilePhone">+995 ...</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">დაბადების თარიღი:</span>
+      <span class="info-value" id="profileBirthDate">...</span>
+    </div>
+  </div>
+
+  <!-- РЕЖИМ РЕДАКТИРОВАНИЯ (Скрыт по умолчанию) -->
+  <div id="editProfileCard" style="display: none;">
+    <h2>პროფილის რედაქტირება</h2>
+    
+    <div class="form-group">
+      <label>სახელი</label>
+      <input type="text" id="editFirstName" class="form-input" placeholder="სახელი">
+    </div>
+    <div class="form-group">
+      <label>გვარი</label>
+      <input type="text" id="editLastName" class="form-input" placeholder="გვარი">
+    </div>
+    <div class="form-group">
+      <label>ტელეფონი</label>
+      <input type="tel" id="editPhone" class="form-input" placeholder="5XX XX XX XX">
+    </div>
+    <div class="form-group">
+      <label>დაბადების თარიღი</label>
+      <input type="date" id="editBirthDate" class="form-input">
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveProfile()">შენახვა</button>
+      <button class="btn btn-outline" onclick="cancelEditProfile()">გაუქმება</button>
+    </div>
+  </div>
+
 </div>
-                    <label className="block text-pink-700 font-medium mb-2">საკონტაქტო ნომერი</label>
-                    <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                        placeholder="+995 5XX XX XX XX"
-                    />
-                </div>
-                <button type="submit" disabled={isLoading} className="bg-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
-                    {isLoading ? 'დამახსოვრება...' : 'ცვლილებების დამახსოვრება'}
-                </button>
-            </form>
-        </div>
-    );
-};
-// <<<< КОНЕЦ КОМПОНЕНТА >>>>
 
-// <<<< КОНЕЦ КОМПОНЕНТОВ ДЛЯ ПРОФИЛЯ САЛОНА >>>>
-
-        const BeautyPass = () => {
-            const { user, logout, register, setUser } = useAuth();
-			const { toasts, showToast, closeToast } = useToast();
-            const [currentPage, setCurrentPage] = useState('home');
-            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-			const [packages, setPackages] = useState([]);
-			const [salons, setSalons] = useState([]);
-            const [selectedService, setSelectedService] = useState('all');
-			const [bookings, setBookings] = useState([]);
-			const [isLoading, setIsLoading] = useState(true);
-// <<< НАЧАЛО КОДА ПРОВЕРКИ ТОКЕНА >>>
-// <<< НАЧАЛО КОДА ПРОВЕРКИ ТОКЕНА (ОБНОВЛЕННЫЙ) >>>
-useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        fetchWithAuth('/api/profile') // <-- ЗАМЕНА
-            .then(res => res.json())
-            .then(userData => {
-                setUser(userData);
-            })
-            .catch(err => {
-                // Ошибка 'Unauthorized' будет поймана здесь, но мы ничего не делаем,
-                // т.к. страница уже перезагружается.
-                console.error('Профиль не загружен, возможен выход из системы.');
-            });
-    }
-}, []);// Пустой массив [] означает, что код выполнится только один раз при загрузке
-// <<< КОНЕЦ КОДА ПРОВЕРКИ ТОКЕНА >>>
-// <<<< НАЧАЛО НОВОГО КОДА ДЛЯ ЗАГРУЗКИ ДАННЫХ >>>>
-useEffect(() => {
-    // Эта функция будет "ходить на кухню за меню"
-    const fetchData = async () => {
-        setIsLoading(true);
-        try {
-            // 1. Идем за пакетами
-            const packagesResponse = await fetch('/api/packages');
-            const packagesData = await packagesResponse.json();
-            setPackages(packagesData); // Кладем пакеты в нашу коробку
-
-            // 2. Идем за салонами
-            const salonsResponse = await fetch('/api/salons');
-            const salonsData = await salonsResponse.json();
-            setSalons(salonsData); // Кладем салоны в нашу коробку
-
-        } catch (error) {
-            console.error("Ой, что-то пошло не так при загрузке данных:", error);
-            // Здесь можно показать пользователю сообщение об ошибке
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    fetchData(); // Запускаем нашу функцию
-}, []); // Пустые скобки [] означают "сделать это один раз при загрузке страницы
-// <<<< КОНЕЦ НОВОГО КОДА >>>>
-            const filteredSalons = selectedService === 'all' ? salons : salons.filter(s => s.services.includes(selectedService));
-
-            // Внутри компонента BeautyPass
-// <<<< ЗАМЕНИТЕ СОДЕРЖИМОЕ ФУНКЦИИ buyPackage НА ЭТОТ КОД >>>>
-const buyPackage = async (pkg) => {
-    if (!user) {
-        showToast('გთხოვთ ჯერ გაიაროთ რეგისტრაცია', 'error');
-        setCurrentPage('register');
-        return;
-    }
-
-    try {
-        const response = await fetchWithAuth('/api/packages/buy', {
-            method: 'POST',
-            body: JSON.stringify({ packageId: pkg._id }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            setUser(result.user); // Обновляем пользователя данными с сервера
-            showToast(`წარმატებით შეიძინეთ ${pkg.name} პაკეტი!`);
-        } else {
-            showToast(result.message, 'error');
-        }
-    } catch (error) {
-        // Ошибка 'Unauthorized' будет поймана здесь, но страница уже перезагрузится
-        if (error.message !== 'Unauthorized') {
-            showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
-        }
-    }
-};
-// <<<< КОНЕЦ КОДА ФУНКЦИИ >>>>
-
-          const HomePage = () => (
-    <div className="space-y-12">
-        <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-3xl p-8 md:p-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-pink-900 mb-4">BeautyPass</h1>
-            <p className="text-xl text-pink-700 mb-6">შენი სილამაზის აბონემენტი - ერთი ბარათი, უამრავი შესაძლებლობა</p>
-            <p className="text-pink-600 mb-8">ესტუმრე საუკეთესო სილამაზის სალონებს თბილისში და დაზოგე 30%-მდე</p>
-            <button onClick={() => setCurrentPage('packages')} className="bg-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-600 transition">აირჩიე პაკეტი</button>
-        </div>
-        <div>
-            <h2 className="text-3xl font-bold text-pink-900 mb-8 text-center">როგორ მუშაობს?</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-                {[
-                    { step: '1', title: 'აირჩიე პაკეტი', desc: 'შეარჩიე შენთვის სასურველი აბონემენტი' },
-                    { step: '2', title: 'დაჯავშნე ვიზიტი', desc: 'გააკეთე ჯავშანი ნებისმიერ პარტნიორ სალონში' },
-                    { step: '3', title: 'დატკბი სერვისით', desc: 'მიიღე პროფესიონალური მომსახურება' }
-                ].map((item, idx) => (
-                    <div key={idx} className="bg-pink-50 rounded-2xl p-6 text-center">
-                        <div className="w-16 h-16 bg-pink-500 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">{item.step}</div>
-                        <h3 className="text-xl font-semibold text-pink-900 mb-2">{item.title}</h3>
-                        <p className="text-pink-600">{item.desc}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
-        <div>
-            <h2 className="text-3xl font-bold text-pink-900 mb-8 text-center">ჩვენი პაკეტები</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-                {packages.filter(p => p.popular).map(pkg => (
-                    <PackageCard key={pkg.id} pkg={pkg} onBuy={buyPackage} />
-                ))}
-            </div>
-            <div className="text-center mt-8">
-                <button 
-                    onClick={() => setCurrentPage('packages')} 
-                    className="bg-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-pink-600 transition"
-                >
-                    ყველა პაკეტის ნახვა
-                </button>
-            </div>
-        </div>
-    </div>
-); // <<<< ВОТ ГЛАВНОЕ ИЗМЕНЕНИЕ: МЫ ЗАКРЫЛИ КОМПОНЕНТ HOMEPAGE
-
-// В файле index.html, обновите компонент SalonsPage
-
-const SalonsPage = ({showToast}) => {
-    const [selectedSalon, setSelectedSalon] = useState(null);
-    const [salons, setSalons] = useState([]);
-    const [selectedService, setSelectedService] = useState('all');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [salonsPerPage] = useState(6);
-    const { user } = useAuth();
-    
-    // Загружаем салоны при монтировании компонента
-    useEffect(() => {
-        const fetchSalons = async () => {
-            try {
-                const response = await fetch('/api/salons');
-                const data = await response.json();
-                setSalons(data);
-            } catch (error) {
-                console.error('Ошибка при загрузке салонов:', error);
-            }
-        };
-        
-        fetchSalons();
-    }, []);
-
-    // Фильтрация салонов по выбранной услуге
-    const filteredSalons = selectedService === 'all' 
-        ? salons 
-        : salons.filter(salon => salon.services.includes(selectedService));
-    
-    // Пагинация
-    const indexOfLastSalon = currentPage * salonsPerPage;
-    const indexOfFirstSalon = indexOfLastSalon - salonsPerPage;
-    const currentSalons = filteredSalons.slice(indexOfFirstSalon, indexOfLastSalon);
-    const totalPages = Math.ceil(filteredSalons.length / salonsPerPage);
-
-    return (
-        <div>
-            <h2 className="text-3xl font-bold text-pink-900 mb-6">Партнерские салоны</h2>
-            
-            {/* Фильтр по услугам */}
-            <div className="mb-6">
-                <div className="flex flex-wrap gap-2">
-                    <button 
-                        onClick={() => setSelectedService('all')}
-                        className={`px-4 py-2 rounded-full ${selectedService === 'all' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-700'}`}
-                    >
-                        Все услуги
-                    </button>
-                    {['თმის შეჭრა', 'მანიკური', 'კოსმეტოლოგია', 'მასაჟი', 'სახის მოვლა'].map(service => (
-                        <button 
-                            key={service}
-                            onClick={() => setSelectedService(service)}
-                            className={`px-4 py-2 rounded-full ${selectedService === service ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-700'}`}
-                        >
-                            {service}
-                        </button>
-                    ))}
-                </div>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-                {currentSalons.map(salon => (
-                    <div key={salon.id || salon._id} className="bg-white rounded-2xl p-6 border-2 border-pink-100 hover:border-pink-300 transition cursor-pointer" onClick={() => setSelectedSalon(salon)}>
-                        <div className="flex justify-between items-start mb-3">
-                            <h3 className="text-xl font-bold text-pink-900">{salon.name}</h3>
-                            <div className="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-sm font-semibold">⭐ {salon.rating}</div>
-                        </div>
-                        {salon && salon.salonPhotoUrl && (
-                            <img src={salon.salonPhotoUrl} alt={salon.name || 'Салон'} className="w-full h-48 object-cover rounded-lg mb-3" />
-                        )}
-                        <p className="text-pink-600 mb-3 flex items-center"><MapPin className="w-4 h-4 mr-1" />{salon ? salon.address : 'Адрес не указан'}</p>
-                        <div className="flex flex-wrap gap-2">
-                           {salon && salon.services && salon.services.map((s, i) => (
-                                <span key={i} className="bg-pink-50 text-pink-700 px-3 py-1 rounded-full text-sm">{s}</span>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-            
-            {/* Пагинация */}
-            {totalPages > 1 && (
-                <div className="flex justify-center mt-8">
-                    <div className="flex space-x-2">
-                        <button 
-                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            className={`px-4 py-2 rounded ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-pink-100 text-pink-700 hover:bg-pink-200'}`}
-                        >
-                            Предыдущая
-                        </button>
-                        <span className="px-4 py-2">
-                            Страница {currentPage} из {totalPages}
-                        </span>
-                        <button 
-                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                            className={`px-4 py-2 rounded ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-pink-100 text-pink-700 hover:bg-pink-200'}`}
-                        >
-                            Следующая
-                        </button>
-                    </div>
-                </div>
-            )}
-            
-            {selectedSalon && <BookingModal salon={selectedSalon} onClose={() => setSelectedSalon(null)} showToast={showToast} />}
-        </div>
-    );
-};
-const AboutPage = () => (
-    <div className="space-y-12">
-        <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-pink-900 mb-4">ჩვენს შესახებ</h1>
-            <p className="text-xl text-pink-700 max-w-2xl mx-auto">ჩვენი მისიაა — გავხადოთ სილამაზე ხელმისაწვდომი და მარტივი ყველასთვის და ვუზრუნველყოთ თქვენი კომფორტი და თავისუფლება.</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-                <h2 className="text-3xl font-bold text-pink-900 mb-4">ჩვენი ისტორია</h2>
-                <p className="text-pink-700 leading-relaxed">
-                    BeautyPass დაარსდა იმისიით, რომ თითეულ ქალაქში უნდა არსებობდეს ერთიანი სისტემა, რომლითაც შეგიძლიათ მარტივად და ხელმისაწვდომად ისარგებოთ საუკეთესო სილამაზის სალონების მომსახურეობით. ჩვენ გაერთებთ მხოლოდ სანდო სპეციალისტებს, რომლებიც გაგიწევენ უმაღლესი ხარისხის მომსახურებას.
-                </p>
-            </div>
-            <div className="bg-pink-100 rounded-2xl p-8 text-center">
-                <h3 className="text-2xl font-bold text-pink-900 mb-4">ჩვენი მისია</h3>
-                <p className="text-pink-700">
-                    გახადეთ სილამაზის რუტინა ხელმისაწვდომი, დაზოგეთ დრო და ფული, იგრძენით ახალი შესაძლებლობები და ისიამოვნეთ  ყოველდღიური სილამაზე.
-                </p>
-            </div>
-        </div>
-
-        <div className="bg-white rounded-2xl p-8 border-2 border-pink-100">
-            <h2 className="text-3xl font-bold text-pink-900 mb-6 text-center">დაგვიკავშირდეთ</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-                <div>
-                    <h4 className="font-semibold text-pink-900 mb-3">მთავარი ოფისი</h4>
-                    <div className="space-y-2 text-pink-600">
-                        <p>📍 თბილისი, რუსთაველის გამზირდა 1</p>
-                        <p>📞 +995 555 123 456</p>
-                        <p>📧 info@beautypass.ge</p>
-                    </div>
-                </div>
-                <div>
-                    <h4 className="font-semibold text-pink-900 mb-3">მუშაობის სააათები</h4>
-                    <div className="space-y-1 text-pink-600">
-                        <p>ორშაბათი - პარასკევი: 9:00 - 20:00</p>
-                        <p>შაბათი: 10:00 - 18:00</p>
-                        <p>კვირა: დახურულია</p>
-                    </div>
-                </div>
-                <div>
-                    <h4 className="font-semibold text-pink-900 mb-3">სოციალური ქსელები</h4>
-                    <div className="flex space-x-4 text-pink-600">
-                        <a href="#" className="hover:text-pink-900">Facebook</a>
-                        <a href="#" className="hover:text-pink-900">Instagram</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-);
-		// === START LOGIN_PAGE ===
-const LoginPage = ({ setCurrentPage, setUser }) => {
-    const [loginData, setLoginData] = useState({ login: '', password: '' });
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [loginError, setLoginError] = useState('');
-
-    const handleLoginChange = (e) => {
-        const value = e.target.value.replace(/\D/g, '');
-        setLoginData({ ...loginData, login: value });
-
-        if (value.length > 0 && value.length !== 11) {
-            setLoginError('პირადი ნომერი უნდა შედგებოდეს 11 ციფრისგან');
-        } else {
-            setLoginError('');
-        }
-    };
-
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setError('');
-
-        if (loginData.login.length !== 11) {
-            setLoginError('პირადი ნომერი უნდა შედგებოდეს 11 ციფრისგან');
-            return;
-        }
-
-        setIsLoading(true);
-
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData),
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem('token', result.token);
-                setUser(result.user);
-                setCurrentPage('profile');
-            } else {
-                showToast(result.message, 'error');
-            }
-
-        } catch (err) {
-            showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <div className="max-w-md mx-auto">
-            <div className="bg-white rounded-2xl p-8 border-2 border-pink-100">
-                <h2 className="text-3xl font-bold text-pink-900 mb-6 text-center">შესვლა</h2>
-                {/* И ЗДЕСЬ ТОЖЕ ДОБАВЛЯЕМ NOVALIDATE */}
-                <form onSubmit={handleLogin} className="space-y-4" novalidate>
-                    <div>
-                        <label className="block text-pink-700 font-medium mb-2">პირადი ნომერი</label>
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            value={loginData.login}
-                            onChange={handleLoginChange}
-                            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-                            placeholder="01234567890"
-                            required
-                        />
-                        {loginError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{loginError}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-pink-700 font-medium mb-2">პაროლი</label>
-                        <input type="password" value={loginData.password} onChange={e => setLoginData({...loginData, password: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" required />
-                    </div>
-                    
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    
-                    <button type="submit" disabled={isLoading} className="w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
-                        {isLoading ? 'შესვლა...' : 'შესვლა'}
-                    </button>
-                    <p className="text-center text-pink-600 mt-4">არ გაქვს ანგარიში? <button type="button" onClick={() => setCurrentPage('register')} className="text-pink-700 font-semibold hover:text-pink-900">რეგისტრაცია</button></p>
-                </form>
-            </div>
-        </div>
-    );
-};
-// === END LOGIN_PAGE ===
-          // <<<< ПОЛНЫЙ RegisterPage >>>>
-const RegisterPage = ({ setCurrentPage, setUser, showToast }) => {
-    const [formData, setFormData] = useState({ firstName: '', lastName: '', personalId: '', phone: '', email: '', password: '', userType: 'client' });
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [personalIdError, setPersonalIdError] = useState('');
-    const [phoneError, setPhoneError] = useState('');
-    const [emailError, setEmailError] = useState('');
-
-    // ... (ваши useEffect для проверки доступности остаются без изменений) ...
-
-    const handleSubmit = async (e) => {
-        e.preventDefault(); setError(''); setIsLoading(true);
-        if (personalIdError || phoneError || emailError) { setError('გთხოვთ, შეასწოროთ შეცდომები ფორმაში.'); return; }
-        const dataToSend = { login: formData.email, personalNumber: formData.personalId, phone: formData.phone, password: formData.password, firstName: formData.firstName, lastName: formData.lastName, userType: formData.userType };
-        try {
-            const response = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataToSend), });
-            const result = await response.json();
-            if (response.ok) { localStorage.setItem('token', result.token); setUser(result.user); setCurrentPage('profile'); }
-            else { setError(result.message); }
-        } catch (err) { setError('სერვერთან დაკავშირება ვერ მოხერხდა.'); }
-        finally { setIsLoading(false); }
-    };
-    return (
-        <div className="max-w-md mx-auto">
-            <div className="bg-white rounded-2xl p-8 border-2 border-pink-100">
-                <h2 className="text-3xl font-bold text-pink-900 mb-6 text-center">რეგისტრაცია</h2>
-                <form onSubmit={handleSubmit} className="space-y-4" novalidate>
-                    <div><label className="block text-pink-700 font-medium mb-2">სახელი</label><input type="text" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" /></div>
-                    <div><label className="block text-pink-700 font-medium mb-2">გვარი</label><input type="text" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" /></div>
-                    <div><label className="block text-pink-700 font-medium mb-2">პირადი ნომერი</label><input type="text" maxLength="11" value={formData.personalId} onChange={e => setFormData({...formData, personalId: e.target.value.replace(/\D/g, '')})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" placeholder="01234567890" />{personalIdError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{personalIdError}</p>}</div>
-                    <div><label className="block text-pink-700 font-medium mb-2">ტელეფონის ნომერი</label><input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" placeholder="+995 5XX XX XX XX" />{phoneError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{phoneError}</p>}</div>
-                    <div><label className="block text-pink-700 font-medium mb-2">ელ-ფოსტა</label><input type="text" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" placeholder="example@mail.com" />{emailError && <p style={{ color: 'red', fontSize: '14px', marginTop: '4px' }}>{emailError}</p>}</div>
-                    <div><label className="block text-pink-700 font-medium mb-2">პაროლი</label><input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" minLength="6" /></div>
-                    <div>
-                        <label className="block text-pink-700 font-medium mb-2">პროფილის ტიპი</label>
-                        <div className="flex space-x-4">
-                            <label className="flex items-center"><input type="radio" name="userType" value="client" checked={formData.userType === 'client'} onChange={() => setFormData({ ...formData, userType: 'client' })} className="mr-2" />მომხმარებელი</label>
-                            <label className="flex items-center"><input type="radio" name="userType" value="salon" checked={formData.userType === 'salon'} onChange={() => setFormData({ ...formData, userType: 'salon' })} className="mr-2" />სალონის მფლობელი</label>
-                        </div>
-                    </div>
-                    {error && <p style={{ color: 'red' }}>{error}</p>}
-                    <button type="submit" disabled={isLoading} className="w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">{isLoading ? 'რეგისტრაცია...' : 'რეგისტრაცია'}</button>
-                </form>
-            </div>
-        </div>
-    );
-};
-// <<<< КОНЕЦ RegisterPage >>>>
-// <<<< ПОЛНЫЙ И ИСПРАВЛЕННЫЙ ProfilePage >>>>
-const ProfilePage = ({ user, setCurrentPage }) => {
-    const { showToast, closeToast } = useToast();
-    const [currentSalonTab, setCurrentSalonTab] = useState('services');
-    const [bookings, setBookings] = useState([]);
-    const [isLoadingBookings, setIsLoadingBookings] = useState(true);
-
-    // Загрузка записей для профиля клиента
-    useEffect(() => {
-        if (user && user.userType === 'client') {
-            const fetchBookings = async () => {
-                if (!user) return;
-                try {
-                    const response = await fetchWithAuth('/api/bookings', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
-                    if (response.ok) {
-                        const data = await response.json();
-                        setBookings(data);
-                    } else {
-                        console.error('Не удалось загрузить записи');
-                    }
-                } catch (error) {
-                    console.error('Ошибка при загрузке записей:', error);
-                } finally {
-                    setIsLoadingBookings(false);
-                }
-            };
-            fetchBookings();
-        }
-    }, [user]);
-
-    if (!user) {
-        return (
-            <div className="text-center py-12">
-                <p className="text-pink-700 mb-4">გთხოვთ გაიაროთ რეგისტრაცია</p>
-                <button onClick={() => setCurrentPage('register')} className="bg-pink-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-pink-600 transition">რეგისტრაცია</button>
-            </div>
-        );
-    }
-    
-    // ===== ПРОФИЛЬ ВЛАДЕЛЬЦА САЛОНА =====
-    if (user.userType === 'salon') {
-        return (
-            <div className="space-y-6">
-                <h2 className="text-3xl font-bold text-pink-900">Профиль салона</h2>
-                <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6">
-                    <h3 className="text-2xl font-bold text-pink-900 mb-2">{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.login}</h3>
-                    <p className="text-pink-700">სალონის მფლობელი</p>
-                </div>
-
-                <div className="flex space-x-4 mb-8 border-b-2 border-pink-100">
-                    <button onClick={() => setCurrentSalonTab('info')} className={`pb-2 px-1 font-semibold ${currentSalonTab === 'info' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}>ინფორმაცია</button>
-                    <button onClick={() => setCurrentSalonTab('services')} className={`pb-2 px-1 font-semibold ${currentSalonTab === 'services' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}>მომსახურება</button>
-                    <button onClick={() => setCurrentSalonTab('schedule')} className={`pb-2 px-1 font-semibold ${currentSalonTab === 'schedule' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}>განრიგი</button>
-                </div>
-
-                {currentSalonTab === 'info' && <SalonInfoTab user={user} showToast={showToast} setUser={setUser} />}
-                {currentSalonTab === 'services' && <SalonServicesTab showToast={showToast} />}
-                {currentSalonTab === 'schedule' && <SalonScheduleTab showToast={showToast} />}
-            </div>
-        );
-    }
-
-    // ===== ПРОФИЛЬ КЛИЕНТА (ПОЛНЫЙ КОД) =====
-    const registeredDate = user.registeredDate || new Date().toISOString();
-    const memberDays = Math.floor((Date.now() - new Date(registeredDate).getTime()) / (1000 * 60 * 60 * 24));
-    const purchases = user.purchases || [];
-
-    return (
-        <div className="space-y-6">
-            <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6">
-                <h2 className="text-3xl font-bold text-pink-900 mb-2">{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.login}</h2>
-                <p className="text-pink-700">წევრი {memberDays} დღეა</p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
-                    <h3 className="text-xl font-bold text-pink-900 mb-4">პირადი ინფორმაცია</h3>
-                    <div className="space-y-2 text-pink-700">
-                        <p><strong>ელ-ფოსტა:</strong> {user.login}</p>
-                        {user.phone && <p><strong>ტელეფონი:</strong> {user.phone}</p>}
-                        {user.personalNumber && <p><strong>პირადი ნომერი:</strong> {user.personalNumber}</p>}
-                    </div>
-                </div>
-                <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
-                    <h3 className="text-xl font-bold text-pink-900 mb-4">ბალანსი</h3>
-                    <div className="text-4xl font-bold text-pink-900 mb-4">₾{user.balance.toFixed(2)}</div>
-                    <button onClick={() => setCurrentPage('balance')} className="bg-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-pink-600 transition">შევსება</button>
-                </div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
-                <h3 className="text-xl font-bold text-pink-900 mb-4">შეძენილი პაკეტები</h3>
-                {purchases.length === 0 ? (
-                    <p className="text-pink-600">ჯერ არ გაქვს შეძენილი პაკეტები</p>
-                ) : (
-                    <div className="space-y-3">
-                        {purchases.map(p => (
-                            <div key={p.id} className="bg-pink-50 rounded-lg p-4 flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-semibold text-pink-900">{p.package}</h4>
-                                    <p className="text-sm text-pink-600">{new Date(p.date).toLocaleDateString('ka-GE')}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="font-bold text-pink-900">₾{p.price}</p>
-                                    <p className="text-sm text-pink-600">{p.visitsLeft} ვიზიტი დარჩა</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
-                <h3 className="text-xl font-bold text-pink-900 mb-4">ჩემი ჯავშნები</h3>
-                {isLoadingBookings ? (
-                    <p className="text-pink-600">იტვირთება...</p>
-                ) : bookings.length === 0 ? (
-                    <p className="text-pink-600">ჯერ არ გაქვს ჩანიშვნები</p>
-                ) : (
-                    <div className="space-y-3">
-                        {bookings.map(booking => (
-                            <div key={booking._id} className="bg-pink-50 rounded-lg p-4 flex justify-between items-center">
-                                <div>
-                                    <h4 className="font-semibold text-pink-900">{booking.salonName}</h4>
-                                    <p className="text-sm text-pink-600">{booking.service}</p>
-                                    <p className="text-sm text-pink-600">
-                                        {new Date(booking.dateTime).toLocaleString('ka-GE', {
-                                            day: 'numeric',
-                                            month: 'long',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                        booking.status === 'scheduled' ? 'bg-green-100 text-green-700' :
-                                        booking.status === 'completed' ? 'bg-gray-100 text-gray-700' :
-                                        'bg-red-100 text-red-700'
-                                    }`}>
-                                        {booking.status === 'scheduled' ? 'დაგეგმილია' :
-                                         booking.status === 'completed' ? 'შესრულებულია' : 'გაუქმებულია'}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
-// <<<< КОНЕЦ ПОЛНОГО КОДА >>>>
-// === START BALANCE_PAGE (ИСПРАВЛЕННАЯ ВЕРСИЯ) ===
-const BalancePage = ({ user, setUser, showToast }) => {
-  const [amount, setAmount] = React.useState('');
-  const [isProcessing, setIsProcessing] = React.useState(false);
-
-  const handlePaymentWithBank = async (bank) => {
-    const amt = parseFloat(amount);
-    if (!amt || amt <= 0) {
-      showToast('გთხოვთ, შეიყვანოთ თანხა', 'error');
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      // !!! ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ !!!
-      // Заменяем fetch на fetchWithAuth
-      const response = await fetchWithAuth('/api/transactions/create', {
-        method: 'POST',
-        // headers убираем, так как fetchWithAuth добавит их сам
-        body: JSON.stringify({ amount: amt, bank: bank })
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        showToast(
-          `თქვენ გადახვალთ ${bank === 'tbc' ? 'TBC Bank' : 'Bank of Georgia'} გვერდზე`,
-          'success'
-        );
-        window.open(result.paymentUrl, '_blank', 'width=800,height=600');
-        checkPaymentStatus(result.transactionId);
-      } else {
-        showToast(result.message, 'error');
-      }
-    } catch (error) {
-      // Ошибка 'Unauthorized' будет поймана в fetchWithAuth, страница перезагрузится
-      if (error.message !== 'Unauthorized') {
-        showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
-      }
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const checkPaymentStatus = (transactionId) => {
-    const interval = setInterval(async () => {
-      try {
-        const response = await fetch(`/api/transactions/${transactionId}/status`);
-        if (!response.ok) return;
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-          const updatedUser = { ...user, balance: user.balance + data.amount };
-          setUser(updatedUser);
-          showToast(`ბალანსი წარმატებით შეივსა: ₾${data.amount}`, 'success');
-          clearInterval(interval);
-        } else if (data.status === 'failed' || data.status === 'cancelled') {
-          showToast('გადახდა ვერ შესრულდა', 'error');
-          clearInterval(interval);
-        }
-      } catch (error) {
-        console.error('Ошибка проверки статуса:', error);
-      }
-    }, 5000);
-
-    setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
-  };
-
-  if (!user) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-pink-700 mb-4">გთხოვთ გაიაროთ რეგისტრაცია</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl p-8 text-white">
-        <p className="text-pink-100 mb-2">თქვენი ბალანსი</p>
-        <div className="text-5xl font-bold mb-4">₾{user.balance.toFixed(2)}</div>
-      </div>
-
-      <div className="bg-white rounded-2xl p-6 border-2 border-pink-100">
-        <h3 className="text-xl font-bold text-pink-900 mb-4">ბალანსის შევსება</h3>
-        <div className="space-y-4">
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="თანხა (₾)"
-            className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none"
-            disabled={isProcessing}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* TBC Bank */}
-            <button
-              onClick={() => handlePaymentWithBank('tbc')}
-              disabled={isProcessing}
-              className="bg-white border-2 border-blue-500 text-white py-4 rounded-lg font-semibold hover:bg-blue-50 transition flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-            >
-              <img 
-                src="/images/tbc-logo.png" 
-                alt="TBC Bank" 
-                style={{width: '65px', height: '65px', objectFit: 'contain'}}
-                onError={(e) => {e.target.style.display = 'none'}}
-              />
-              <span className="text-lg font-bold text-blue-600">TBC Bank</span>
-            </button>
-
-            {/* Bank of Georgia */}
-            <button
-              onClick={() => handlePaymentWithBank('bog')}
-              disabled={isProcessing}
-              className="bg-white border-2 border-orange-500 py-4 rounded-lg font-semibold hover:bg-orange-50 transition flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-            >
-              <img 
-                src="/images/bog-logo.png" 
-                alt="Bank of Georgia" 
-                style={{width: '65px', height: '65px', objectFit: 'contain'}}
-                onError={(e) => {e.target.style.display = 'none'}}
-              />
-              <span className="text-lg font-bold text-orange-600">Bank of Georgia</span>
-            </button>
+          <!-- Active Tariffs -->
+          <div class="profile-section">
+            <h3>აქტიური ტარიფები</h3>
+            <div id="activeTariffs"></div>
           </div>
 
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>შენიშვნა:</strong> თქვენ გადახვალთ უსაფრთხო საბანკო გვერდზე, სადაც შეგიძლიათ უსაფრთხოდ განხორციელოთ გადახდის ოპერაცია. თქვენი საბანკო მონაცემები დაცულია ჩვენს სერვერზე.
+          <!-- Available Slots -->
+          <div class="profile-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+              <h3>📅 ხელმისაწვდომი სლოტები</h3>
+              <div class="slots-filters" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <select id="slotsDateFilter" class="form-input" style="width: auto; min-width: 140px;" onchange="loadAvailableSlots()">
+                  <option value="">ყველა თარიღი</option>
+                </select>
+                <select id="slotsCategoryFilter" class="form-input" style="width: auto; min-width: 140px;" onchange="loadAvailableSlots()">
+                  <option value="">ყველა კატეგორია</option>
+                  <option value="hair">💇 თმა</option>
+                  <option value="nails">💅 ფრჩხილები</option>
+                  <option value="face">👁️ წარბები / სახე</option>
+                  <option value="makeup">💄 მაკიაჟი</option>
+                  <option value="body">💆 მასაჟი / სხეული</option>
+                  <option value="other">✨ სხვა</option>
+                </select>
+              </div>
+            </div>
+            <div id="availableSlotsContainer" style="max-height: 400px; overflow-y: auto;"></div>
+          </div>
+
+          <!-- My Bookings -->
+          <div class="profile-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3>ჩემი ჯავშნები</h3>
+              <button class="btn btn-primary" onclick="openBookingModal()">➕ ახალი ჯავშანი</button>
+            </div>
+            <div id="userBookings"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Salon/Business Section -->
+    <section id="salon" class="page-section">
+      <div class="container">
+        <!-- Salon Login -->
+        <div class="auth-card" id="salonLoginCard">
+          <div class="card-header">
+            <h2>🏢 სალონის პანელი</h2>
+            <p>სალონის პარტნიორის შესვლა</p>
+          </div>
+          <form class="auth-form" id="salonAuthForm" onsubmit="return false;">
+            <div class="form-group">
+              <label for="salonEmail">ელ-ფოსტა *</label>
+              <input type="email" id="salonEmail" class="form-input" placeholder="salon@beautypass.ge" required>
+            </div>
+            <div class="form-group">
+              <label for="salonPassword">პაროლი *</label>
+              <input type="password" id="salonPassword" class="form-input" placeholder="••••••••" required>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary btn-block" onclick="loginSalon()">შესვლა</button>
+            </div>
+            <p class="text-center text-muted" style="margin-top: 16px; font-size: 0.9rem;">
+              სალონის ანგარიშის მისაღებად დაგვიკავშირდით<br>
+              <a href="mailto:partners@beautypass.ge">partners@beautypass.ge</a>
             </p>
+          </form>
+          
+          <!-- 2FA Card for Salon (hidden by default) -->
+          <div id="salon2FACard" style="display: none; margin-top: 20px;">
+            <div class="form-group">
+              <label>დადასტურების კოდი</label>
+              <input type="text" id="salon2FACode" class="form-input" placeholder="6 ციფრიანი კოდი" maxlength="6">
+            </div>
+            <button class="btn btn-primary btn-block" onclick="verifySalon2FA()">დადასტურება</button>
+          </div>
+        </div>
+
+        <!-- Salon Dashboard -->
+        <div class="dashboard-container" id="salonDashboard" style="display: none;">
+          <div class="dashboard-header">
+            <div>
+              <h2 id="dashboardSalonName">🏢 სალონის პანელი</h2>
+              <p id="dashboardSalonEmail" class="text-muted">email@example.com</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="openQRScanner()">📷 QR სკანერი</button>
+              <button class="btn btn-outline" onclick="logoutSalon()">გამოსვლა</button>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchSalonTab('slots')">📅 სლოტები</button>
+            <button class="admin-tab" onclick="switchSalonTab('specialists')">👤 სპეციალისტები</button>
+            <button class="admin-tab" onclick="switchSalonTab('gallery')">📸 გალერეა</button>
+            <button class="admin-tab" onclick="switchSalonTab('bookings')">📋 ჯავშნები</button>
+            <button class="admin-tab" onclick="switchSalonTab('analytics')">📊 ანალიტიკა</button>
+            <button class="admin-tab" onclick="switchSalonTab('settings')">⚙️ პარამეტრები</button>
+          </div>
+
+          <!-- Tab Content -->
+          <div id="salonTabContent"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Policy Pages -->
+    <section id="policy" class="page-section">
+      <div class="container">
+        <div class="policy-content">
+          <h1 data-en="Privacy Policy" data-ka="კონფიდენციალურობის პოლიტიკა">კონფიდენციალურობის პოლიტიკა / Privacy Policy</h1>
+          <p class="text-muted"><strong data-en="Last updated:" data-ka="ბოლო განახლება:">ბოლო განახლება:</strong> 15.01.2026</p>
+          
+          <div class="policy-section">
+            <h3 data-en="1. Introduction" data-ka="1. შესავალი">1. შესავალი / Introduction</h3>
+            <p data-en="BeautyPass ('we', 'our', 'us') respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information when you use our platform." data-ka="BeautyPass ('ჩვენ', 'ჩვენი') პატივს სცემს თქვენს კონფიდენციალურობას და ვალდებულია დაიცვას თქვენი პერსონალური მონაცემები. ეს კონფიდენციალურობის პოლიტიკა განმარტავს, თუ როგორ ვაგროვებთ, ვიყენებთ და ვიცავთ თქვენს ინფორმაციას.">BeautyPass პატივს სცემს თქვენს კონფიდენციალურობას და ვალდებულია დაიცვას თქვენი პერსონალური მონაცემები.</p>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="2. Data We Collect" data-ka="2. მონაცემები, რომელსაც ვაგროვებთ">2. მონაცემები, რომელსაც ვაგროვებთ / Data We Collect</h3>
+            <ul>
+              <li data-en="Personal information: name, email, phone number" data-ka="პერსონალური ინფორმაცია: სახელი, ელ-ფოსტა, ტელეფონი">პერსონალური ინფორმაცია: სახელი, ელ-ფოსტა, ტელეფონი</li>
+              <li data-en="Booking history and preferences" data-ka="ჯავშნების ისტორია და პრეფერენციები">ჯავშნების ისტორია და პრეფერენციები</li>
+              <li data-en="Payment information (processed securely)" data-ka="გადახდის ინფორმაცია (უსაფრთხოდ დამუშავებული)">გადახდის ინფორმაცია (უსაფრთხოდ დამუშავებული)</li>
+              <li data-en="Device and usage data" data-ka="მოწყობილობისა და გამოყენების მონაცემები">მოწყობილობისა და გამოყენების მონაცემები</li>
+            </ul>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="3. How We Use Your Data" data-ka="3. როგორ ვიყენებთ თქვენს მონაცემებს">3. როგორ ვიყენებთ თქვენს მონაცემებს / How We Use Your Data</h3>
+            <ul>
+              <li data-en="To provide and improve our services" data-ka="სერვისების მიწოდება და გაუმჯობესება">სერვისების მიწოდება და გაუმჯობესება</li>
+              <li data-en="To process bookings and payments" data-ka="ჯავშნების და გადახდების დამუშავება">ჯავშნების და გადახდების დამუშავება</li>
+              <li data-en="To send important updates and promotions" data-ka="მნიშვნელოვანი განახლებებისა და აქციების გაგზავნა">მნიშვნელოვანი განახლებებისა და აქციების გაგზავნა</li>
+              <li data-en="To ensure platform security" data-ka="პლატფორმის უსაფრთხოების უზრუნველყოფა">პლატფორმის უსაფრთხოების უზრუნველყოფა</li>
+            </ul>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="4. Data Protection" data-ka="4. მონაცემთა დაცვა">4. მონაცემთა დაცვა / Data Protection</h3>
+            <p data-en="We implement industry-standard security measures including encryption, secure servers, and regular security audits to protect your data." data-ka="ვიყენებთ ინდუსტრიის სტანდარტულ უსაფრთხოების ზომებს, მათ შორის დაშიფვრას, უსაფრთხო სერვერებს და რეგულარულ უსაფრთხოების აუდიტს.">ვიყენებთ ინდუსტრიის სტანდარტულ უსაფრთხოების ზომებს თქვენი მონაცემების დასაცავად.</p>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="5. Your Rights" data-ka="5. თქვენი უფლებები">5. თქვენი უფლებები / Your Rights</h3>
+            <ul>
+              <li data-en="Access your personal data" data-ka="თქვენს პერსონალურ მონაცემებზე წვდომა">თქვენს პერსონალურ მონაცემებზე წვდომა</li>
+              <li data-en="Request data correction or deletion" data-ka="მონაცემების გასწორების ან წაშლის მოთხოვნა">მონაცემების გასწორების ან წაშლის მოთხოვნა</li>
+              <li data-en="Opt-out of marketing communications" data-ka="მარკეტინგული შეტყობინებების გამორთვა">მარკეტინგული შეტყობინებების გამორთვა</li>
+              <li data-en="Data portability" data-ka="მონაცემთა პორტაბელურობა">მონაცემთა პორტაბელურობა</li>
+            </ul>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="6. Contact Us" data-ka="6. დაგვიკავშირდით">6. დაგვიკავშირდით / Contact Us</h3>
+            <p data-en="For privacy-related inquiries, contact us at: privacy@beautypass.ge" data-ka="კონფიდენციალურობასთან დაკავშირებული შეკითხვებისთვის, დაგვიკავშირდით: privacy@beautypass.ge">კონფიდენციალურობასთან დაკავშირებული შეკითხვებისთვის: <strong>privacy@beautypass.ge</strong></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="refund" class="page-section">
+      <div class="container">
+        <div class="policy-content">
+          <h1 data-en="Refund Policy" data-ka="დაბრუნების პოლიტიკა">დაბრუნების პოლიტიკა / Refund Policy</h1>
+          <p class="text-muted"><strong data-en="Last updated:" data-ka="ბოლო განახლება:">ბოლო განახლება:</strong> 15.01.2026</p>
+          
+          <div class="policy-section">
+            <h3 data-en="1. Package Refunds" data-ka="1. პაკეტის დაბრუნება">1. პაკეტის დაბრუნება / Package Refunds</h3>
+            <p data-en="Unused package credits can be refunded within 14 days of purchase. Used credits are non-refundable." data-ka="გამოუყენებელი პაკეტის კრედიტები შეიძლება დაბრუნდეს შეძენიდან 14 დღის განმავლობაში. გამოყენებული კრედიტები არ ბრუნდება.">გამოუყენებელი პაკეტის კრედიტები შეიძლება დაბრუნდეს შეძენიდან 14 დღის განმავლობაში.</p>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="2. Booking Cancellations" data-ka="2. ჯავშნის გაუქმება">2. ჯავშნის გაუქმება / Booking Cancellations</h3>
+            <ul>
+              <li data-en="Free cancellation up to 24 hours before appointment" data-ka="უფასო გაუქმება ვიზიტამდე 24 საათით ადრე">უფასო გაუქმება ვიზიტამდე 24 საათით ადრე</li>
+              <li data-en="50% refund for cancellations 12-24 hours before" data-ka="50% დაბრუნება 12-24 საათით ადრე გაუქმებისას">50% დაბრუნება 12-24 საათით ადრე გაუქმებისას</li>
+              <li data-en="No refund for cancellations less than 12 hours before" data-ka="არ ბრუნდება 12 საათზე ნაკლები დროით ადრე გაუქმებისას">არ ბრუნდება 12 საათზე ნაკლები დროით ადრე გაუქმებისას</li>
+            </ul>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="3. Balance Refunds" data-ka="3. ბალანსის დაბრუნება">3. ბალანსის დაბრუნება / Balance Refunds</h3>
+            <p data-en="Balance top-ups are non-refundable but can be used for any service on the platform." data-ka="ბალანსის შევსება არ ბრუნდება, მაგრამ შეიძლება გამოყენებულ იქნას პლატფორმის ნებისმიერი სერვისისთვის.">ბალანსის შევსება არ ბრუნდება, მაგრამ შეიძლება გამოყენებულ იქნას ნებისმიერი სერვისისთვის.</p>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="4. Service Disputes" data-ka="4. სერვისის დავები">4. სერვისის დავები / Service Disputes</h3>
+            <p data-en="If you're unsatisfied with a service, please report within 48 hours. We'll investigate and offer appropriate compensation." data-ka="თუ უკმაყოფილო ხართ სერვისით, გთხოვთ შეატყობინოთ 48 საათის განმავლობაში. ჩვენ გამოვიძიებთ და შემოგთავაზებთ შესაბამის კომპენსაციას.">თუ უკმაყოფილო ხართ სერვისით, გთხოვთ შეატყობინოთ 48 საათის განმავლობაში.</p>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="5. How to Request Refund" data-ka="5. როგორ მოითხოვოთ დაბრუნება">5. როგორ მოითხოვოთ დაბრუნება / How to Request Refund</h3>
+            <ol>
+              <li data-en="Contact support at refund@beautypass.ge" data-ka="დაუკავშირდით მხარდაჭერას: refund@beautypass.ge">დაუკავშირდით: <strong>refund@beautypass.ge</strong></li>
+              <li data-en="Provide your booking/transaction ID" data-ka="მიუთითეთ თქვენი ჯავშნის/ტრანზაქციის ID">მიუთითეთ თქვენი ჯავშნის/ტრანზაქციის ID</li>
+              <li data-en="Describe the reason for refund" data-ka="აღწერეთ დაბრუნების მიზეზი">აღწერეთ დაბრუნების მიზეზი</li>
+              <li data-en="Refunds processed within 5-7 business days" data-ka="დაბრუნება მუშავდება 5-7 სამუშაო დღეში">დაბრუნება მუშავდება 5-7 სამუშაო დღეში</li>
+            </ol>
+          </div>
+          
+          <div class="policy-section">
+            <h3 data-en="6. BeautyPoints" data-ka="6. BeautyPoints">6. BeautyPoints</h3>
+            <p data-en="BeautyPoints are non-refundable and non-transferable. They expire 12 months after earning." data-ka="BeautyPoints არ ბრუნდება და არ გადაეცემა. ისინი იწურება მიღებიდან 12 თვის შემდეგ.">BeautyPoints არ ბრუნდება და არ გადაეცემა. ისინი იწურება მიღებიდან 12 თვის შემდეგ.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Community Platform -->
+    <section id="community" class="page-section">
+      <div id="communityContainer" class="community-container">
+        <!-- Community content will be loaded by CommunityApp -->
+      </div>
+    </section>
+
+    <!-- Admin Panel -->
+    <section id="adminPanel" class="page-section">
+      <div class="container">
+        <!-- Admin Login Card -->
+        <div class="auth-card" id="adminLoginCard">
+          <div class="card-header">
+            <h2>👑 Admin Panel</h2>
+            <p>ადმინისტრატორის პანელი / Administrator Panel</p>
+          </div>
+          <form class="auth-form" id="adminAuthForm" onsubmit="return false;">
+            <div class="form-group">
+              <label for="adminEmail">Email</label>
+              <input type="email" id="adminEmail" class="form-input" placeholder="admin@beautypass.ge" required>
+            </div>
+            <div class="form-group">
+              <label for="adminPassword">Password</label>
+              <input type="password" id="adminPassword" class="form-input" placeholder="••••••••" required>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-primary btn-block" onclick="loginAdmin()">Sign In</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div class="admin-dashboard" id="adminDashboard" style="display: none;">
+          <div class="admin-header">
+            <div>
+              <h2>👑 Admin Panel</h2>
+              <p id="adminEmailDisplay"></p>
+            </div>
+            <button class="btn btn-outline" onclick="logoutAdmin()">გამოსვლა / Logout</button>
+          </div>
+
+          <!-- Admin Tabs -->
+          <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchAdminTab('stats')">📊 სტატისტიკა</button>
+            <button class="admin-tab" onclick="switchAdminTab('users')">👥 მომხმარებლები</button>
+            <button class="admin-tab" onclick="switchAdminTab('salons')">🏢 სალონები</button>
+            <button class="admin-tab" onclick="switchAdminTab('salonFinance')">💰 სალონების ფინანსები</button>
+            <button class="admin-tab" onclick="switchAdminTab('services')">💅 სერვისები</button>
+            <button class="admin-tab" onclick="switchAdminTab('bookings')">📅 ჯავშნები</button>
+            <button class="admin-tab" onclick="switchAdminTab('tariffs')">💎 ტარიფები</button>
+            <button class="admin-tab" onclick="switchAdminTab('content')">📝 კონტენტი</button>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="admin-tab-content" id="adminTabContent">
+            <div class="loading-spinner">იტვირთება...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Booking Modal -->
+  <div class="modal" id="bookingModal">
+    <div class="modal-overlay" onclick="closeModal()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle" data-en="Booking" data-ka="ჯავშანი">ჯავშანი / Booking</h3>
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Global Chat Modal -->
+  <div class="modal" id="chatModal">
+    <div class="modal-overlay" onclick="closeChatModal()"></div>
+    <div class="modal-content chat-modal-content">
+      <div class="modal-header">
+        <h3>💬 Messages</h3>
+        <button class="modal-close" onclick="closeChatModal()" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body chat-modal-body">
+        <div class="chat-container">
+          <div class="chat-sidebar">
+            <div class="chat-search">
+              <input type="text" placeholder="Search conversations..." id="chatSearch" onkeyup="filterChatConversations(this.value)">
+            </div>
+            <div class="chat-conversations" id="chatConversations"></div>
+          </div>
+          <div class="chat-main">
+            <div class="chat-header" id="chatHeader">
+              <div class="chat-user-info">
+                <div class="chat-avatar">👤</div>
+                <div>
+                  <div class="chat-user-name" id="chatUserName">Select a conversation</div>
+                  <div class="chat-user-status" id="chatUserStatus">Online</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+              <div class="chat-empty-state">
+                <p>Select a conversation to start messaging</p>
+              </div>
+            </div>
+            <div class="chat-input-container">
+              <input type="text" class="chat-input" id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+              <button class="chat-send-btn" onclick="sendChatMessage()">
+                <span>Send</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
-// === END BALANCE_PAGE ===
-// В файле index.html, обновите компонент BookingModal
+  </div>
 
-const BookingModal = ({ salon, onClose, showToast }) => {
-    // Проверяем, что объект salon существует
-    if (!salon) {
-        return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-                    <p className="text-red-500 text-center">შეცდომა: ინფორმაცია სალონზე ატვირთული არ არის</p>
-                    <button onClick={onClose} className="mt-4 w-full bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
-                        დახურვა
-                    </button>
-                </div>
-            </div>
-        );
-    }
-    const [selectedService, setSelectedService] = useState('');
-    const [salonServices, setSalonServices] = useState([]);
-    const [selectedDate, setSelectedDate] = useState('');
-    const [selectedTime, setSelectedTime] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-	const [imagePreview, setImagePreview] = useState(salon && salon.salonPhotoUrl ? salon.salonPhotoUrl : '');
-    const [isLoadingServices, setIsLoadingServices] = useState(true);
-	const [formData, setFormData] = useState({
-    service: '',
-    date: '',
-    time: ''
-});
-	const [dateError, setDateError] = useState('');
+  <!-- Notification Toast -->
+  <div class="toast-container" id="toastContainer"></div>
 
-    // Загружаем услуги салона
-    useEffect(() => {
-    const fetchSalonServices = async () => {
-        if (salon.ownerId) {
-            try {
-                const response = await fetchWithAuth(`/api/salons/${salon._id || salon.id}/services`);
-                if (response.ok) {
-                    const services = await response.json();
-                    setSalonServices(services);
-                    if (services.length > 0) {
-                        setFormData(prev => ({ ...prev, service: services[0].name }));
-                    }
-                }
-            } catch (error) {
-                console.error('Ошибка при загрузке услуг:', error);
-            } finally {
-                setIsLoadingServices(false);
-            }
-        } else {
-            // Если у салона нет ownerId, используем услуги из объекта салона
-            const services = salon.services.map(name => ({ name }));
-            setSalonServices(services);
-            if (services.length > 0) {
-                setFormData(prev => ({ ...prev, service: services[0].name }));
-            }
-            setIsLoadingServices(false);
-        }
-    };
-
-    fetchSalonServices();
-}, [salon]);
-
-    const handleBooking = async () => {
-    if (!user) {
-        showToast('გთხოვთ ჯერ გაიაროთ რეგისტრაცია', 'error');
-        setCurrentPage('register');
-        return;
-    }
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-        showToast('თქვენი სესია დასრულდა. გთხოვთ, შეხვიდეთ სისტემაში.', 'error');
-        setUser(null);
-        setCurrentPage('login');
-        return;
-    }
-
-    if (!formData.date || !formData.time) {
-        showToast('გთხოვთ, აირჩიოთ თარიღი და დრო', 'error');
-        return;
-    }
-
-    const dateTimeString = `${formData.date}T${formData.time}:00`;
-    setIsLoading(true);
-
-    try {
-        const response = await fetchWithAuth('/api/bookings', { 
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    salonId: salon ? (salon.id || salon._id) : '',
-                    salonName: salon ? salon.name : 'უცნობი სალონი',
-                    service: formData.service,
-                    dateTime: dateTimeString,
-                }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                showToast(result.message, 'success');
-                setUser(result.updatedUser);
-                onClose();
-            } else {
-                showToast(result.message, 'error');
-            }
-        } catch (error) {
-            showToast('სერვერთან დაკავშირება ვერ მოხერხდა.', 'error');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-                <h3 className="text-2xl font-bold text-pink-900 mb-4">დაჯავშნე {salon ? salon.name : 'სალონი'}</h3>
-                
-          <div className="mb-4">
-    <label className="block text-pink-700 font-medium mb-2">მომსახურება</label>
-    {isLoadingServices ? (
-        <p>მომსახურეობის ატვირთვა..</p>
-    ) : (
-        <select value={formData.service} onChange={e => setFormData({...formData, service: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none">
-            {salonServices.map(s => <option key={s._id || s.name} value={s.name}>{s.name} - ₾{s.price}</option>)}
-        </select>
-    )}
-</div>
-
-<div className="mb-4">
-    <label className="block text-pink-700 font-medium mb-2">თარიღი</label>
-    <input 
-        type="date" 
-        value={formData.date} 
-        onChange={e => {
-            const selectedDate = new Date(e.target.value);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            if (selectedDate < today) {
-                setDateError('Нельзя выбирать прошедшую дату');
-            } else {
-                setDateError('');
-            }
-            setFormData({...formData, date: e.target.value});
-        }} 
-        className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" 
-        min={new Date().toISOString().split('T')[0]}
-    />
-    {dateError && <p className="text-red-500 text-sm mt-1">{dateError}</p>}
-</div>
-
-<div className="mb-6">
-    <label className="block text-pink-700 font-medium mb-2">დრო</label>
-    <input type="time" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} className="w-full px-4 py-3 rounded-lg border-2 border-pink-100 focus:border-pink-500 outline-none" />
-</div>
-
-                <div className="flex gap-3">
-                    <button onClick={handleBooking} disabled={isLoading} className="flex-1 bg-pink-500 text-white py-3 rounded-lg font-semibold hover:bg-pink-600 transition">
-                        {isLoading ? 'დაჯავშნე...' : 'დაჯავშნე'}
-                    </button>
-                    <button onClick={onClose} className="flex-1 bg-pink-100 text-pink-700 py-3 rounded-lg font-semibold hover:bg-pink-200 transition">
-                        გაუქმება
-                    </button>
-                </div>
-            </div>
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <div class="footer-logo">
+            <span class="logo-text footer-logo-text">BeautyPass</span>
+          </div>
+            <p data-en="Your beauty, our care" data-ka="ჩვენ ვზრუნავთ შენს სილამაზეზე">ჩვენ ვზრუნავთ შენს სილამაზეზე</p>
+          <div class="social-links">
+            <a href="#" aria-label="Facebook">F</a>
+            <a href="#" aria-label="Instagram">I</a>
+            <a href="#" aria-label="Twitter">T</a>
+          </div>
         </div>
-    );
-};
-            return (
-                <div className="min-h-screen bg-pink-50">
-                    <header className="bg-white border-b-2 border-pink-100 sticky top-0 z-50">
-                        <div className="max-w-7xl mx-auto px-4 py-4">
-                            <div className="flex items-center justify-between">
-                                <div className="text-2xl font-bold text-pink-600">BeautyPass</div>
-                                <nav className="hidden md:flex items-center space-x-6">
-<nav className="hidden md:flex items-center space-x-6">
-    <button onClick={() => setCurrentPage('home')} className="text-pink-700 hover:text-pink-900 font-medium">მთავარი</button>
-    <button onClick={() => setCurrentPage('packages')} className="text-pink-700 hover:text-pink-900 font-medium">პაკეტები</button>
-    <button onClick={() => setCurrentPage('salons')} className="text-pink-700 hover:text-pink-900 font-medium">სალონები</button>
-    <button onClick={() => setCurrentPage('about')} className="text-pink-700 hover:text-pink-900 font-medium">ჩვენს შესახებ</button>
-</nav>
-                                    {!user ? (
-                                        <>
-    <button onClick={() => setCurrentPage('login')} className="bg-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-pink-600 transition">შესვლა</button>
-    <button onClick={() => setCurrentPage('register')} className="bg-pink-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-pink-600 transition">რეგისტრაცია</button>
-</>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => setCurrentPage('profile')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center"><User className="w-5 h-5 mr-1" />პროფილი</button>
-                                            <button onClick={() => setCurrentPage('balance')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center"><CreditCard className="w-5 h-5 mr-1" />₾{user.balance.toFixed(0)}</button>
-{user.isAdmin && (
-    <button onClick={() => setCurrentPage('admin')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center">
-        <User className="w-5 h-5 mr-1" />Админ
-    </button>
-)}
-                                            <button onClick={logout} className="text-pink-500 hover:text-pink-700"><LogOut className="w-5 h-5" /></button>
-                                        </>
-                                    )}
-                                </nav>
-                                <button className="md:hidden text-pink-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                                    {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                                </button>
-                            </div>
-                            {mobileMenuOpen && (
-                                <div className="md:hidden mt-4 space-y-2 pb-4">
-    <button onClick={() => setCurrentPage('home')} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">მთავარი</button>
-    <button onClick={() => setCurrentPage('packages')} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">პაკეტები</button>
-    <button onClick={() => setCurrentPage('salons')} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">სალონები</button>
-    <button onClick={() => setCurrentPage('about')} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">ჩვენს შესახებ</button>
-                                    {!user ? (
-                                        <button onClick={() => { setCurrentPage('register'); setMobileMenuOpen(false); }} className="block w-full text-left bg-pink-500 text-white px-4 py-2 rounded-lg font-semibold">რეგისტრაცია</button>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => { setCurrentPage('profile'); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">პროფილი</button>
-                                            <button onClick={() => { setCurrentPage('balance'); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-700 hover:text-pink-900 font-medium py-2">ბალანსი: ₾{user.balance.toFixed(0)}</button>
-											        {user.isAdmin && (
-            <button onClick={() => setCurrentPage('admin')} className="text-pink-700 hover:text-pink-900 font-medium flex items-center">
-                <User className="w-5 h-5 mr-1" />Админ
-            </button>
-        )}
-
-                                            <button onClick={() => { logout(); setMobileMenuOpen(false); }} className="block w-full text-left text-pink-500 hover:text-pink-700 font-medium py-2">გასვლა</button>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </header>
-
-<main className="max-w-7xl mx-auto px-4 py-8">
-    {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-            <div className="text-pink-600 text-xl">იტვირთება...</div>
+        <div class="footer-section">
+          <h4 data-en="Quick Links" data-ka="სწრაფი ლინკები">სწრაფი ლინკები / Quick Links</h4>
+          <ul>
+            <li><a href="#tariffs" onclick="navigate('#tariffs')" data-en="Tariffs" data-ka="ტარიფები">ტარიფები / Tariffs</a></li>
+            <li><a href="#services" onclick="navigate('#services')" data-en="Services" data-ka="სერვისები">სერვისები / Services</a></li>
+            <li><a href="javascript:void(0)" onclick="showAboutModal()" data-en="About" data-ka="ჩვენს შესახებ">ჩვენს შესახებ / About</a></li>
+            <li><a href="#client" onclick="navigate('#client')" data-en="My Profile" data-ka="ჩემი პროფილი">ჩემი პროფილი / My Profile</a></li>
+          </ul>
         </div>
-    ) : (
-        <>
-            {currentPage === 'home' && <HomePage />}
-            {currentPage === 'packages' && <PackagesPage packages={packages} onBuyPackage={buyPackage} />}
-            {currentPage === 'salons' && <SalonsPage showToast={showToast} />}
-            {currentPage === 'about' && <AboutPage />}
-            {currentPage === 'login' && <LoginPage setCurrentPage={setCurrentPage} setUser={setUser} showToast={showToast} />}
-            {currentPage === 'register' && <RegisterPage setCurrentPage={setCurrentPage} setUser={setUser} showToast={showToast} />}
-            {currentPage === 'profile' && <ProfilePage user={user} setCurrentPage={setCurrentPage} showToast={showToast} />}
-            {currentPage === 'balance' && <BalancePage user={user} setUser={setUser} showToast={showToast} />}
-            {currentPage === 'admin' && user && user.isAdmin && <AdminPage showToast={showToast} />}
-        </>
-    )}
-</main>
-                    <footer className="bg-white border-t-2 border-pink-100 mt-16">
-                        <div className="max-w-7xl mx-auto px-4 py-8">
-                            <div className="grid md:grid-cols-3 gap-8">
-                                <div>
-                                    <h3 className="text-xl font-bold text-pink-900 mb-4">BeautyPass</h3>
-                                    <p className="text-pink-600">თქვენი სილამაზის პარტნიორი</p>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-pink-900 mb-3">კონტაქტი</h4>
-                                    <div className="space-y-2 text-pink-600">
-                                        <p>📞 +995 555 123 456</p>
-                                        <p>📧 info@beautypass.ge</p>
-                                        <p>📍 თბილისი, საქართველო</p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h4 className="font-semibold text-pink-900 mb-3">მუშაობის საათები</h4>
-                                    <div className="space-y-1 text-pink-600">
-                                        <p>ორშაბათი - პარასკევი: 9:00 - 20:00</p>
-                                        <p>შაბათი: 10:00 - 18:00</p>
-                                        <p>კვირა: დახურულია</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-8 pt-6 border-t border-pink-100 text-center text-pink-600">
-                                <p>&copy; 2025 BeautyPass. ყველა უფლება დაცულია.</p>
-                            </div>
-                        </div>
-                    </footer>
-<div className="fixed top-4 right-4 space-y-2 z-50">
-    {toasts.map(toast => (
-        <Toast
-            key={toast.id}
-			id={toast.id}
-            message={toast.message}
-            type={toast.type}
-            onClose={closeToast}
-        />
-    ))}
-</div>
-                </div>
-            );
-        };
-		// <<<< НАЧАЛО ГЛАВНОЙ АДМИН-СТРАНИЦЫ >>>>
-const AdminPage = ({showToast}) => {
-    const [currentAdminPage, setCurrentAdminPage] = useState('packages'); // 'packages', 'salons', 'bookings'
-
-    return (
-        <div>
-            <h1 className="text-4xl font-bold text-pink-900 mb-6">Панель администратора</h1>
-            
-            {/* Мини-меню для навигации внутри админки */}
-            <div className="flex space-x-4 mb-8 border-b-2 border-pink-100">
-                <button 
-                    onClick={() => setCurrentAdminPage('packages')} 
-                    className={`pb-2 px-1 font-semibold ${currentAdminPage === 'packages' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}
-                >
-                    Пакеты
-                </button>
-                <button 
-                    onClick={() => setCurrentAdminPage('salons')} 
-                    className={`pb-2 px-1 font-semibold ${currentAdminPage === 'salons' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}
-                >
-                    Салоны
-                </button>
-                <button 
-                    onClick={() => setCurrentAdminPage('bookings')} 
-                    className={`pb-2 px-1 font-semibold ${currentAdminPage === 'bookings' ? 'text-pink-600 border-b-2 border-pink-600' : 'text-pink-400 hover:text-pink-600'}`}
-                >
-                    Записи
-                </button>
-            </div>
-
-            {/* Отображаем нужную страницу в зависимости от выбора */}
-            {currentAdminPage === 'packages' && <ManagePackagesPage />}
-            {currentAdminPage === 'salons' && <ManageSalonsPage />}
-			{currentAdminPage === 'bookings' && <ManageBookingsPage showToast={showToast} />}
+        <div class="footer-section">
+          <h4 data-en="Information" data-ka="ინფორმაცია">ინფორმაცია / Information</h4>
+          <ul>
+            <li><a href="#policy" onclick="navigate('#policy')" data-en="Privacy" data-ka="კონფიდენციალურობა">კონფიდენციალურობა / Privacy</a></li>
+            <li><a href="#refund" onclick="navigate('#refund')" data-en="Refund" data-ka="დაბრუნება">დაბრუნება / Refund</a></li>
+            <li><a href="#" onclick="showContact()" data-en="Contact" data-ka="კონტაქტი">კონტაქტი / Contact</a></li>
+          </ul>
         </div>
-    );
-};
-// <<<< КОНЕЦ ГЛАВНОЙ АДМИН-СТРАНИЦЫ >>>>
-// <<<< НАЧАЛО КОМПОНЕНТА УПРАВЛЕНИЯ САЛОНАМИ >>>>
-const ManageSalonsPage = () => {
-    const [salons, setSalons] = useState([]);
-    const [editingSalon, setEditingSalon] = useState(null);
-    const [formData, setFormData] = useState({ name: '', services: '', address: '', rating: '' });
-
-    const loadSalons = async () => {
-        const response = await fetchWithAuth('/api/admin/salons');
-        const data = await response.json();
-        setSalons(data);
-    };
-
-    useEffect(() => {
-        loadSalons();
-    }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const servicesArray = formData.services.split(',').map(s => s.trim());
-        const salonData = { ...formData, services: servicesArray, rating: parseFloat(formData.rating) };
-
-        if (editingSalon) {
-            await fetchWithAuth(`/api/admin/salons/${editingSalon._id}`, {
-                method: 'PUT',
-                body: JSON.stringify(salonData),
-            });
-        } else {
-            await fetchWithAuth('/api/admin/salons', {
-                method: 'POST',
-                body: JSON.stringify(salonData),
-            });
-        }
-
-        setFormData({ name: '', services: '', address: '', rating: '' });
-        setEditingSalon(null);
-        loadSalons();
-    };
-
-    const handleEdit = (salon) => {
-        setEditingSalon(salon);
-        setFormData({
-            name: salon.name,
-            services: salon.services.join(', '),
-            address: salon.address,
-            rating: salon.rating
-        });
-    };
-
-    const handleDelete = async (id) => {
-        if (confirm('Вы уверены, что хотите удалить этот салон?')) {
-            await fetchWithAuth(`/api/admin/salons/${id}`, { method: 'DELETE' });
-            loadSalons();
-        }
-    };
-
-    return (
-        <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-pink-900">Управление салонами</h2>
-            
-            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
-                <h3 className="text-xl font-semibold mb-4">{editingSalon ? 'Редактировать салон' : 'Создать новый салон'}</h3>
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" placeholder="Название" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="p-3 border rounded-lg" required />
-                    <input type="text" placeholder="Адрес" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="p-3 border rounded-lg" required />
-                    <input type="text" placeholder="მომსახურება (через запятую)" value={formData.services} onChange={e => setFormData({...formData, services: e.target.value})} className="p-3 border rounded-lg md:col-span-2" required />
-                    <input type="number" step="0.1" placeholder="Рейтинг (4.5)" value={formData.rating} onChange={e => setFormData({...formData, rating: e.target.value})} className="p-3 border rounded-lg" required />
-                    <button type="submit" className="bg-pink-500 text-white p-3 rounded-lg hover:bg-pink-600">
-                        {editingSalon ? 'შენახვა изменения' : 'Создать'}
-                    </button>
-                </form>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
-                <h3 className="text-xl font-semibold mb-4">Существующие салоны</h3>
-                <div className="space-y-3">
-                    {salons.map(salon => (
-                        <div key={salon._id} className="flex justify-between items-center p-4 bg-pink-50 rounded-lg">
-                            <div>
-                                <h4 className="font-bold">{salon.name} - ⭐{salon.rating}</h4>
-                                <p className="text-sm text-gray-600">{salon.address}</p>
-                            </div>
-                            <div className="space-x-2">
-                                <button onClick={() => handleEdit(salon)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Редактировать</button>
-                                <button onClick={() => handleDelete(salon._id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Удалить</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+        <div class="footer-section">
+          <h4 data-en="For Business" data-ka="ბიზნესისთვის">ბიზნესისთვის / For Business</h4>
+          <ul>
+            <li><a href="#salon" onclick="navigate('salon')" data-en="Salon Login" data-ka="სალონის შესვლა">სალონის შესვლა / Salon Login</a></li>
+            <li id="adminPanelLink" style="display: none;"><a href="#adminPanel" onclick="navigate('adminPanel')" data-en="Admin Panel" data-ka="ადმინ პანელი">👑 ადმინ პანელი / Admin Panel</a></li>
+          </ul>
         </div>
-    );
-};
-// <<<< КОНЕЦ КОМПОНЕНТА УПРАВЛЕНИЯ САЛОНАМИ >>>>
-// <<<< НАЧАЛО КОМПОНЕНТА ПРОСМОТРА ЗАПИСЕЙ >>>>
-// <<<< ПОЛНЫЙ КОМПОНЕНТ ПРОСМОТРА ЗАПИСЕЙ С КНОПКОЙ ОТМЕНЫ >>>>
-const ManageBookingsPage = ({ showToast }) => {
-    const [bookings, setBookings] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const fetchBookings = async () => {
-        const response = await fetchWithAuth('/api/admin/bookings');
-        const data = await response.json();
-        setBookings(data);
-        setIsLoading(false);
-    };
-
-    useEffect(() => {
-        fetchBookings();
-    }, []);
-
-    // Функция для отмены записи
-    const handleCancel = async (bookingId) => {
-        if (!confirm('Вы уверены, что хотите отменить эту запись? Визит будет возвращен пользователю.')) {
-            return;
-        }
-
-        try {
-            const response = await fetchWithAuth(`/api/admin/bookings/${bookingId}/cancel`, {
-                method: 'PUT',
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                showToast(result.message, 'success');
-                fetchBookings(); // Перезагружаем список, чтобы увидеть изменения
-            } else {
-                showToast(result.message, 'error');
-            }
-        } catch (error) {
-            showToast('Не удалось отменить запись.', 'error');
-        }
-    };
-
-    if (isLoading) {
-        return <p>Загрузка записей...</p>;
-    }
-
-    return (
-        <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-pink-900">Все записи</h2>
-            
-            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b">
-                                <th className="pb-3">Пользователь</th>
-                                <th className="pb-3">Салон</th>
-                                <th className="pb-3">Услуга</th>
-                                <th className="pb-3">Дата и время</th>
-                                <th className="pb-3">Статус</th>
-                                <th className="pb-3">Действия</th> {/* Новый столбец */}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {bookings.map(booking => (
-                                <tr key={booking._id} className="border-b">
-                                    <td className="py-3">
-                                        {booking.userId ? `${booking.userId.firstName} ${booking.userId.lastName}` : 'Неизвестен'}
-                                        <div className="text-xs text-gray-500">{booking.userId?.login}</div>
-                                    </td>
-                                    <td className="py-3">{booking.salonName}</td>
-                                    <td className="py-3">{booking.service}</td>
-                                    <td className="py-3">{new Date(booking.dateTime).toLocaleString('ru-RU')}</td>
-                                    <td className="py-3">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                            booking.status === 'scheduled' ? 'bg-green-100 text-green-700' :
-                                            booking.status === 'completed' ? 'bg-gray-100 text-gray-700' :
-                                            'bg-red-100 text-red-700'
-                                        }`}>
-                                            {booking.status === 'scheduled' ? 'Запланирована' :
-                                             booking.status === 'completed' ? 'Выполнена' : 'Отменена'}
-                                        </span>
-                                    </td>
-                                    <td className="py-3"> {/* Ячейка с кнопкой */}
-                                        {booking.status === 'scheduled' && (
-                                            <button 
-                                                onClick={() => handleCancel(booking._id)}
-                                                className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600"
-                                            >
-                                                Отменить
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {bookings.length === 0 && <p className="text-center text-gray-500 py-6">Записей пока нет.</p>}
-                </div>
-            </div>
+        <div class="footer-section">
+          <h4 data-en="Contact" data-ka="კონტაქტი">კონტაქტი / Contact</h4>
+          <p>Email: info@beautypass.ge</p>
+          <p>Phone: +995 XXX XX XX XX</p>
+          <p data-en="Tbilisi, Georgia" data-ka="თბილისი, საქართველო">თბილისი, საქართველო / Tbilisi, Georgia</p>
         </div>
-    );
-};
-// <<<< КОНЕЦ КОМПОНЕНТА >>>>
-// <<<< КОНЕЦ КОМПОНЕНТА ПРОСМОТРА ЗАПИСЕЙ >>>>
-// <<<< ДОБАВЬТЕ ЭТОТ КОМПОНЕНТ В КОНЕЦ ФАЙЛА >>>>
-const ManagePackagesPage = () => {
-    const [packages, setPackages] = useState([]);
-    const [editingPackage, setEditingPackage] = useState(null); // Для редактирования
-    const [formData, setFormData] = useState({ name: '', price: '', visits: '', description: '', features: '', popular: false });
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <span id="currentYear"></span> Beauty Pass. <span data-en="All rights reserved." data-ka="ყველა უფლება დაცულია.">ყველა უფლება დაცულია. / All rights reserved.</span></p>
+      </div>
+    </div>
+  </footer>
 
-    // Функция для загрузки пакетов
-    const loadPackages = async () => {
-        const response = await fetchWithAuth('/api/packages');
-        const data = await response.json();
-        setPackages(data);
-    };
-
-    useEffect(() => {
-        loadPackages();
-    }, []);
-
-    // Обработчик для формы
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const featuresArray = formData.features.split(',').map(f => f.trim());
-        const packageData = { ...formData, features: featuresArray };
-
-        if (editingPackage) {
-            // Редактирование
-            await fetchWithAuth(`/api/admin/packages/${editingPackage._id}`, {
-                method: 'PUT',
-                body: JSON.stringify(packageData),
-            });
-        } else {
-            // Создание
-            await fetchWithAuth('/api/admin/packages', {
-                method: 'POST',
-                body: JSON.stringify(packageData),
-            });
+  <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="api-client.js?v=20260201"></script>
+    <script src="global-data.js?v=20260201"></script>
+    <script src="modal-functions.js?v=20260201"></script>
+    <script src="app.js?v=20260201"></script>
+    <script src="salon-chat-functions.js?v=20260201"></script>
+    <script src="messenger.js?v=20260201"></script>
+    <script src="payment-system.js?v=20260201"></script>
+    <!-- New Features -->
+    <script src="tbilisi-map.js?v=20260201"></script>
+    <script src="specialist-system.js?v=20260201"></script>
+    <script src="beauty-bot.js?v=20260201"></script>
+    <script src="community.js?v=20260201"></script>
+    <script>
+      // Map Filter Functions
+      let currentMapCategory = 'all';
+      let currentMapRating = '';
+      let currentMapSearch = '';
+      
+      function handleMapSearch() {
+        currentMapSearch = document.getElementById('mapSearchInput').value;
+        applyMapFilters();
+      }
+      
+      function handleCategoryFilter(category, button) {
+        currentMapCategory = category;
+        // Update active state
+        document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+        button.classList.add('active');
+        applyMapFilters();
+      }
+      
+      function handleRatingFilter() {
+        currentMapRating = document.getElementById('ratingFilter').value;
+        applyMapFilters();
+      }
+      
+      function applyMapFilters() {
+        if (typeof TbilisiMap !== 'undefined') {
+          TbilisiMap.filterSalons({
+            category: currentMapCategory,
+            rating: currentMapRating,
+            search: currentMapSearch
+          });
         }
-
-        // Сброс формы и перезагрузка списка
-        setFormData({ name: '', price: '', visits: '', description: '', features: '', popular: false });
-        setEditingPackage(null);
-        loadPackages();
-    };
-
-    const handleEdit = (pkg) => {
-        setEditingPackage(pkg);
-        setFormData({
-            name: pkg.name,
-            price: pkg.price,
-            visits: pkg.visits,
-            description: pkg.description,
-            features: pkg.features.join(', '),
-            popular: pkg.popular
-        });
-    };
-
-    const handleDelete = async (id) => {
-        if (confirm('Вы уверены, что хотите удалить этот пакет?')) {
-            await fetchWithAuth(`/api/admin/packages/${id}`, { method: 'DELETE' });
-            loadPackages();
+      }
+      
+      // Initialize new components after DOM ready
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Tbilisi Map
+        setTimeout(() => {
+          if (typeof TbilisiMap !== 'undefined') {
+            TbilisiMap.init('tbilisiMap');
+          }
+        }, 1000);
+        
+        // Initialize Specialist System
+        if (typeof SpecialistSystem !== 'undefined') {
+          SpecialistSystem.renderFilters('specialistFilters');
+          SpecialistSystem.renderList('specialistsList');
         }
-    };
-
-    return (
-        <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-pink-900">Управление пакетами</h2>
-            
-            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
-                <h3 className="text-xl font-semibold mb-4">{editingPackage ? 'Редактировать пакет' : 'Создать новый пакет'}</h3>
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" placeholder="Название" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="p-3 border rounded-lg" required />
-                    <input type="number" placeholder="Цена" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="p-3 border rounded-lg" required />
-                    <input type="number" placeholder="Кол-во визитов" value={formData.visits} onChange={e => setFormData({...formData, visits: e.target.value})} className="p-3 border rounded-lg" required />
-                    <input type="text" placeholder="Описание" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="p-3 border rounded-lg" required />
-                    <input type="text" placeholder="Фичи (через запятую)" value={formData.features} onChange={e => setFormData({...formData, features: e.target.value})} className="p-3 border rounded-lg md:col-span-2" required />
-                    <label className="flex items-center">
-                        <input type="checkbox" checked={formData.popular} onChange={e => setFormData({...formData, popular: e.target.checked})} className="mr-2" />
-                        Популярный
-                    </label>
-                    <button type="submit" className="bg-pink-500 text-white p-3 rounded-lg hover:bg-pink-600">
-                        {editingPackage ? 'შენახვა изменения' : 'Создать'}
-                    </button>
-                </form>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border-2 border-pink-100">
-                <h3 className="text-xl font-semibold mb-4">Существующие пакеты</h3>
-                <div className="space-y-3">
-                    {packages.map(pkg => (
-                        <div key={pkg._id} className="flex justify-between items-center p-4 bg-pink-50 rounded-lg">
-                            <div>
-                                <h4 className="font-bold">{pkg.name} - ₾{pkg.price}</h4>
-                                <p className="text-sm text-gray-600">{pkg.description}</p>
-                            </div>
-                            <div className="space-x-2">
-                                <button onClick={() => handleEdit(pkg)} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Редактировать</button>
-                                <button onClick={() => handleDelete(pkg._id)} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Удалить</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<BeautyPass />);
+      });
     </script>
-</body>
+  </body>
 </html>
+
+

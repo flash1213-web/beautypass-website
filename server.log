@@ -1,0 +1,405 @@
+[dotenv@17.2.3] injecting env (17) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+✅ Email transporter создан
+🚀 Сервер запущен на порту 3000
+🌐 Frontend: http://localhost:3000
+🔧 API: http://localhost:3000/api
+📁 Папка public: C:\Users\amura\OneDrive\Desktop\beautypass final\public
+📁 Папка uploads: C:\Users\amura\OneDrive\Desktop\beautypass final\uploads
+✅ MongoDB подключена успешно
+✅ Сервер готов к работе!
+🌐 [2026-01-31T20:43:42.054Z] GET /api/public-stats
+✅ MongoDB подключена успешно
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:44:09.115Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:44:11.802Z] GET /
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\index.html
+🌐 [2026-01-31T20:44:11.831Z] GET /styles.css?v=20251224-DESIGN-UPDATE
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\styles.css
+🌐 [2026-01-31T20:44:11.838Z] GET /api-client.js?v=20260106
+🌐 [2026-01-31T20:44:11.839Z] GET /global-data.js?v=20260106
+🌐 [2026-01-31T20:44:11.840Z] GET /modal-functions.js?v=20260106
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\api-client.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\global-data.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\modal-functions.js
+🌐 [2026-01-31T20:44:11.854Z] GET /app.js?v=20260106-FIX
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\app.js
+🌐 [2026-01-31T20:44:11.856Z] GET /salon-chat-functions.js?v=20260107-FIX2
+🌐 [2026-01-31T20:44:11.858Z] GET /messenger.js?v=20260107-FIX3
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\salon-chat-functions.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\messenger.js
+🌐 [2026-01-31T20:44:11.865Z] GET /payment-system.js?v=20260106
+🌐 [2026-01-31T20:44:11.867Z] GET /tbilisi-map.js?v=20260116-REVIEWS
+🌐 [2026-01-31T20:44:11.869Z] GET /beauty-bot.js?v=20260107-FIX2
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\payment-system.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\tbilisi-map.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\beauty-bot.js
+🌐 [2026-01-31T20:44:11.880Z] GET /community.js?v=20260116-FIX17
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\community.js
+🌐 [2026-01-31T20:44:12.069Z] GET /api/packages
+📦 Запрос пакетов
+🌐 [2026-01-31T20:44:12.120Z] GET /api/salons
+🏢 Запрос салонов
+📦 Найдено пакетов: 3
+🏢 Найдено салонов: 12
+🌐 [2026-01-31T20:44:17.829Z] GET /api/salons
+🏢 Запрос салонов
+🏢 Найдено салонов: 12
+🌐 [2026-01-31T20:44:18.716Z] GET /api/salons
+🏢 Запрос салонов
+🌐 [2026-01-31T20:44:18.720Z] GET /api/services
+💅 Запрос услуг
+🏢 Найдено салонов: 12
+📦 Найдено услуг: 24
+🌐 [2026-01-31T20:44:19.933Z] GET /api/services
+💅 Запрос услуг
+🌐 [2026-01-31T20:44:19.936Z] GET /api/packages
+📦 Запрос пакетов
+📦 Найдено пакетов: 3
+📦 Найдено услуг: 24
+🌐 [2026-01-31T20:44:20.671Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:44:36.236Z] POST /api/login
+🔑 Запрос на вход: { email: 'a.muradiani26@gmail.com', password: 'Password.123' }
+🔍 Пользователь найден: a.muradiani26@gmail.com
+🔐 Проверяем пароль, хеш в базе: $2b$10$v7ebIs0miLHZ2...
+🔐 Результат проверки пароля: true
+📧 Отправка 2FA кода на a.muradiani26@gmail.com...
+✅ 2FA კოდი გაგზავნილია: a.muradiani26@gmail.com (messageId: <cc65b8c9-aa51-e579-193c-5d6b0c7ba18b@gmail.com>)
+🌐 [2026-01-31T20:44:50.668Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:44:50.806Z] POST /api/confirm-2fa
+🔐 Запрос подтверждения 2FA: { email: 'a.muradiani26@gmail.com', code: '772915' }
+🌐 [2026-01-31T20:44:50.982Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:44:51.147Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:44:51.323Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:44:56.252Z] PUT /api/profile
+👤 Профиль обновлён: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:44:56.411Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:44:56.572Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:44:56.737Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:45:04.335Z] PUT /api/profile
+👤 Профиль обновлён: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:45:04.651Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:45:05.061Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:45:06.003Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:45:12.075Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:45:14.520Z] POST /api/balance/add
+🌐 [2026-01-31T20:45:14.655Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:45:20.669Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:45:24.653Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:45:34.660Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:45:42.076Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:45:44.657Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:45:50.675Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:45:54.658Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:04.655Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:12.074Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:46:14.654Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:20.672Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:46:24.653Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:30.210Z] POST /api/packages/buy
+✅ User a.muradiani26@gmail.com purchased სტანდარტული: -179₾, +200 BP
+🌐 [2026-01-31T20:46:30.501Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:30.657Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:46:30.872Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:46:33.797Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:33.958Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:46:34.149Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:46:42.069Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:46:43.812Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:43.915Z] POST /api/packages/buy
+✅ User a.muradiani26@gmail.com purchased ბაზისიური: -99₾, +100 BP
+🌐 [2026-01-31T20:46:44.153Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:44.307Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:46:44.464Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:46:46.495Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:46:46.647Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:46:46.798Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:46:50.674Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:46:56.775Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:47:06.778Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:47:12.779Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:47:16.786Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:47:20.775Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:47:26.783Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:47:36.505Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:47:38.278Z] GET /api/available-slots?limit=30&date=2026-02-10
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:47:39.905Z] GET /api/available-slots?limit=30&date=2026-02-10&category=%E1%83%AC%E1%83%90%E1%83%A0%E1%83%91%E1%83%94%E1%83%91%E1%83%98
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:47:42.077Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:47:46.500Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:47:50.775Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:47:56.502Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:47:57.922Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:47:58.109Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:47:58.300Z] GET /api/available-slots?limit=30&category=%E1%83%AC%E1%83%90%E1%83%A0%E1%83%91%E1%83%94%E1%83%91%E1%83%98
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:48:05.418Z] GET /api/salons/6921bb28f1f3504b9365372b
+🌐 [2026-01-31T20:48:05.432Z] GET /api/salons/6921bb28f1f3504b9365372b/specialists
+🔍 Specialists for salon 6921bb28f1f3504b9365372b: found 2 (ownerId: 6921bb28f1f3504b93653725)
+🌐 [2026-01-31T20:48:05.667Z] GET /api/salon/6921bb28f1f3504b9365372b/gallery
+🌐 [2026-01-31T20:48:07.924Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:48:09.090Z] GET /api/salons/6921bb28f1f3504b9365372b/specialists
+🔍 Specialists for salon 6921bb28f1f3504b9365372b: found 2 (ownerId: 6921bb28f1f3504b93653725)
+🌐 [2026-01-31T20:48:12.351Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:48:15.248Z] GET /api/specialists/69695c14d40d9bc14031eb7a/slots?date=2026-02-08
+🌐 [2026-01-31T20:48:17.923Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:48:20.663Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:48:23.235Z] GET /api/salons/6921bb28f1f3504b93653729/specialists
+🔍 Specialists for salon 6921bb28f1f3504b93653729: found 0 (ownerId: 6921bb27f1f3504b93653721)
+🌐 [2026-01-31T20:48:26.931Z] GET /api/salons/6921bb28f1f3504b9365372a/specialists
+🔍 Specialists for salon 6921bb28f1f3504b9365372a: found 2 (ownerId: 6921bb27f1f3504b93653723)
+🌐 [2026-01-31T20:48:27.931Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:48:36.213Z] GET /api/salons/6921bb28f1f3504b9365372b
+🌐 [2026-01-31T20:48:36.220Z] GET /api/salons/6921bb28f1f3504b9365372b/specialists
+🔍 Specialists for salon 6921bb28f1f3504b9365372b: found 2 (ownerId: 6921bb28f1f3504b93653725)
+🌐 [2026-01-31T20:48:36.818Z] GET /api/salon/6921bb28f1f3504b9365372b/gallery
+🌐 [2026-01-31T20:48:37.930Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:48:42.080Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:48:46.662Z] POST /api/specialists/69695c14d40d9bc14031eb7a/review
+📝 Adding review for specialist: 69695c14d40d9bc14031eb7a rating: 3 userId: 695b1f5fde73d846e6fd9bc5
+👤 User found: Aniko
+➕ Added new review
+⭐ +5 XP for review (total: 15 XP)
+💾 Saving specialist with reviews: 1 avgRating: 3
+🌐 [2026-01-31T20:48:48.034Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+✅ Review saved successfully!
+🌐 [2026-01-31T20:48:50.672Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:48:54.052Z] GET /api/specialists/69695c14d40d9bc14031eb7a/reviews
+📖 Getting reviews for specialist: 69695c14d40d9bc14031eb7a
+✅ Found reviews: 1 avgRating: 3
+🌐 [2026-01-31T20:48:57.931Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:49:05.780Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:49:06.008Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:49:06.240Z] GET /api/available-slots?limit=30&category=%E1%83%AC%E1%83%90%E1%83%A0%E1%83%91%E1%83%94%E1%83%91%E1%83%98
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:49:12.071Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:49:13.505Z] GET /
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\index.html
+🌐 [2026-01-31T20:49:13.530Z] GET /styles.css?v=20251224-DESIGN-UPDATE
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\styles.css
+🌐 [2026-01-31T20:49:13.535Z] GET /api-client.js?v=20260106
+🌐 [2026-01-31T20:49:13.536Z] GET /global-data.js?v=20260106
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\api-client.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\global-data.js
+🌐 [2026-01-31T20:49:13.540Z] GET /modal-functions.js?v=20260106
+🌐 [2026-01-31T20:49:13.542Z] GET /app.js?v=20260106-FIX
+🌐 [2026-01-31T20:49:13.544Z] GET /salon-chat-functions.js?v=20260107-FIX2
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\modal-functions.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\app.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\salon-chat-functions.js
+🌐 [2026-01-31T20:49:13.548Z] GET /payment-system.js?v=20260106
+🌐 [2026-01-31T20:49:13.549Z] GET /messenger.js?v=20260107-FIX3
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\payment-system.js
+🌐 [2026-01-31T20:49:13.551Z] GET /tbilisi-map.js?v=20260116-REVIEWS
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\messenger.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\tbilisi-map.js
+🌐 [2026-01-31T20:49:13.556Z] GET /beauty-bot.js?v=20260107-FIX2
+🌐 [2026-01-31T20:49:13.558Z] GET /community.js?v=20260116-FIX17
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\beauty-bot.js
+📁 Отдаем файл: C:\Users\amura\OneDrive\Desktop\beautypass final\public\community.js
+🌐 [2026-01-31T20:49:13.698Z] GET /api/packages
+🌐 [2026-01-31T20:49:13.701Z] GET /api/messages/unread/count
+📦 Запрос пакетов
+🌐 [2026-01-31T20:49:13.731Z] GET /api/salons
+🏢 Запрос салонов
+🌐 [2026-01-31T20:49:14.000Z] GET /api/profile
+📦 Найдено пакетов: 3
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🏢 Найдено салонов: 12
+🌐 [2026-01-31T20:49:14.360Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:49:14.361Z] GET /api/salons
+🏢 Запрос салонов
+🌐 [2026-01-31T20:49:15.005Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🏢 Найдено салонов: 12
+🌐 [2026-01-31T20:49:15.250Z] GET /api/salons
+🏢 Запрос салонов
+🌐 [2026-01-31T20:49:15.252Z] GET /api/services
+💅 Запрос услуг
+📦 Найдено услуг: 24
+🌐 [2026-01-31T20:49:16.335Z] GET /api/packages
+📦 Запрос пакетов
+🏢 Найдено салонов: 12
+🌐 [2026-01-31T20:49:16.376Z] GET /api/services
+💅 Запрос услуг
+📦 Найдено пакетов: 3
+📦 Найдено услуг: 24
+🌐 [2026-01-31T20:49:16.789Z] GET /api/profile
+🌐 [2026-01-31T20:49:16.796Z] GET /api/public-stats
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:49:17.383Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:49:17.648Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:49:24.684Z] POST /api/balance/add
+🌐 [2026-01-31T20:49:26.792Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:49:36.795Z] GET /api/profile
+🌐 [2026-01-31T20:49:37.064Z] POST /api/packages/buy
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+✅ User a.muradiani26@gmail.com purchased სტანდარტული: -179₾, +200 BP
+🌐 [2026-01-31T20:49:38.401Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:49:39.208Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:49:40.203Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:49:40.786Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:49:41.034Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:49:41.250Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:49:43.698Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:49:46.793Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:49:50.789Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:50:00.786Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:50:10.789Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:50:10.941Z] GET /api/salons/696a91dc05378937ad16375b/specialists
+🔍 Specialists for salon 696a91dc05378937ad16375b: found 0 (ownerId: undefined)
+🌐 [2026-01-31T20:50:13.702Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:50:16.790Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:50:17.576Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:50:17.735Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:50:18.557Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:50:27.583Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:50:30.285Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:50:30.456Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:50:30.619Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:50:40.286Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:50:43.708Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:50:46.791Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:50:50.777Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:51:00.293Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:51:10.290Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:51:13.783Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:51:17.781Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:51:20.782Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:51:30.553Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:51:35.021Z] GET /api/community/posts
+🌐 [2026-01-31T20:51:35.213Z] GET /uploads/community/1768566706072-887149647.png
+🌐 [2026-01-31T20:51:35.214Z] GET /uploads/community/1768566759012-102300146.png
+🌐 [2026-01-31T20:51:40.292Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:51:43.704Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:51:44.185Z] GET /api/community/posts/696a334abefb44d2e1f1d128/comments
+🌐 [2026-01-31T20:51:46.640Z] POST /api/community/posts/696a334abefb44d2e1f1d128/comments
+🌐 [2026-01-31T20:51:46.792Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:51:48.668Z] POST /api/community/posts/696a334abefb44d2e1f1d128/comments
+🌐 [2026-01-31T20:51:49.556Z] GET /api/community/posts/696a334abefb44d2e1f1d128/comments
+🌐 [2026-01-31T20:51:50.292Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:51:51.651Z] GET /api/community/posts/696a334abefb44d2e1f1d128/comments
+🌐 [2026-01-31T20:51:52.368Z] POST /api/community/posts/696a334abefb44d2e1f1d128/like
+🌐 [2026-01-31T20:52:00.779Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:52:10.399Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:52:13.702Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:52:16.797Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:52:20.743Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:52:30.293Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:52:40.300Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:52:43.706Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:52:46.795Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:52:50.296Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:53:00.303Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:53:10.303Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:53:13.701Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:53:16.802Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:53:20.297Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:53:30.785Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:53:34.686Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:53:34.851Z] GET /api/booking/my-bookings
+🌐 [2026-01-31T20:53:35.042Z] GET /api/available-slots?limit=30
+📅 Доступные слоты: найдено 0
+🌐 [2026-01-31T20:53:43.782Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:53:44.786Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:53:46.795Z] GET /api/public-stats
+📊 Статистика: клиенты=4, салоны=1, бронирования=3
+🌐 [2026-01-31T20:53:54.782Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:54:04.778Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com
+🌐 [2026-01-31T20:54:13.780Z] GET /api/messages/unread/count
+🌐 [2026-01-31T20:54:14.779Z] GET /api/profile
+👤 Запрос профиля пользователя: a.muradiani26@gmail.com

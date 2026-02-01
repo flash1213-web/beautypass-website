@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Beauty Pass - ჩვენ შესახებ. თბილისის საუკეთესო სილამაზის სალონების აბონემენტის პლატფორმა.">
+  <meta name="theme-color" content="#7c3aed">
+  <title>ჩვენ შესახებ</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700;800;900&family=Inter+Tight:wght@400;500;600;700;800;900&family=Roboto+Condensed:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20251224-DESIGN-UPDATE">
+  <link rel="icon" type="image/png" href="images/beautypass-logo.png">
+  
+  <style>
+    .about-hero {
+      background: linear-gradient(135deg, #1a0a2e 0%, #0f0f23 50%, #1a0a2e 100%);
+      padding: 120px 20px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .about-hero h1 {
+      font-size: 3rem;
+      background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+    .about-hero p {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .about-content {
+      padding: 60px 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .about-section {
+      margin-bottom: 60px;
+    }
+    .about-section h2 {
+      font-size: 2rem;
+      color: #8b5cf6;
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    .about-section h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #8b5cf6, #ec4899);
+      border-radius: 2px;
+    }
+    .about-section p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 15px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+    .feature-card {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(139, 92, 246, 0.5);
+      box-shadow: 0 10px 40px rgba(139, 92, 246, 0.2);
+    }
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    .feature-card h3 {
+      font-size: 1.3rem;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .feature-card p {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.95rem;
+    }
+    .team-section {
+      background: rgba(139, 92, 246, 0.05);
+      padding: 60px 20px;
+      border-radius: 20px;
+      margin: 40px 0;
+    }
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin: 40px 0;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      color: rgba(255,255,255,0.7);
+      font-size: 1rem;
+      margin-top: 5px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin-top: 30px;
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+    }
+    .contact-info {
+      background: rgba(139, 92, 246, 0.1);
+      border-radius: 16px;
+      padding: 30px;
+      margin-top: 30px;
+    }
+    .contact-info p {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .contact-info span {
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Navigation -->
+  <header id="mainHeader">
+    <nav class="navbar">
+      <div class="container nav-container">
+        <div class="logo" onclick="window.location.href='index.html'" style="cursor: pointer;">
+          <span class="logo-text">BeautyPass</span>
+        </div>
+        <div class="nav-links">
+          <a href="index.html">მთავარი</a>
+          <a href="index.html#salons">სალონები</a>
+          <a href="index.html#tariffs">ტარიფები</a>
+          <a href="about.html" class="active">ჩვენ შესახებ</a>
+          <a href="index.html#contact">კონტაქტი</a>
+        </div>
+        <div class="auth-actions">
+          <a href="index.html#client" class="btn btn-outline">შესვლა</a>
+          <a href="index.html#client" class="btn btn-primary">რეგისტრაცია</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- About Hero Section -->
+  <section class="about-hero">
+    <h1>✨ Beauty Pass — ჩვენ შესახებ</h1>
+    <p>თბილისის პრემიუმ სილამაზის სალონების ერთიანი აბონემენტის პლატფორმა</p>
+  </section>
+
+  <!-- About Content -->
+  <main class="about-content">
+    <!-- Mission Section -->
+    <div class="about-section">
+      <h2>🎯 ჩვენი მისია</h2>
+      <p>Beauty Pass შეიქმნა იმისთვის, რომ სილამაზის სერვისები ყველასთვის ხელმისაწვდომი გახადოს. ჩვენ გთავაზობთ ინოვაციურ აბონემენტის მოდელს, რომელიც საშუალებას გაძლევთ ისარგებლოთ თბილისის საუკეთესო სალონების სერვისებით ერთი ბარათით.</p>
+      <p>ჩვენი მიზანია შევქმნათ საზოგადოება, სადაც ყველას ექნება საშუალება იზრუნოს საკუთარ თავზე პრემიუმ ხარისხის სერვისებით, ხელმისაწვდომ ფასად.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-number">50+</div>
+        <div class="stat-label">პარტნიორი სალონი</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">10K+</div>
+        <div class="stat-label">კმაყოფილი მომხმარებელი</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100+</div>
+        <div class="stat-label">სერვისი</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">მხარდაჭერა</div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="about-section">
+      <h2>💎 რატომ Beauty Pass?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3>დაზოგვა</h3>
+          <p>დაზოგეთ 50%-მდე სილამაზის სერვისებზე აბონემენტის საშუალებით</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3>პრემიუმ სალონები</h3>
+          <p>მხოლოდ შერჩეული, მაღალი ხარისხის პარტნიორი სალონები</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>მარტივი დაჯავშნა</h3>
+          <p>დაჯავშნეთ ვიზიტი რამდენიმე დაწკაპუნებით, ნებისმიერ დროს</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎁</div>
+          <h3>ბონუს ქულები</h3>
+          <p>დააგროვეთ BP ქულები და მიიღეთ დამატებითი სარგებელი</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="about-section">
+      <h2>📋 როგორ მუშაობს?</h2>
+      <p><strong>1. რეგისტრაცია</strong> — შექმენით ანგარიში Beauty Pass-ზე უფასოდ</p>
+      <p><strong>2. აბონემენტის არჩევა</strong> — აირჩიეთ თქვენთვის შესაფერისი პაკეტი (Basic, Premium ან VIP)</p>
+      <p><strong>3. ვიზიტის დაჯავშნა</strong> — აირჩიეთ სალონი, სერვისი და მოსახერხებელი დრო</p>
+      <p><strong>4. ისარგებლეთ</strong> — ეწვიეთ სალონს და ისარგებლეთ პრემიუმ სერვისებით!</p>
+    </div>
+
+    <!-- Contact -->
+    <div class="about-section">
+      <h2>📞 კონტაქტი</h2>
+      <div class="contact-info">
+        <p><span>📧</span> info@beautypass.ge</p>
+        <p><span>📱</span> +995 599 XX XX XX</p>
+        <p><span>📍</span> თბილისი, საქართველო</p>
+        <p><span>🕐</span> ორშ-პარ: 10:00 - 20:00</p>
+      </div>
+    </div>
+
+    <!-- Back Button -->
+    <div style="text-align: center;">
+      <a href="index.html" class="back-btn">
+        ← მთავარ გვერდზე დაბრუნება
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer style="background: rgba(0,0,0,0.3); padding: 30px 20px; text-align: center; margin-top: 60px;">
+    <p style="color: rgba(255,255,255,0.6);">© 2026 Beauty Pass. ყველა უფლება დაცულია.</p>
+    <div style="margin-top: 15px;">
+      <a href="index.html#policy" style="color: rgba(255,255,255,0.5); margin: 0 15px; text-decoration: none;">კონფიდენციალურობა</a>
+      <a href="index.html#refund" style="color: rgba(255,255,255,0.5); margin: 0 15px; text-decoration: none;">დაბრუნების პოლიტიკა</a>
+    </div>
+  </footer>
+</body>
+</html>

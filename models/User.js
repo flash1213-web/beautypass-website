@@ -3,11 +3,15 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
     login: { type: String, required: true, unique: true },
-    personalNumber: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    personalNumber: { type: String, required: false, unique: true, sparse: true },
     password: { type: String, required: true },
     phone: { type: String, required: false },
     firstName: { type: String, required: false },
     lastName: { type: String, required: false },
+    twoFACode: { type: String },
+    twoFACodeExpires: { type: Date },
+    isEmailVerified: { type: Boolean, default: false },
     balance: { type: Number, default: 0 },
     purchases: [{
         id: Number,
